@@ -13,3 +13,5 @@
 @media(max-width:760px){.running .workspace{height:auto;max-height:none}.running .map-stage{height:360px;flex:none}.running .practice-panel{max-height:700px}.running .chips{max-height:240px}}
 .running .workspace{overflow-anchor:none}
 .chip.drag-source{opacity:.55}.chip{cursor:grab}.chip:active{cursor:grabbing}
+
+.drag-preview{position:fixed;z-index:10000;pointer-events:none}.chip{touch-action:none;user-select:none}
