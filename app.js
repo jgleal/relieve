@@ -1,5 +1,5 @@
 import {ITEMS} from './data.js';
-import {checkAnswer,shuffle,geometry,hit,layoutAnchors,closestAnchor} from './core.js';
+import {checkAnswer,shuffle,geometry,hit,layoutAnchors,closestAnchor,featureType,anchorChoices} from './core.js';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let saved={};try{saved=JSON.parse(localStorage.getItem('relieve-progress-v1')||'{}');if(!saved||typeof saved!=='object'||Array.isArray(saved))saved={};}catch{}
@@ -26,22 +26,22 @@ function pointMark(item,label=false,color='#b45332'){
  return `<g><circle cx="${x}" cy="${y}" r="${12*k}" fill="${color}" fill-opacity=".13"/><circle cx="${x}" cy="${y}" r="${4.5*k}" fill="${color}" stroke="#fffdf7" stroke-width="${1.5*k}"/>${label?`<text x="${x+11*k}" y="${y-10*k}" font-size="${12*k}">${esc(item.name)}</text>`:''}</g>`;
 }
 function nearestAnchor(p){return closestAnchor(anchors.filter(a=>!session.placed.has(a.item.id)),p,mapScale());}
-function highlightAnchor(p){const target=session&&mode==='drag'&&selected?nearestAnchor(p):null;$$('#marks [data-anchor]').forEach(g=>g.classList.toggle('hovered',g.dataset.anchor===target?.item.id));}
+function highlightAnchor(p){const target=session&&mode==='drag'?nearestAnchor(p):null;const tip=$('#anchor-tip');if(tip){tip.hidden=!target;tip.textContent=target?`Ancla ${target.index} · ${featureType(target.item)}`:'';}$$('#marks [data-anchor]').forEach(g=>g.classList.toggle('hovered',g.dataset.anchor===target?.item.id));}
 function renderMarks(){
- let html='';anchors=[];
+ $('#anchor-choice')?.remove();$('#anchor-tip')?.remove();let html='';anchors=[];
  if(session){
   if(mode==='drag'){
    anchors=layoutAnchors(session.anchorItems,base,dims,mapScale());const k=1/mapScale();
    html=anchors.map(a=>{
     const done=session.placed.has(a.item.id),hint=session.revealed&&selected?.id===a.item.id;
     const [x,y]=a.pos,[cx,cy]=a.center;
-    return `<g data-anchor="${a.item.id}" class="map-anchor ${done?'placed':''} ${hint?'hinted':''}">${Math.hypot(x-cx,y-cy)>k?`<line class="anchor-leader" x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#fffdf8" stroke-width="${3.5*k}"/><line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#375344" stroke-width="${1.25*k}"/><circle class="anchor-origin" cx="${cx}" cy="${cy}" r="${3*k}" fill="#375344" stroke="#fffdf8" stroke-width="${k}"/>`:""}<circle class="anchor-ring" cx="${x}" cy="${y}" r="${11*k}" stroke-width="${1.5*k}"/><text class="anchor-number" x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="${10*k}">${a.index}</text>${done?`<title>${esc(a.item.name)}</title>`:''}</g>`;
+    return `<g data-anchor="${a.item.id}" class="map-anchor ${done?'placed':''} ${hint?'hinted':''}">${Math.hypot(x-cx,y-cy)>k?`<line class="anchor-leader" x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#fffdf8" stroke-width="${3.5*k}"/><line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#375344" stroke-width="${1.25*k}"/><circle class="anchor-origin" cx="${cx}" cy="${cy}" r="${3*k}" fill="#375344" stroke="#fffdf8" stroke-width="${k}"/>`:""}<circle class="anchor-ring" cx="${x}" cy="${y}" r="${11*k}" stroke-width="${1.5*k}"/><text class="anchor-number" x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="${10*k}">${a.index}</text><title>${done?esc(a.item.name):`Ancla ${a.index} · ${featureType(a.item)}`}</title></g>`;
    }).join('');
   }else if(mode==='study'&&selected)html=pointMark(selected,true,'#315b46');
   else if(current()&&['write','challenge','review'].includes(mode))html=pointMark(current(),session.answered&&mode!=='challenge');
   else if(mode==='point'&&session.answered)html=pointMark(current(),true);
  }
- $('#marks').innerHTML=html;
+ $('#marks').innerHTML=html;if(session&&mode==='drag'){const tip=document.createElement('div');tip.id='anchor-tip';tip.hidden=true;tip.setAttribute('aria-live','polite');$('#map-stage').append(tip);}
 }
 function lock(on){$$('[data-scope],[data-mode]').forEach(b=>b.disabled=on);document.body.classList.toggle('running',on);}
 function start(){let items=filtered();if(!items.length)return;items=mode==='study'?items:shuffle(items);if(!['drag','study'].includes(mode)&&$('#count').value!=='all')items=items.slice(0,Number($('#count').value));session={items,anchorItems:shuffle(items),index:0,answers:[],answered:false,started:Date.now(),placed:new Set(),failed:new Set(),revealed:false};selected=mode==='study'?items[0]:null;$('#setup').hidden=true;$('#results').hidden=true;$('#game').hidden=false;lock(true);resetView();renderGame();renderMarks();}
@@ -52,7 +52,7 @@ function renderGame(){if(!session)return;const oldScroll=$('.chips')?.scrollTop|
  if(mode==='study')html+=`<div class="study-detail">${esc(selected?.name||'')}<br><small>${esc(selected?.group||'')} · ${esc(selected?.category||'')}</small></div><button class="secondary" id="focus-place">Acercar al lugar</button>`;
  else html+='<button class="secondary" id="reveal">Mostrar etiqueta seleccionada</button>';
  html+='<button class="text-button" id="finish">Terminar sesión</button>';
- }else{const i=current();html+=`<p class="question-context">${esc(i.group)} · ${esc(i.category)}</p><h2 class="question-title">${mode==='point'?esc(i.name):'¿Qué lugar es?'}</h2><p class="muted">${mode==='point'?'Haz clic en su ubicación. Puedes ampliar el mapa.':'Identifica el punto marcado en naranja.'}</p>`;
+ }else{const i=current();html+=`<p class="question-context">${esc(i.group)} · ${esc(i.category)}</p><h2 class="question-title">${mode==='point'?esc(i.name):`¿Qué ${featureType(i)} es?`}</h2><p class="muted">${mode==='point'?'Haz clic en su ubicación. Puedes ampliar el mapa.':'Identifica el punto marcado en naranja.'}</p>`;
  if(mode!=='point')html+='<form id="answer-form"><label for="answer">Tu respuesta</label><input id="answer" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Escribe el nombre…" required maxlength="120"><button class="primary" type="submit">'+(mode==='challenge'?'Guardar y continuar':'Comprobar')+' <span>↵</span></button></form>';
  else html+='<p class="keyboard-note">También puedes enfocar el mapa, mover el cursor con las flechas y pulsar Intro.</p>';
  html+='<div id="feedback" role="status" aria-live="polite"></div><button class="primary" id="next" hidden>Siguiente lugar <span>→</span></button>';
@@ -116,10 +116,18 @@ function answer(result,value){if(!session||session.answered)return;const item=cu
  $('#answer-form')?.querySelectorAll('input,button').forEach(e=>e.disabled=true);$('#reveal')?.setAttribute('disabled','');$('#skip')?.setAttribute('disabled','');$('#next').hidden=false;$('#next').textContent=session.index===session.items.length-1?'Ver resultados →':'Siguiente lugar →';renderMarks();$('#next').focus({preventScroll:true});}
 function reveal(){if(mode==='drag'){if(!selected){feedback('Selecciona primero una etiqueta.','warning');return;}session.failed.add(selected.id);session.revealed=true;feedback(`El ancla resaltada corresponde a <strong>${esc(selected.name)}</strong>. Colócala para continuar; quedará en tu repaso.`,'warning');renderMarks();}else answer({ok:false,kind:'reveal'},'Solución consultada');}
 function next(){session.index++;session.answered=false;cursor=null;$('#cursor').innerHTML='';if(session.index>=session.items.length){finish();return;}resetView();renderGame();renderMarks();}
-function place(p){if(!session||mode==='study')return;
+function place(p,confirmedId=null){if(!session||mode==='study')return;
  if(mode==='point'&&!session.answered){answer({ok:hit(current(),base,p),kind:'location'},'Ubicación en el mapa');return;}
  if(mode!=='drag')return;if(!selected){feedback('Selecciona primero una etiqueta.','warning');return;}if(session.placed.has(selected.id))return;
- const anchor=nearestAnchor(p);if(anchor?.item.id===selected.id){const ok=!session.failed.has(selected.id);session.placed.add(selected.id);session.answers.push({id:selected.id,name:selected.name,ok,kind:'location',value:ok?'Ubicación correcta':'Colocado tras un error o una pista'});persist(selected,ok);selected=null;session.revealed=false;renderGame();renderMarks();feedback(ok?'Bien colocado. Continúa con otra etiqueta.':'Colocado. Lo volveremos a practicar.');if(session.placed.size===session.items.length)finish();}
+ const choices=anchorChoices(anchors.filter(a=>!session.placed.has(a.item.id)),p,mapScale());
+ if(!confirmedId&&choices.length>1){
+  $('#anchor-choice')?.remove();const box=document.createElement('div');box.id='anchor-choice';box.setAttribute('role','group');box.setAttribute('aria-label','Precisar ancla');box.onkeydown=e=>{if(e.key==='Escape'){box.remove();$('#map').focus({preventScroll:true});}};
+  box.innerHTML='<strong>Hay varias anclas cerca.</strong><p>Elige una. Todavía no cuenta como intento.</p>'+choices.map(a=>`<button data-choice="${a.item.id}">Ancla ${a.index} · ${esc(featureType(a.item))}</button>`).join('')+'<button data-zoom>Ampliar zona</button><button data-cancel>Cancelar</button>';
+  $('#map-stage').append(box);box.querySelectorAll('[data-choice]').forEach(b=>b.onclick=()=>{box.remove();place(p,b.dataset.choice);});
+  box.querySelector('[data-zoom]').onclick=()=>zoom(.5,choices[0].center);box.querySelector('[data-cancel]').onclick=()=>box.remove();box.querySelector('button').focus({preventScroll:true});return;
+ }
+ $('#anchor-choice')?.remove();
+ const anchor=confirmedId?anchors.find(a=>a.item.id===confirmedId&&!session.placed.has(a.item.id)):nearestAnchor(p);if(anchor?.item.id===selected.id){const ok=!session.failed.has(selected.id);session.placed.add(selected.id);session.answers.push({id:selected.id,name:selected.name,ok,kind:'location',value:ok?'Ubicación correcta':'Colocado tras un error o una pista'});persist(selected,ok);selected=null;session.revealed=false;renderGame();renderMarks();feedback(ok?'Bien colocado. Continúa con otra etiqueta.':'Colocado. Lo volveremos a practicar.');if(session.placed.size===session.items.length)finish();}
  else{if(anchor)session.failed.add(selected.id);feedback(`${anchor?'Esa ancla no corresponde.':'Suelta la etiqueta sobre un ancla.'} Busca <strong>${esc(selected.name)}</strong>.`,'error');}
 }
 function finish(){if(!session)return;if(mode==='study'){back();return;}
@@ -133,7 +141,7 @@ function setMode(m){mode=m;$$('[data-mode]').forEach(b=>{b.classList.toggle('act
 function mapPoint(e){const p=$('#map').createSVGPoint();p.x=e.clientX;p.y=e.clientY;const q=p.matrixTransform($('#map').getScreenCTM().inverse());return [q.x,q.y];}
 $$('[data-scope]').forEach(b=>b.onclick=()=>{scope=b.dataset.scope;$$('[data-scope]').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-pressed',x===b);});updateFilters();back();setMap();});$$('[data-mode]').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));$('#base').onchange=()=>{base=$('#base').value;setMap();};$('#group').onchange=updateSetup;$('#category').onchange=updateSetup;$('#start').onclick=start;
 $('#zoom-in').onclick=()=>zoom(.7);$('#zoom-out').onclick=()=>zoom(1/.7);$('#zoom-reset').onclick=resetView;
-const svg=$('#map');svg.addEventListener('wheel',e=>{e.preventDefault();zoom(e.deltaY>0?1.15:1/1.15,mapPoint(e));},{passive:false});
+const svg=$('#map');svg.addEventListener('pointerleave',()=>{if($('#anchor-tip'))$('#anchor-tip').hidden=true;});svg.addEventListener('wheel',e=>{e.preventDefault();zoom(e.deltaY>0?1.15:1/1.15,mapPoint(e));},{passive:false});
 let suppressClick=false;svg.addEventListener('pointerdown',e=>{if(e.shiftKey||e.button===1){e.preventDefault();draggingPan={x:e.clientX,y:e.clientY,view:[...view]};suppressClick=true;svg.setPointerCapture(e.pointerId);}});svg.addEventListener('pointermove',e=>{if(!draggingPan)return;const s=svg.getScreenCTM();view=[draggingPan.view[0]-(e.clientX-draggingPan.x)/s.a,draggingPan.view[1]-(e.clientY-draggingPan.y)/s.d,view[2],view[3]];clampView();});svg.addEventListener('pointerup',()=>{draggingPan=null;setTimeout(()=>suppressClick=false,0);});svg.addEventListener('click',e=>{if(!suppressClick&&!e.shiftKey)place(mapPoint(e));});svg.addEventListener('pointermove',e=>{if(!draggingPan)highlightAnchor(mapPoint(e));});
 svg.addEventListener('keydown',e=>{if(!session||!['point','drag'].includes(mode))return;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();cursor??=[view[0]+view[2]/2,view[1]+view[3]/2];const step=view[2]/(e.shiftKey?200:60);if(e.key==='ArrowLeft')cursor[0]-=step;if(e.key==='ArrowRight')cursor[0]+=step;if(e.key==='ArrowUp')cursor[1]-=step;if(e.key==='ArrowDown')cursor[1]+=step;cursor=[Math.max(0,Math.min(dims[0],cursor[0])),Math.max(0,Math.min(dims[1],cursor[1]))];$('#cursor').innerHTML=`<circle cx="${cursor[0]}" cy="${cursor[1]}" r="${view[2]/100}" fill="none" stroke="#173f67" stroke-width="2"/>`; }else if(e.key==='Enter'&&cursor){e.preventDefault();place(cursor);}});
 $('#sources').onclick=()=>$('#about').showModal();$('#about .close').onclick=()=>$('#about').close();$('#about').addEventListener('click',e=>{if(e.target===$('#about')){const r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close();}});

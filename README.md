@@ -61,3 +61,5 @@ Los derechos de los mapas originales de la ficha corresponden a sus respectivos 
 ## Validación
 
 `npm test` verifica el inventario, nombres completos, alias, erratas, rechazo de genéricos y ambigüedades, centros de las 74 ubicaciones en ambas bases, corredores de cordilleras y puntos interiores/exteriores de la Meseta Central, además de la separación y detección de las anclas a diferentes escalas. La interfaz se comprueba además en navegador para escritura, arrastre, mapas originales y cambio de modos.
+
+Las preguntas indican el tipo concreto de accidente (pico, cordillera, sierra, sistema…). Las anclas muestran su tipo al pasar el cursor. Si hay varias anclas a menos de 32 píxeles, se solicita elegir por número y tipo o ampliar la zona, sin registrar un intento hasta confirmar.

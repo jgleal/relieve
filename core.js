@@ -51,3 +51,17 @@ export function layoutAnchors(items,base,dims,scale=1){
  return placed;
 }
 export function closestAnchor(anchors,p,scale=1){return anchors.map(a=>({a,d:Math.hypot(a.pos[0]-p[0],a.pos[1]-p[1])})).filter(o=>o.d<=17/scale).sort((a,b)=>a.d-b.d)[0]?.a;}
+
+export function featureType(item){
+ if(item.name==='Rift Valley')return 'valle';
+ if(item.name==='Tierra de Fuego')return 'archipiélago';
+ for(const type of ['sierra','sistema','macizo'])if(item.name.toLowerCase().startsWith(type+' '))return type;
+ const types={'Cordilleras':'cordillera','Picos':'pico','Mesetas':'meseta','Mares':'mar','Cabos':'cabo','Desiertos':'desierto','Golfos':'golfo'};
+ if(item.category==='Llanuras y cuencas')return /cuenca/i.test(item.name)?'cuenca':'llanura';
+ if(item.category==='Penínsulas e islas')return /pen[ií]nsula/i.test(item.name)?'península':'isla';
+ return types[item.category]||'accidente geográfico';
+}
+export function anchorChoices(anchors,p,scale=1){
+ const nearest=closestAnchor(anchors,p,scale);
+ return nearest?anchors.filter(a=>Math.hypot(a.pos[0]-nearest.pos[0],a.pos[1]-nearest.pos[1])*scale<=32).sort((a,b)=>a.index-b.index):[];
+}

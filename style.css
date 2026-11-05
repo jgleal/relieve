@@ -15,3 +15,6 @@
 .chip.drag-source{opacity:.55}.chip{cursor:grab}.chip:active{cursor:grabbing}
 
 .drag-preview{position:fixed;z-index:10000;pointer-events:none}.chip{touch-action:none;user-select:none}
+
+#anchor-tip{position:absolute;left:16px;top:16px;padding:8px 12px;background:#fffdf8;color:#284f41;border:1px solid #ccd1c5;border-radius:6px;pointer-events:none;font-size:13px;z-index:3}
+#anchor-choice{position:absolute;left:16px;bottom:52px;z-index:4;background:#fffdf8;border:1px solid #ccd1c5;border-radius:8px;padding:16px;box-shadow:0 6px 24px #233f3026;max-width:420px;max-height:230px;overflow:auto;font-size:14px}#anchor-choice p{margin:6px 0 12px}#anchor-choice button{display:inline-block;padding:8px 10px;margin:3px;border:1px solid #bfcbbb;border-radius:5px;background:#f3f4ec;color:#284f41;cursor:pointer}#anchor-choice button:hover,#anchor-choice button:focus-visible{background:#dfe8d7;outline:2px solid #315b46}
