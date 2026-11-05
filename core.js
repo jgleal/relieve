@@ -31,3 +31,23 @@ export function geometry(item,base){
 export function segmentDistance(p,a,b){const dx=b[0]-a[0],dy=b[1]-a[1],t=Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dy)/(dx*dx+dy*dy||1)));return Math.hypot(p[0]-a[0]-t*dx,p[1]-a[1]-t*dy);}
 export function insidePolygon(p,vertices){let inside=false;for(let i=0,j=vertices.length-1;i<vertices.length;j=i++){const a=vertices[i],b=vertices[j];if(segmentDistance(p,a,b)<.001)return true;if((a[1]>p[1])!==(b[1]>p[1])&&p[0]<(b[0]-a[0])*(p[1]-a[1])/(b[1]-a[1])+a[0])inside=!inside;}return inside;}
 export function hit(item,base,p){const g=geometry(item,base);if(g.rings)return g.rings.reduce((inside,ring)=>inside!==insidePolygon(p,ring),false);if(g.polygon)return insidePolygon(p,g.polygon);const dist=g.points?Math.min(...g.points.slice(1).map((b,i)=>segmentDistance(p,g.points[i],b))):Math.hypot(p[0]-g.center[0],p[1]-g.center[1]);return dist<=g.radius;}
+
+// Work in rendered pixels so anchor targets remain usable at any zoom level.
+export function layoutAnchors(items,base,dims,scale=1){
+ const k=1/scale,placed=[];
+ for(const item of items){
+  const center=geometry(item,base).center;let pos=center;
+  search:for(let ring=0;ring<20;ring++){
+   const steps=ring?24:1;
+   for(let n=0;n<steps;n++){
+    const angle=n/steps*Math.PI*2-Math.PI/2,r=ring*24*k;
+    const p=[center[0]+Math.cos(angle)*r,center[1]+Math.sin(angle)*r];
+    if(p[0]<13*k||p[0]>dims[0]-13*k||p[1]<13*k||p[1]>dims[1]-13*k)continue;
+    if(placed.every(a=>Math.hypot(a.pos[0]-p[0],a.pos[1]-p[1])>=28*k)){pos=p;break search;}
+   }
+  }
+  placed.push({item,center,pos,index:placed.length+1});
+ }
+ return placed;
+}
+export function closestAnchor(anchors,p,scale=1){return anchors.map(a=>({a,d:Math.hypot(a.pos[0]-p[0],a.pos[1]-p[1])})).filter(o=>o.d<=17/scale).sort((a,b)=>a.d-b.d)[0]?.a;}

@@ -6,12 +6,12 @@ Práctica de geografía física para escritorio: **52 elementos del relieve mund
 
 ## Modos
 
-- **Escribe:** identifica la zona señalada; sesiones aleatorias de 5, 10, 20 o todos los lugares disponibles.
+- **Escribe:** identifica el punto señalado; sesiones aleatorias de 5, 10, 20 o todos los lugares disponibles.
 - **Localiza:** lee un nombre y señala su ubicación.
-- **Mapa mudo:** arrastra etiquetas al mapa, o selecciona una y haz clic. Usa todos los elementos del filtro elegido.
+- **Mapa mudo:** arrastra etiquetas a anclas mudas numeradas, o selecciona una y haz clic en el ancla. Usa todos los elementos del filtro elegido.
 - **Reto:** escribe los nombres y consulta la corrección al finalizar.
 - **Repasa fallos:** vuelve sobre las últimas respuestas incorrectas. Un acierto posterior sin ayuda saca el elemento de este modo.
-- **Explora:** consulta nombres y zonas sin puntuación.
+- **Explora:** consulta nombres y puntos de referencia sin puntuación.
 
 Filtra por continente y tipo de relieve; cambia entre cartografía en color y el mapa original incluso durante una sesión. El número real de preguntas se limita a los elementos disponibles.
 
@@ -21,9 +21,9 @@ Se ignoran mayúsculas, tildes, puntuación y espacios repetidos. Se aceptan ali
 
 Los términos genéricos como **meseta**, **sierra**, **cordillera** o **cabo** nunca bastan para identificar un lugar. **Bética** sí es una abreviación identificativa. **Central** es ambiguo entre Meseta Central y Sistema Central: se pide completar. **Siberia** no distingue las dos unidades. Las respuestas incompletas o ambiguas permiten precisar sin contarse como acierto. En Reto también se pide precisión, sin revelar la solución.
 
-En Localiza y Mapa mudo la misma geometría que se muestra es la que se utiliza para corregir. Las grandes superficies usan polígonos; las cordilleras, corredores; los picos y cabos, un radio de tolerancia. Son **zonas didácticas aproximadas dibujadas a mano**, no delimitaciones oficiales. Los contornos se pueden revisar en `data.js` y las transformaciones en `core.js`. La Meseta Central es la excepción: utiliza la geometría de «La Meseta» de la capa oficial del Atlas Didáctico del IGN, con sus anillos interiores. La geometría se simplifica a 0,02 grados mediante el servicio de origen; la adaptación al mapa original es una transformación de segundo orden a partir de 12 puntos costeros identificados manualmente (registro aproximado, no georreferenciación oficial). Los datos y puntos de control están en `sources/`; los anillos generados, en `meseta.js`. El planisferio original se registra mediante su retícula de meridianos y paralelos.
+Se muestran únicamente puntos de referencia, sin superficies coloreadas. En **Localiza**, la tolerancia interna usa polígonos para grandes superficies, corredores para cordilleras y radios para picos y cabos. En **Mapa mudo**, el destino es el ancla numerada del elemento: cada ancla mide 22 píxeles, tiene una tolerancia de 17 píxeles y se separa de sus vecinas para evitar solapamientos. Si se desplaza visualmente, una línea la une al punto geográfico real. La numeración y la lista de etiquetas se mezclan de forma independiente para no revelar las soluciones por orden. Soltar fuera de cualquier ancla no penaliza; escoger una ancla incorrecta sí. Son **zonas didácticas aproximadas dibujadas a mano**, no delimitaciones oficiales. Los contornos se pueden revisar en `data.js` y las transformaciones en `core.js`. La Meseta Central es la excepción: utiliza la geometría de «La Meseta» de la capa oficial del Atlas Didáctico del IGN, con sus anillos interiores. La geometría se simplifica a 0,02 grados mediante el servicio de origen; la adaptación al mapa original es una transformación de segundo orden a partir de 12 puntos costeros identificados manualmente (registro aproximado, no georreferenciación oficial). Los datos y puntos de control están en `sources/`; los anillos generados, en `meseta.js`. El planisferio original se registra mediante su retícula de meridianos y paralelos.
 
-Un error previo o consultar una solución deja el lugar pendiente de repaso aunque después se coloque bien. Los lugares no intentados no se cuentan como fallos. Las sesiones sin respuestas muestran cero intentos; no se presenta una nota ficticia.
+Un error previo o consultar una solución deja el lugar pendiente de repaso aunque después se coloque bien. Los lugares no intentados no se cuentan como fallos. Las sesiones sin respuestas muestran cero intentos; no se presenta una nota ficticia. El panel de avisos y el botón de continuar reservan espacio, y la altura del mapa permanece fija durante la ronda para evitar que los destinos se muevan al corregir.
 
 ## Uso
 
@@ -60,4 +60,4 @@ Los derechos de los mapas originales de la ficha corresponden a sus respectivos 
 
 ## Validación
 
-`npm test` verifica el inventario, nombres completos, alias, erratas, rechazo de genéricos y ambigüedades, centros de las 74 ubicaciones en ambas bases, corredores de cordilleras y puntos interiores/exteriores de la Meseta Central. La interfaz se comprueba además en navegador para escritura, arrastre, mapas originales y cambio de modos.
+`npm test` verifica el inventario, nombres completos, alias, erratas, rechazo de genéricos y ambigüedades, centros de las 74 ubicaciones en ambas bases, corredores de cordilleras y puntos interiores/exteriores de la Meseta Central, además de la separación y detección de las anclas a diferentes escalas. La interfaz se comprueba además en navegador para escritura, arrastre, mapas originales y cambio de modos.
