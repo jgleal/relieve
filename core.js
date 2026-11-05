@@ -23,11 +23,11 @@ export function geometry(item,base){
  const scope=item.scope;const p=project(item.lon,item.lat,scope,base);
  if(scope==='iberia'&&base==='original'){
   const c=[item.original[0]*1000,item.original[1]*712.4];
-  return {center:c,polygon:item.originalPolygon,points:item.path?.map(([x,y])=>[c[0]+(x-item.lon)*62,c[1]-(y-item.lat)*76]),radius:Math.max(10,item.radius*74)};
+  return {center:c,polygon:item.originalPolygon,rings:item.originalRings,points:item.path?.map(([x,y])=>[c[0]+(x-item.lon)*62,c[1]-(y-item.lat)*76]),radius:Math.max(10,item.radius*74)};
  }
  const rp=project(item.lon,item.lat+item.radius,scope,base);
- return {center:p,polygon:item.polygon?.map(([x,y])=>project(x,y,scope,base)),points:item.path?.map(([x,y])=>project(x,y,scope,base)),radius:Math.max(scope==='world'?5:10,Math.abs(rp[1]-p[1]))};
+ return {center:p,polygon:item.polygon?.map(([x,y])=>project(x,y,scope,base)),rings:item.rings?.map(r=>r.map(([x,y])=>project(x,y,scope,base))),points:item.path?.map(([x,y])=>project(x,y,scope,base)),radius:Math.max(scope==='world'?5:10,Math.abs(rp[1]-p[1]))};
 }
 export function segmentDistance(p,a,b){const dx=b[0]-a[0],dy=b[1]-a[1],t=Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dy)/(dx*dx+dy*dy||1)));return Math.hypot(p[0]-a[0]-t*dx,p[1]-a[1]-t*dy);}
 export function insidePolygon(p,vertices){let inside=false;for(let i=0,j=vertices.length-1;i<vertices.length;j=i++){const a=vertices[i],b=vertices[j];if(segmentDistance(p,a,b)<.001)return true;if((a[1]>p[1])!==(b[1]>p[1])&&p[0]<(b[0]-a[0])*(p[1]-a[1])/(b[1]-a[1])+a[0])inside=!inside;}return inside;}
-export function hit(item,base,p){const g=geometry(item,base);if(g.polygon)return insidePolygon(p,g.polygon);const dist=g.points?Math.min(...g.points.slice(1).map((b,i)=>segmentDistance(p,g.points[i],b))):Math.hypot(p[0]-g.center[0],p[1]-g.center[1]);return dist<=g.radius;}
+export function hit(item,base,p){const g=geometry(item,base);if(g.rings)return g.rings.reduce((inside,ring)=>inside!==insidePolygon(p,ring),false);if(g.polygon)return insidePolygon(p,g.polygon);const dist=g.points?Math.min(...g.points.slice(1).map((b,i)=>segmentDistance(p,g.points[i],b))):Math.hypot(p[0]-g.center[0],p[1]-g.center[1]);return dist<=g.radius;}

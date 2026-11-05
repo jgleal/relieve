@@ -1,6 +1,6 @@
 # Relieve
 
-Práctica de geografía física para escritorio: **52 elementos del relieve mundial** y **22 de la Península Ibérica**, correspondientes a las actividades 2 y 3 del taller aportado.
+Práctica de geografía física para escritorio: **52 elementos del relieve mundial** y **22 de la Península Ibérica**, basados en la ficha original.
 
 **Web:** https://jgleal.github.io/relieve/
 
@@ -21,7 +21,7 @@ Se ignoran mayúsculas, tildes, puntuación y espacios repetidos. Se aceptan ali
 
 Los términos genéricos como **meseta**, **sierra**, **cordillera** o **cabo** nunca bastan para identificar un lugar. **Bética** sí es una abreviación identificativa. **Central** es ambiguo entre Meseta Central y Sistema Central: se pide completar. **Siberia** no distingue las dos unidades. Las respuestas incompletas o ambiguas permiten precisar sin contarse como acierto. En Reto también se pide precisión, sin revelar la solución.
 
-En Localiza y Mapa mudo la misma geometría que se muestra es la que se utiliza para corregir. Las grandes superficies usan polígonos; las cordilleras, corredores; los picos y cabos, un radio de tolerancia. Son **zonas didácticas aproximadas dibujadas a mano**, no delimitaciones oficiales. Los contornos se pueden revisar en `data.js` y las transformaciones en `core.js`. La Meseta Central dispone de un polígono registrado independientemente sobre el mapa original para respetar su proyección. El planisferio original se registra mediante su retícula de meridianos y paralelos.
+En Localiza y Mapa mudo la misma geometría que se muestra es la que se utiliza para corregir. Las grandes superficies usan polígonos; las cordilleras, corredores; los picos y cabos, un radio de tolerancia. Son **zonas didácticas aproximadas dibujadas a mano**, no delimitaciones oficiales. Los contornos se pueden revisar en `data.js` y las transformaciones en `core.js`. La Meseta Central es la excepción: utiliza la geometría de «La Meseta» de la capa oficial del Atlas Didáctico del IGN, con sus anillos interiores. La geometría se simplifica a 0,02 grados mediante el servicio de origen; la adaptación al mapa original es una transformación de segundo orden a partir de 12 puntos costeros identificados manualmente (registro aproximado, no georreferenciación oficial). Los datos y puntos de control están en `sources/`; los anillos generados, en `meseta.js`. El planisferio original se registra mediante su retícula de meridianos y paralelos.
 
 Un error previo o consultar una solución deja el lugar pendiente de repaso aunque después se coloque bien. Los lugares no intentados no se cuentan como fallos. Las sesiones sin respuestas muestran cero intentos; no se presenta una nota ficticia.
 
@@ -54,7 +54,7 @@ Incluye favicon SVG, imagen social JPEG de 1200 × 630, metadatos en español y 
 
 - **Ficha proporcionada:** «Taller 2_Geografía Física_Relieve.pdf». Se han recortado y orientado sus dos mapas; no se publica el PDF completo. El cabo de la Nao figuraba dos veces: aquí hay una entrada. Se conserva la nomenclatura de la ficha. «Cabo Verde» identifica el cabo senegalés, no el archipiélago; «Alpes del Sur», la cordillera de Nueva Zelanda.
 - **Natural Earth II with Shaded Relief and Water**, 1:10m, versión 3.2.0: https://www.naturalearthdata.com/downloads/10m-raster-data/10m-natural-earth-2/ — datos de dominio público. Descarga original: https://naturalearth.s3.amazonaws.com/10m_raster/NE2_LR_LC_SR_W.zip . Se generaron recortes equirectangulares en WebP; el mundo abarca −180°/180°, −60°/90° y la Península −11°/4,5°, 35°/45,5°.
-- **IGN, Atlas Didáctico**, referencia para las unidades peninsulares: https://educativo.ign.es/atlas-didactico/relieve-bach/caractersticas_del_relieve_espaol.html y https://educativo.ign.es/atlas-didactico/relieve-bach/los_rebordes_montaosos_perifricos.html . Los polígonos son aproximaciones propias; no proceden de una descarga vectorial oficial del IGN.
+- **IGN, Atlas Didáctico**, referencia para las unidades peninsulares: https://educativo.ign.es/atlas-didactico/relieve-bach/caractersticas_del_relieve_espaol.html y https://educativo.ign.es/atlas-didactico/relieve-bach/los_rebordes_montaosos_perifricos.html . Salvo la Meseta, los polígonos son aproximaciones propias. **Meseta Central:** geometría de «La Meseta», capa `1114`, objeto `5` del servicio https://mapas-tematicos.ign.es/servicios/rest/services/tematicos/Medio_natural/MapServer/1114 . Crédito: © IGN, Atlas Didáctico; licencia CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/). Modificaciones: simplificación a 0,02 grados y registro sobre la ficha original. La clasificación cartográfica de esta capa separa las superficies meseteñas de las unidades montañosas; no se debe interpretar como un límite geológico universal.
 
 Los derechos de los mapas originales de la ficha corresponden a sus respectivos autores. La condición de dominio público de Natural Earth no se extiende a esos recortes. La imagen social se ha compuesto con cartografía de Natural Earth y tipografía.
 

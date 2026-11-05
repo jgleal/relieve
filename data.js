@@ -1,3 +1,4 @@
+import {MESETA_RINGS, MESETA_ORIGINAL_RINGS} from './meseta.js';
 // Geographic centres and teaching corridors; coordinates are [longitude, latitude].
 // Corridors are approximate learning zones, not administrative boundaries.
 const rows = [
@@ -89,7 +90,7 @@ export const ITEMS = [
 // Meseta Central follows the interior between the Cantabrian/Iberian rim and
 // Sierra Morena, including both submesetas (IGN Atlas Didáctico).
 const areas = {
- i9:[[-7.1,41.7],[-6.3,42.5],[-4.9,42.7],[-3.6,42.5],[-2.9,41.9],[-2.6,41.3],[-2.1,40.6],[-1.4,39.9],[-1.4,39.1],[-2.2,38.5],[-3.5,38.4],[-4.8,38.2],[-6.5,38.5],[-7.2,39.2],[-6.8,40.0],[-6.9,40.8]],
+
  w2:[[78,34],[80,36],[87,37],[94,36],[99,32],[96,29],[88,28.5],[82,30]],
  w3:[[45,35],[48,38],[56,37],[63,35],[67,32],[61,28],[56,27],[49,30]],
  w4:[[85,68],[94,71],[109,70],[118,65],[112,57],[103,53],[92,56],[86,62]],
@@ -104,6 +105,9 @@ const areas = {
  w51:[[122,-28],[126,-27],[132,-28],[134,-30],[131,-32],[125,-31],[122,-30]]
 };
 for(const item of ITEMS)if(areas[item.id]){item.polygon=areas[item.id];item.path=null;}
-// Independent registration on the original worksheet image (1057 × 753).
-// This preserves the original map's projection rather than stretching a disk.
-ITEMS.find(i=>i.id==='i9').originalPolygon=[[287,224],[323,163],[410,137],[506,158],[551,207],[573,257],[611,310],[660,372],[657,436],[604,489],[521,503],[430,514],[297,490],[240,430],[282,366],[280,295]].map(([x,y])=>[x/1057*1000,y/753*712.4]);
+// IGN's teaching extent supersedes the initial hand-drawn Meseta approximation.
+const meseta = ITEMS.find(i=>i.id==='i9');
+meseta.path = null;
+meseta.rings = MESETA_RINGS;
+meseta.originalRings = MESETA_ORIGINAL_RINGS;
+meseta.source = 'IGN · Atlas Didáctico · CC BY 4.0';
