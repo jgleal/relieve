@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://jgleal.github.io/relieve/sitemap.xml
