@@ -27,7 +27,7 @@ Un error previo o consultar una solución deja el lugar pendiente de repaso aunq
 
 ## Uso
 
-1. Elige actividad, mapa, modo y filtros.
+1. Elige ámbito geográfico, mapa, modo y filtros.
 2. Inicia la sesión.
 3. Rueda del ratón o botones +/− para ampliar; Mayús + arrastrar para desplazar; ⤢ restablece la vista.
 4. En Localiza o Mapa mudo también puedes enfocar el mapa con Tab, mover el cursor con las flechas y pulsar Intro. Mayús + flecha hace ajustes finos.
