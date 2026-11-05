@@ -34,7 +34,7 @@ export function hit(item,base,p){const g=geometry(item,base);if(g.rings)return g
 
 // Work in rendered pixels so anchor targets remain usable at any zoom level.
 export function layoutAnchors(items,base,dims,scale=1){
- const k=1/scale,placed=[];
+ const k=1/scale,placed=[],centers=items.map(item=>({id:item.id,p:geometry(item,base).center}));
  for(const item of items){
   const center=geometry(item,base).center;let pos=center;
   search:for(let ring=0;ring<20;ring++){
@@ -43,7 +43,7 @@ export function layoutAnchors(items,base,dims,scale=1){
     const angle=n/steps*Math.PI*2-Math.PI/2,r=ring*24*k;
     const p=[center[0]+Math.cos(angle)*r,center[1]+Math.sin(angle)*r];
     if(p[0]<13*k||p[0]>dims[0]-13*k||p[1]<13*k||p[1]>dims[1]-13*k)continue;
-    if(placed.every(a=>Math.hypot(a.pos[0]-p[0],a.pos[1]-p[1])>=28*k)){pos=p;break search;}
+    if(placed.every(a=>Math.hypot(a.pos[0]-p[0],a.pos[1]-p[1])>=24*k)&&(!ring||centers.every(c=>c.id===item.id||Math.hypot(c.p[0]-p[0],c.p[1]-p[1])>=24*k))){pos=p;break search;}
    }
   }
   placed.push({item,center,pos,index:placed.length+1});

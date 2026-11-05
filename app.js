@@ -35,7 +35,7 @@ function renderMarks(){
    html=anchors.map(a=>{
     const done=session.placed.has(a.item.id),hint=session.revealed&&selected?.id===a.item.id;
     const [x,y]=a.pos,[cx,cy]=a.center;
-    return `<g data-anchor="${a.item.id}" class="map-anchor ${done?'placed':''} ${hint?'hinted':''}"><line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#546b5b" stroke-opacity=".65" stroke-width="${k}"/><circle cx="${cx}" cy="${cy}" r="${2*k}" fill="#375344"/><circle class="anchor-ring" cx="${x}" cy="${y}" r="${11*k}" stroke-width="${1.5*k}"/><text class="anchor-number" x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="${10*k}">${a.index}</text>${done?`<title>${esc(a.item.name)}</title>`:''}</g>`;
+    return `<g data-anchor="${a.item.id}" class="map-anchor ${done?'placed':''} ${hint?'hinted':''}">${Math.hypot(x-cx,y-cy)>k?`<line class="anchor-leader" x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#fffdf8" stroke-width="${3.5*k}"/><line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#375344" stroke-width="${1.25*k}"/><circle class="anchor-origin" cx="${cx}" cy="${cy}" r="${3*k}" fill="#375344" stroke="#fffdf8" stroke-width="${k}"/>`:""}<circle class="anchor-ring" cx="${x}" cy="${y}" r="${11*k}" stroke-width="${1.5*k}"/><text class="anchor-number" x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="${10*k}">${a.index}</text>${done?`<title>${esc(a.item.name)}</title>`:''}</g>`;
    }).join('');
   }else if(mode==='study'&&selected)html=pointMark(selected,true,'#315b46');
   else if(current()&&['write','challenge','review'].includes(mode))html=pointMark(current(),session.answered&&mode!=='challenge');
@@ -62,8 +62,22 @@ function renderGame(){if(!session)return;const oldScroll=$('.chips')?.scrollTop|
  }
  $('#game').innerHTML=html;if($('.chips'))$('.chips').scrollTop=oldScroll;
  $('#answer-form')?.addEventListener('submit',e=>{e.preventDefault();submitText();});$('#next')?.addEventListener('click',next);$('#skip')?.addEventListener('click',()=>answer({ok:false,kind:'skip'},'Sin respuesta'));$('#reveal')?.addEventListener('click',reveal);$('#finish').onclick=finish;$('#focus-place')?.addEventListener('click',focusPlace);
- $$('.chip').forEach(b=>{b.onclick=()=>selectItem(b.dataset.item);b.ondragstart=e=>{selected=session.items.find(i=>i.id===b.dataset.item);e.dataTransfer.setData('text/plain',selected.id);e.dataTransfer.effectAllowed='move';b.classList.add('selected');session.revealed=false;renderMarks();};});
+ $$('.chip').forEach(b=>{b.onclick=()=>selectItem(b.dataset.item);b.ondragstart=e=>{selected=session.items.find(i=>i.id===b.dataset.item);e.dataTransfer.setData('text/plain',selected.id);e.dataTransfer.effectAllowed='move';dragPreview=compactDragImage(selected.name);e.dataTransfer.setDragImage(dragPreview,7,16);b.classList.add('selected','drag-source');session.revealed=false;renderMarks();};b.ondragend=()=>{dragPreview=null;b.classList.remove('drag-source');$$('#marks .hovered').forEach(g=>g.classList.remove('hovered'));};});
  if(mode!=='point'&&!['drag','study'].includes(mode))$('#answer')?.focus({preventScroll:true});
+}
+// A small name pill follows a precise hotspot instead of the full sidebar button.
+let dragPreview=null;
+function compactDragImage(name){
+ const canvas=document.createElement('canvas'),ctx=canvas.getContext('2d');
+ ctx.font='12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+ let text=name;
+ while(ctx.measureText(text).width>215)text=text.slice(0,-2)+'…';
+ const width=Math.ceil(ctx.measureText(text).width)+22;
+ canvas.width=width+22;canvas.height=32;
+ ctx.fillStyle='#284f41';ctx.beginPath();ctx.roundRect(19,2,width,28,6);ctx.fill();
+ ctx.fillStyle='#fffefa';ctx.font='12px -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';ctx.textBaseline='middle';ctx.fillText(text,30,16);
+ ctx.fillStyle='#bf603d';ctx.beginPath();ctx.arc(7,16,4,0,Math.PI*2);ctx.fill();ctx.strokeStyle='#fffefa';ctx.lineWidth=1.5;ctx.stroke();
+ return canvas;
 }
 function selectItem(id){selected=session.items.find(i=>i.id===id);session.revealed=false;renderGame();renderMarks();}
 function focusPlace(){const i=mode==='study'?selected:current();if(!i)return;const g=geometry(i,base),w=dims[0]/(scope==='world'?4:2.5);view=[g.center[0]-w/2,g.center[1]-w*dims[1]/dims[0]/2,w,w*dims[1]/dims[0]];clampView();}
