@@ -1,4 +1,10 @@
-# Geometría de la Meseta
+# Cartografía y tolerancias de localización
+
+La app muestra puntos, no áreas coloreadas. Solo **Localiza** usa geometrías internas para decidir si una ubicación es válida: polígonos para grandes superficies, corredores para cordilleras y radios para elementos puntuales. Son aproximaciones didácticas propias, salvo la Meseta descrita abajo. **Mapa mudo** comprueba el ancla elegida; no usa estas superficies.
+
+Las referencias están en `data.js` y las transformaciones en `core.js`. El planisferio original se registra mediante su retícula de meridianos y paralelos. Los anillos de la Meseta se generan en `meseta.js`.
+
+## Geometría de la Meseta
 
 Fuente: Instituto Geográfico Nacional, Atlas Didáctico, capa «Unidades del relieve», entidad «La Meseta».
 
