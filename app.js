@@ -45,21 +45,29 @@ function renderMarks(){
 }
 function lock(on){$$('[data-scope],[data-mode]').forEach(b=>b.disabled=on);document.body.classList.toggle('running',on);}
 function start(){let items=filtered();if(!items.length)return;items=mode==='study'?items:shuffle(items);if(!['drag','study'].includes(mode)&&$('#count').value!=='all')items=items.slice(0,Number($('#count').value));session={items,anchorItems:shuffle(items),index:0,answers:[],answered:false,started:Date.now(),placed:new Set(),failed:new Set(),revealed:false};selected=mode==='study'?items[0]:null;$('#setup').hidden=true;$('#results').hidden=true;$('#game').hidden=false;lock(true);resetView();renderGame();renderMarks();}
-function progressHtml(){const done=mode==='drag'?session.placed.size:session.index;return `<div class="question-number"><span>${mode==='challenge'?'RETO':mode==='study'?'EXPLORACIÓN':'PRÁCTICA'}</span><span>${mode==='study'?session.items.length:done} / ${session.items.length}</span></div><div class="session-progress"><div style="width:${done/session.items.length*100}%"></div></div>`;}
-function renderGame(){if(!session)return;$('#game').classList.toggle('has-chips',['drag','study'].includes(mode));const oldScroll=$('.chips')?.scrollTop||0;let html=progressHtml();
+function progressHtml(){
+ const done=mode==='drag'?session.placed.size:session.index;
+ const label={write:'Escribe',point:'Localiza',drag:'Mapa mudo',challenge:'Reto',review:'Repasa fallos',study:'Explora'}[mode];
+ return `<div class="question-number"><span>${label}</span><span>${mode==='study'?`${session.items.length} lugares`:`<b>${done}</b> / ${session.items.length}`}</span></div>${mode==='study'?'':`<div class="session-progress"><div style="width:${done/session.items.length*100}%"></div></div>`}`;
+}
+function renderGame(){
+ if(!session)return;
+ $('#game').classList.toggle('has-chips',['drag','study'].includes(mode));
+ const oldScroll=$('.chips')?.scrollTop||0;let html=progressHtml();
  if(['drag','study'].includes(mode)){
- html+=`<h2>${mode==='drag'?'Cada nombre, en su lugar.':'Conoce el terreno.'}</h2><p class="muted">${mode==='drag'?'Arrastra cada etiqueta a un ancla numerada. También puedes seleccionar la etiqueta y hacer clic en el ancla.':'Elige un lugar para mostrar un punto de referencia.'}</p><div class="chips">${session.items.map(i=>`<button class="chip ${selected?.id===i.id?'selected':''} ${session.placed.has(i.id)?'solved':''}" data-item="${i.id}" draggable="false" ${session.placed.has(i.id)?'disabled':''}>${session.placed.has(i.id)?'✓ '+(session.anchorItems.findIndex(a=>a.id===i.id)+1)+' · ':''}${esc(i.name)}</button>`).join('')}</div><div id="feedback" role="status" aria-live="polite"></div>`;
- if(mode==='study')html+=`<div class="study-detail">${esc(selected?.name||'')}<br><small>${esc(selected?.group||'')} · ${esc(selected?.category||'')}</small></div><button class="secondary" id="focus-place">Acercar al lugar</button>`;
- else html+='<button class="secondary" id="reveal">Ver ancla de la etiqueta</button>';
- html+='<button class="text-button" id="finish">Terminar sesión</button>';
- }else{const i=current();html+=`<p class="question-context">${esc(i.group)} · ${esc(i.category)}</p><h2 class="question-title">${mode==='point'?esc(i.name):`¿Qué ${featureType(i)} es?`}</h2><p class="muted">${mode==='point'?'Haz clic en su ubicación. Puedes ampliar el mapa.':'Identifica el punto marcado en naranja.'}</p>`;
- if(mode!=='point')html+='<form id="answer-form"><label for="answer">Tu respuesta</label><input id="answer" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Escribe el nombre…" required maxlength="120"><button class="primary" type="submit">'+(mode==='challenge'?'Guardar y continuar':'Comprobar')+' <span>↵</span></button></form>';
- else html+='<p class="keyboard-note">También puedes enfocar el mapa, mover el cursor con las flechas y pulsar Intro.</p>';
- html+='<div id="feedback" role="status" aria-live="polite"></div><button class="primary" id="next" hidden>Siguiente lugar <span>→</span></button>';
- html+='<div class="action-row">'+(mode!=='challenge'?'<button class="text-button" id="reveal">Ver solución</button>':'')+'<button class="text-button" id="skip">Saltar</button></div>';
- if(mode!=='point')html+='<button class="secondary" id="focus-place">Acercar al punto</button>';
- html+='<button class="text-button" id="finish">Terminar sesión</button>';
+  html+=`<div class="task-heading"><h2>${mode==='drag'?'Cada nombre, en su lugar.':'Conoce el terreno.'}</h2><p class="muted">${mode==='drag'?'Arrastra al número o selecciona una etiqueta y pulsa su ancla.':'Elige un lugar para verlo en el mapa.'}</p></div><div class="chips" aria-label="Lista de lugares">${session.items.map(i=>`<button class="chip ${selected?.id===i.id?'selected':''} ${session.placed.has(i.id)?'solved':''}" data-item="${i.id}" draggable="false" ${session.placed.has(i.id)?'disabled':''}><span>${esc(i.name)}</span><span class="chip-mark" aria-hidden="true">${session.placed.has(i.id)?'✓ '+(session.anchorItems.findIndex(a=>a.id===i.id)+1):mode==='drag'?'⠿':'↗'}</span></button>`).join('')}</div>`;
+  if(mode==='study')html+=`<div class="study-detail"><strong>${esc(selected?.name||'')}</strong><small>${esc(selected?.group||'')} · ${esc(selected?featureType(selected):'')}</small></div>`;
+  html+='<div class="session-controls"><div id="feedback" role="status" aria-live="polite"></div>';
+  html+=mode==='study'?'<button class="secondary" id="focus-place">Acercar al lugar <span>↗</span></button>':'<button class="secondary" id="reveal">Ver ancla de la etiqueta <span>↗</span></button>';
+ }else{
+  const i=current();html+=`<div class="question-block"><div class="question-context"><span>${esc(i.group)}</span><span>${esc(featureType(i))}</span></div><h2 class="question-title">${mode==='point'?esc(i.name):`¿Qué ${featureType(i)} es?`}</h2>`;
+  if(mode==='point')html+='<div class="map-instruction"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg><div><strong>Señala su ubicación</strong><span>Haz clic en el mapa. Puedes ampliarlo.</span></div></div>';
+  else html+='<p class="muted">Pon nombre al punto naranja.</p><form id="answer-form"><label for="answer">Tu respuesta</label><input id="answer" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Escribe el nombre…" required maxlength="120"><button class="primary" type="submit">'+(mode==='challenge'?'Guardar y continuar':'Comprobar')+' <span>↵</span></button></form>';
+  html+='</div><div class="session-controls"><div id="feedback" role="status" aria-live="polite"></div><button class="primary" id="next" hidden>Siguiente lugar <span>→</span></button><div class="action-row">'+(mode!=='challenge'?'<button class="secondary" id="reveal">Ver solución</button>':'')+'<button class="secondary" id="skip">Saltar <span>→</span></button></div>';
+  if(mode!=='point')html+='<button class="text-button focus-button" id="focus-place">Acercar al punto ↗</button>';
+  else html+='<details class="keyboard-help"><summary>Usar el teclado</summary><p>Enfoca el mapa con <kbd>Tab</kbd>, mueve el cursor con las flechas y confirma con <kbd>Intro</kbd>.</p></details>';
  }
+ html+='<button class="text-button" id="finish">Terminar sesión</button></div>';
  $('#game').innerHTML=html;if($('.chips'))$('.chips').scrollTop=oldScroll;
  $('#answer-form')?.addEventListener('submit',e=>{e.preventDefault();submitText();});$('#next')?.addEventListener('click',next);$('#skip')?.addEventListener('click',()=>answer({ok:false,kind:'skip'},'Sin respuesta'));$('#reveal')?.addEventListener('click',reveal);$('#finish').onclick=finish;$('#focus-place')?.addEventListener('click',focusPlace);
  $$('.chip').forEach(b=>{
