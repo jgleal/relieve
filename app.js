@@ -1,5 +1,5 @@
 import {ITEMS} from './data.js';
-import {checkAnswer,shuffle,geometry,hit,layoutAnchors,closestAnchor,featureType,anchorChoices} from './core.js';
+import {checkAnswer,shuffle,mapPosition,hit,layoutAnchors,closestAnchor,featureType,anchorChoices} from './core.js';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let saved={};try{saved=JSON.parse(localStorage.getItem('relieve-progress-v1')||'{}');if(!saved||typeof saved!=='object'||Array.isArray(saved))saved={};}catch{}
@@ -22,7 +22,7 @@ function clampView(){view[0]=Math.max(0,Math.min(dims[0]-view[2],view[0]));view[
 function current(){return session?.items[session.index];}
 function mapScale(){return $('#map').getScreenCTM()?.a||1;}
 function pointMark(item,label=false,color='#b45332'){
- const [x,y]=geometry(item,base).center, k=1/mapScale();
+ const [x,y]=mapPosition(item,base), k=1/mapScale();
  return `<g><circle cx="${x}" cy="${y}" r="${12*k}" fill="${color}" fill-opacity=".13"/><circle cx="${x}" cy="${y}" r="${4.5*k}" fill="${color}" stroke="#fffdf7" stroke-width="${1.5*k}"/>${label?`<text x="${x+11*k}" y="${y-10*k}" font-size="${12*k}">${esc(item.name)}</text>`:''}</g>`;
 }
 function nearestAnchor(p){return closestAnchor(anchors.filter(a=>!session.placed.has(a.item.id)),p,mapScale());}
@@ -46,9 +46,9 @@ function renderMarks(){
 function lock(on){$$('[data-scope],[data-mode]').forEach(b=>b.disabled=on);document.body.classList.toggle('running',on);}
 function start(){let items=filtered();if(!items.length)return;items=mode==='study'?items:shuffle(items);if(!['drag','study'].includes(mode)&&$('#count').value!=='all')items=items.slice(0,Number($('#count').value));session={items,anchorItems:shuffle(items),index:0,answers:[],answered:false,started:Date.now(),placed:new Set(),failed:new Set(),revealed:false};selected=mode==='study'?items[0]:null;$('#setup').hidden=true;$('#results').hidden=true;$('#game').hidden=false;lock(true);resetView();renderGame();renderMarks();}
 function progressHtml(){const done=mode==='drag'?session.placed.size:session.index;return `<div class="question-number"><span>${mode==='challenge'?'RETO':mode==='study'?'EXPLORACIÓN':'PRÁCTICA'}</span><span>${mode==='study'?session.items.length:done} / ${session.items.length}</span></div><div class="session-progress"><div style="width:${done/session.items.length*100}%"></div></div>`;}
-function renderGame(){if(!session)return;const oldScroll=$('.chips')?.scrollTop||0;let html=progressHtml();
+function renderGame(){if(!session)return;$('#game').classList.toggle('has-chips',['drag','study'].includes(mode));const oldScroll=$('.chips')?.scrollTop||0;let html=progressHtml();
  if(['drag','study'].includes(mode)){
- html+=`<h2>${mode==='drag'?'Cada nombre, en su lugar.':'Conoce el terreno.'}</h2><p class="muted">${mode==='drag'?'Arrastra cada etiqueta a un ancla numerada. También puedes seleccionar la etiqueta y hacer clic en el ancla.':'Elige un lugar para mostrar un punto de referencia.'}</p><div class="chips">${session.items.map((i,n)=>`<button class="chip ${selected?.id===i.id?'selected':''} ${session.placed.has(i.id)?'solved':''}" data-item="${i.id}" draggable="${mode==='drag'&&!session.placed.has(i.id)}" ${session.placed.has(i.id)?'disabled':''}>${session.placed.has(i.id)?'✓ '+(session.anchorItems.findIndex(a=>a.id===i.id)+1)+' · ':''}${esc(i.name)}</button>`).join('')}</div><div id="feedback" role="status" aria-live="polite"></div>`;
+ html+=`<h2>${mode==='drag'?'Cada nombre, en su lugar.':'Conoce el terreno.'}</h2><p class="muted">${mode==='drag'?'Arrastra cada etiqueta a un ancla numerada. También puedes seleccionar la etiqueta y hacer clic en el ancla.':'Elige un lugar para mostrar un punto de referencia.'}</p><div class="chips">${session.items.map(i=>`<button class="chip ${selected?.id===i.id?'selected':''} ${session.placed.has(i.id)?'solved':''}" data-item="${i.id}" draggable="false" ${session.placed.has(i.id)?'disabled':''}>${session.placed.has(i.id)?'✓ '+(session.anchorItems.findIndex(a=>a.id===i.id)+1)+' · ':''}${esc(i.name)}</button>`).join('')}</div><div id="feedback" role="status" aria-live="polite"></div>`;
  if(mode==='study')html+=`<div class="study-detail">${esc(selected?.name||'')}<br><small>${esc(selected?.group||'')} · ${esc(selected?.category||'')}</small></div><button class="secondary" id="focus-place">Acercar al lugar</button>`;
  else html+='<button class="secondary" id="reveal">Ver ancla de la etiqueta</button>';
  html+='<button class="text-button" id="finish">Terminar sesión</button>';
@@ -64,7 +64,6 @@ function renderGame(){if(!session)return;const oldScroll=$('.chips')?.scrollTop|
  $('#answer-form')?.addEventListener('submit',e=>{e.preventDefault();submitText();});$('#next')?.addEventListener('click',next);$('#skip')?.addEventListener('click',()=>answer({ok:false,kind:'skip'},'Sin respuesta'));$('#reveal')?.addEventListener('click',reveal);$('#finish').onclick=finish;$('#focus-place')?.addEventListener('click',focusPlace);
  $$('.chip').forEach(b=>{
   let moved=false;
-  b.draggable=false;
   b.onclick=()=>{if(!moved)selectItem(b.dataset.item);};
   b.onpointerdown=e=>{
    if(mode!=='drag'||e.button!==0||b.disabled)return;
@@ -107,7 +106,7 @@ function compactDragImage(name){
  return canvas;
 }
 function selectItem(id){selected=session.items.find(i=>i.id===id);session.revealed=false;renderGame();renderMarks();}
-function focusPlace(){const i=mode==='study'?selected:current();if(!i)return;const g=geometry(i,base),w=dims[0]/(scope==='world'?4:2.5);view=[g.center[0]-w/2,g.center[1]-w*dims[1]/dims[0]/2,w,w*dims[1]/dims[0]];clampView();}
+function focusPlace(){const i=mode==='study'?selected:current();if(!i)return;const center=mapPosition(i,base),w=dims[0]/(scope==='world'?4:2.5);view=[center[0]-w/2,center[1]-w*dims[1]/dims[0]/2,w,w*dims[1]/dims[0]];clampView();}
 function feedback(html,type=''){const el=$('#feedback');if(el){el.className='feedback '+type;el.innerHTML=html;}}
 function submitText(){if(!session||session.answered)return;const value=$('#answer').value.trim();if(!value)return;const result=checkAnswer(value,current(),pool());if(['generic','ambiguous'].includes(result.kind)){feedback(result.kind==='generic'?'Eso indica el tipo de relieve. Añade el nombre que identifica el lugar.':'Ese nombre es ambiguo. Añade una palabra más para identificar el lugar.','warning');return;}answer(result,value);}
 function answer(result,value){if(!session||session.answered)return;const item=current();session.answers.push({id:item.id,name:item.name,...result,value});session.answered=true;persist(item,result.ok);if(mode==='challenge'){next();return;}

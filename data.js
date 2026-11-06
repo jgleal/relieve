@@ -1,13 +1,12 @@
-import {MESETA_RINGS, MESETA_ORIGINAL_RINGS} from './meseta.js';
 // Geographic centres and teaching corridors; coordinates are [longitude, latitude].
 // Corridors are approximate learning zones, not administrative boundaries.
 const rows = [
 ['Cordillera del Himalaya','Asia','Cordilleras',85,29,'himalaya',[[73,35],[80,30],[88,28],[96,28]],2],
 ['Everest','Asia','Picos',86.925,27.988,'',null,.6],
-['Meseta del Tíbet','Asia','Mesetas',88,33,'tibet',[[80,33],[87,34],[94,33]],3],
-['Meseta de Irán','Asia','Mesetas',54,32,'iran',[[48,34],[55,32],[61,31]],2.5],
-['Gran Meseta de Siberia Central','Asia','Mesetas',100,64,'meseta de siberia central|siberia central',[[90,65],[100,64],[110,62]],4],
-['Gran Llanura de Siberia Occidental','Asia','Llanuras y cuencas',72,60,'llanura de siberia occidental|siberia occidental',[[68,55],[72,61],[76,67]],4],
+['Meseta del Tíbet', 'Asia', 'Mesetas', 88, 33, 'tibet', null, 3],
+['Meseta de Irán', 'Asia', 'Mesetas', 54, 32, 'iran', null, 2.5],
+['Gran Meseta de Siberia Central', 'Asia', 'Mesetas', 100, 64, 'meseta de siberia central|siberia central', null, 4],
+['Gran Llanura de Siberia Occidental', 'Asia', 'Llanuras y cuencas', 72, 60, 'llanura de siberia occidental|siberia occidental', null, 4],
 ['Península de Indochina','Asia','Penínsulas e islas',104,17,'indochina',[[100,20],[104,17],[106,12]],2],
 ['Península de Corea','Asia','Penínsulas e islas',127.5,38,'corea',[[126,40],[128,36]],1.1],
 ['Mar Caspio','Asia','Mares',51,42,'caspio',[[51,46],[50,42],[52,38]],1.4],
@@ -15,11 +14,11 @@ const rows = [
 ['Montañas Rocosas','América','Cordilleras',-111,44,'rocosas',[[ -124,55],[-116,49],[-110,43],[-106,36]],2],
 ['Montes Apalaches','América','Cordilleras',-80,37,'apalaches',[[-85,33],[-80,38],[-72,44]],1.4],
 ['Cordillera de los Andes','América','Cordilleras',-68.2,-21,'andes',[[-73,8],[-77,-1],[-75,-10],[-68,-20],[-70,-32],[-72,-45],[-70,-53]],1.8],
-['Escudo Canadiense','América','Mesetas',-90,55,'escudo canadiense|canadiense',[[-105,59],[-95,55],[-82,51],[-70,54]],4],
+['Escudo Canadiense', 'América', 'Mesetas', -90, 55, 'escudo canadiense|canadiense', null, 4],
 ['Aconcagua','América','Picos',-70.01,-32.65,'',null,.7],
 ['Macizo de las Guayanas','América','Cordilleras',-62,5,'guayanas|macizo guayanes',[[-66,5],[-60,5],[-55,3]],2],
-['Meseta Brasileña','América','Mesetas',-47,-16,'brasilena|meseta de brasil',[[-51,-13],[-47,-18],[-44,-21]],3],
-['Cuenca del Amazonas','América','Llanuras y cuencas',-62,-4,'amazonas|cuenca amazonica',[[-72,-5],[-63,-4],[-53,-3]],3],
+['Meseta Brasileña', 'América', 'Mesetas', -47, -16, 'brasilena|meseta de brasil', null, 3],
+['Cuenca del Amazonas', 'América', 'Llanuras y cuencas', -62, -4, 'amazonas|cuenca amazonica', null, 3],
 ['Península de Alaska','América','Penínsulas e islas',-157,57,'alaska',[[-155,59],[-159,56]],1.2],
 ['Península del Labrador','América','Penínsulas e islas',-66,55,'labrador',null,3],
 ['Península de Florida','América','Penínsulas e islas',-81.5,27,'florida',null,1],
@@ -29,11 +28,11 @@ const rows = [
 ['Desierto de Atacama','América','Desiertos',-69.5,-24,'atacama',[[-70,-20],[-69.5,-24],[-70,-28]],1.2],
 ['Montes Atlas','África','Cordilleras',-5,32,'atlas',[[-9,30],[-5,33],[1,35],[8,35]],1.4],
 ['Montes Drakensberg','África','Cordilleras',29,-29,'drakensberg',[[28,-31],[29,-29],[30,-26]],1.2],
-['Meseta del Lago Victoria','África','Mesetas',33,-1,'meseta del victoria|lago victoria|victoria',null,3],
+['Meseta del Lago Victoria', 'África', 'Mesetas', 33, -1, 'meseta del victoria|lago victoria|victoria', null, 3],
 ['Macizo Etiópico','África','Cordilleras',38,10,'etiopico|macizo etiope',[[37,13],[39,8]],2],
 ['Macizo de Ahaggar','África','Cordilleras',5.5,23.3,'ahaggar|hoggar',null,2],
 ['Kilimanjaro','África','Picos',37.35,-3.07,'kilimanjaro',null,.7],
-['Cuenca del Chad','África','Llanuras y cuencas',17,14,'chad',[[14,13],[18,16]],3],
+['Cuenca del Chad', 'África', 'Llanuras y cuencas', 17, 14, 'chad', null, 3],
 ['Rift Valley','África','Llanuras y cuencas',35,0,'valle del rift|rift|gran valle del rift',[[40,11],[36,4],[35,-4],[34,-12]],1.5],
 ['Cabo de Buena Esperanza','África','Cabos',18.5,-34.36,'buena esperanza',null,.7],
 ['Cabo Verde','África','Cabos',-17.5,14.7,'verde',null,.7],
@@ -48,12 +47,12 @@ const rows = [
 ['Aneto','Europa','Picos',.657,42.632,'',null,.5],
 ['Elbrus','Europa','Picos',42.44,43.35,'',null,.5],
 ['Balcanes','Europa','Cordilleras',25,42.7,'montes balcanes',[[22.5,43],[25,42.7],[28,42.8]],.9],
-['Gran Llanura Europea','Europa','Llanuras y cuencas',25,53,'llanura europea|llanura de europa',[ [4,52],[16,53],[28,54],[40,55],[50,55]],2.5],
+['Gran Llanura Europea', 'Europa', 'Llanuras y cuencas', 25, 53, 'llanura europea|llanura de europa', null, 2.5],
 ['Cabo de Finisterre','Europa','Cabos',-9.27,42.88,'finisterre|fisterra',null,.5],
 ['Gran Cordillera Divisoria','Oceanía','Cordilleras',149,-28,'cordillera divisoria|divisoria',[[145,-16],[148,-23],[151,-29],[149,-36]],1.4],
 ['Alpes del Sur','Oceanía','Cordilleras',170.5,-43.5,'alpes del sur|alpes meridionales',[[168,-45],[170.5,-43.5],[172,-42]],.8],
-['Gran Desierto de Arena','Oceanía','Desiertos',125,-20,'desierto de arena|gran desierto arenoso',[[121,-20],[127,-21]],2],
-['Gran Desierto Victoria','Oceanía','Desiertos',129,-29,'desierto victoria|desierto de victoria|victoria',[[124,-29],[131,-29]],2]
+['Gran Desierto de Arena', 'Oceanía', 'Desiertos', 125, -20, 'desierto de arena|gran desierto arenoso', null, 2],
+['Gran Desierto Victoria', 'Oceanía', 'Desiertos', 129, -29, 'desierto victoria|desierto de victoria|victoria', null, 2]
 ];
 const iberia = [
 // name, lon, lat, alias, original-map x/y in pixels, corridor lon/lat, width degrees
@@ -66,7 +65,7 @@ const iberia = [
 ['Cordillera Bética',-3.5,37.4,'betica|beticas|cordilleras beticas|sistemas beticos',530,575,[[-5.4,36.7],[-4,37],[-3,37.7],[-1.5,38.1],[-.3,38.6]],.3],
 ['Sierra de Cazorla',-2.95,37.9,'cazorla',553,521,[[-3.05,37.7],[-2.8,38.1]],.16],
 ['Sierra de Grazalema',-5.4,36.76,'grazalema',374,614,null,.15],
-['Meseta Central',-4.5,40,'central',440,365,[[-5,41.5],[-4.5,40],[-4,39]],.75],
+['Meseta Central',-4.5,40,'central',440,365,null,.75],
 ['Picos de Europa',-4.85,43.2,'picos de europa',440,96,null,.16],
 ['Montes de León',-6.4,42.4,'leon',318,163,[[-7,42.3],[-6,42.5]],.2],
 ['Golfo de Vizcaya',-3,44,'vizcaya',543,35,null,.5],
@@ -85,11 +84,10 @@ export const ITEMS = [
  ...iberia.map((r,i)=>({id:`i${i}`,scope:'iberia',name:r[0],group:'Península Ibérica',category:i<12?(i===9?'Mesetas':'Cordilleras'):i<16?'Golfos':'Cabos',lon:r[1],lat:r[2],aliases:r[3].split('|'),original:[r[4]/1057,r[5]/753],path:r[6],radius:r[7]}))
 ];
 
-// Broad surface features use polygons, not buffered centre lines.
-// Hand-traced teaching extents, deliberately simplified at this map scale.
-// Meseta Central follows the interior between the Cantabrian/Iberian rim and
-// Sierra Morena, including both submesetas (IGN Atlas Didáctico).
+// Approximate learning areas for Localiza only; never drawn on the map.
+// These deliberately broad shapes are not official geographic boundaries.
 const areas = {
+ i9:[[-6.5,41.7],[-6,42.3],[-4,42.7],[-2.5,41.7],[-1.8,40.8],[-1.1,39.3],[-2,38.5],[-4.7,38.5],[-6.9,39.1],[-7,40.1]],
 
  w2:[[78,34],[80,36],[87,37],[94,36],[99,32],[96,29],[88,28.5],[82,30]],
  w3:[[45,35],[48,38],[56,37],[63,35],[67,32],[61,28],[56,27],[49,30]],
@@ -104,10 +102,11 @@ const areas = {
  w50:[[120,-19],[125,-18],[129,-20],[129,-23],[124,-23],[120,-21]],
  w51:[[122,-28],[126,-27],[132,-28],[134,-30],[131,-32],[125,-31],[122,-30]]
 };
-for(const item of ITEMS)if(areas[item.id]){item.polygon=areas[item.id];item.path=null;}
-// IGN's teaching extent supersedes the initial hand-drawn Meseta approximation.
-const meseta = ITEMS.find(i=>i.id==='i9');
-meseta.path = null;
-meseta.rings = MESETA_RINGS;
-meseta.originalRings = MESETA_ORIGINAL_RINGS;
-meseta.source = 'IGN · Atlas Didáctico · CC BY 4.0';
+// Original-map areas are registered directly in that image's coordinates.
+const originalAreas = {
+ i9:[[260,210],[340,160],[530,170],[600,260],[650,440],[540,520],[360,505],[240,420],[260,310]].map(([x,y])=>[x/1057*1000,y/753*712.4])
+};
+for(const item of ITEMS){
+ if(areas[item.id])item.polygon=areas[item.id];
+ if(originalAreas[item.id])item.originalPolygon=originalAreas[item.id];
+}

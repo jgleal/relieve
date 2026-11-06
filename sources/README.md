@@ -1,19 +1,19 @@
 # Cartografía y tolerancias de localización
 
-La app muestra puntos, no áreas coloreadas. Solo **Localiza** usa geometrías internas para decidir si una ubicación es válida: polígonos para grandes superficies, corredores para cordilleras y radios para elementos puntuales. Son aproximaciones didácticas propias, salvo la Meseta descrita abajo. **Mapa mudo** comprueba el ancla elegida; no usa estas superficies.
+La app muestra puntos, no áreas coloreadas. Solo **Localiza** usa geometrías para decidir si una ubicación es válida:
 
-Las referencias están en `data.js` y las transformaciones en `core.js`. El planisferio original se registra mediante su retícula de meridianos y paralelos. Los anillos de la Meseta se generan en `meseta.js`.
+- Polígonos sencillos para superficies amplias.
+- Recorridos con margen para cordilleras y otros accidentes alargados.
+- Radios de tolerancia para elementos puntuales.
 
-## Geometría de la Meseta
+Son aproximaciones didácticas propias, no límites oficiales. Pueden solaparse: una sierra y la cordillera de la que forma parte pueden ocupar el mismo lugar. La Meseta Central usa un polígono amplio que cubre ambas submesetas, sin excluir las unidades montañosas interiores. El mapa original dispone de su propio polígono trazado en coordenadas de la imagen. No se descarga ni procesa cartografía externa durante el uso.
 
-Fuente: Instituto Geográfico Nacional, Atlas Didáctico, capa «Unidades del relieve», entidad «La Meseta».
+**Mapa mudo** comprueba el ancla elegida; no utiliza superficies de acierto. Escribe, Reto y Explora también usan únicamente puntos de referencia.
 
-- Contexto y licencia CC BY 4.0: https://educativo.ign.es/atlas-didactico/relieve-bach/las_grandes_unidades_del_relieve_peninsular.html
-- Servicio: https://mapas-tematicos.ign.es/servicios/rest/services/tematicos/Medio_natural/MapServer/1114
-- Consulta: `/query?f=geojson&where=OBJECTID%3D5&outFields=Nombre%2CDescripc&outSR=4326&geometryPrecision=4&maxAllowableOffset=0.02`
+## Organización del código
 
-`meseta-ign.geojson` conserva la respuesta del servicio: un polígono con un anillo interior. Se solicitó una simplificación de 0,02 grados y cuatro decimales, suficiente para este mapa de práctica. La geometría diferencia las superficies meseteñas de las unidades montañosas interiores: no es un perímetro administrativo ni una frontera geológica universal.
+- `data.js`: nombres, puntos y tolerancias. Los polígonos sustituyen a los recorridos donde corresponde, sin mantener dos modelos para el mismo elemento.
+- `core.js`: `mapPosition` proyecta el punto que se muestra; `geometry` y `hit` calculan la tolerancia de Localiza.
+- `app.js`: presenta los puntos y gestiona los modos de juego.
 
-`original-map-registration.json` documenta los doce puntos costeros y el ajuste polinómico que adapta el contorno a la imagen de la ficha. Es un registro manual aproximado. El fondo del mapa original conserva las deformaciones de su reproducción; la transformación no convierte ese fondo en una cartografía oficial.
-
-Crédito de la geometría: © IGN, Atlas Didáctico. CC BY 4.0, https://creativecommons.org/licenses/by/4.0/. Adaptaciones: simplificación y transformación a coordenadas de la ficha. Las geometrías del resto de elementos son aproximaciones didácticas propias.
+El planisferio original se registra mediante su retícula de meridianos y paralelos. Las posiciones peninsulares se marcan directamente sobre el mapa original. Los fondos en color proceden de Natural Earth II (dominio público); los derechos de los mapas originales corresponden a sus autores. Los enlaces y créditos de los fondos están en el README principal.

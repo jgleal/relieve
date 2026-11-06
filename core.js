@@ -19,24 +19,31 @@ export function project(lon,lat,scope,base){
  if(scope==='world')return base==='original'?[(676+4*lon)/1435*1200,(618-229*Math.log(Math.tan(Math.PI/4+lat*Math.PI/360)))/1022*855]:[(lon+180)/360*1200,(90-lat)/150*500];
  return [(lon+11)/15.5*1000,(45.5-lat)/10.5*885];
 }
+export function mapPosition(item,base){
+ return item.scope==='iberia'&&base==='original'
+  ? [item.original[0]*1000,item.original[1]*712.4]
+  : project(item.lon,item.lat,item.scope,base);
+}
+// Tolerances are evaluated only by Localiza. Other modes use mapPosition.
 export function geometry(item,base){
- const scope=item.scope;const p=project(item.lon,item.lat,scope,base);
- if(scope==='iberia'&&base==='original'){
-  const c=[item.original[0]*1000,item.original[1]*712.4];
-  return {center:c,polygon:item.originalPolygon,rings:item.originalRings,points:item.path?.map(([x,y])=>[c[0]+(x-item.lon)*62,c[1]-(y-item.lat)*76]),radius:Math.max(10,item.radius*74)};
- }
+ const center=mapPosition(item,base),scope=item.scope;
+ if(scope==='iberia'&&base==='original')return {
+  center,polygon:item.originalPolygon,
+  points:item.path?.map(([x,y])=>[center[0]+(x-item.lon)*62,center[1]-(y-item.lat)*76]),
+  radius:Math.max(10,item.radius*74)
+ };
  const rp=project(item.lon,item.lat+item.radius,scope,base);
- return {center:p,polygon:item.polygon?.map(([x,y])=>project(x,y,scope,base)),rings:item.rings?.map(r=>r.map(([x,y])=>project(x,y,scope,base))),points:item.path?.map(([x,y])=>project(x,y,scope,base)),radius:Math.max(scope==='world'?5:10,Math.abs(rp[1]-p[1]))};
+ return {center,polygon:item.polygon?.map(([x,y])=>project(x,y,scope,base)),points:item.path?.map(([x,y])=>project(x,y,scope,base)),radius:Math.max(scope==='world'?5:10,Math.abs(rp[1]-center[1]))};
 }
 export function segmentDistance(p,a,b){const dx=b[0]-a[0],dy=b[1]-a[1],t=Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dy)/(dx*dx+dy*dy||1)));return Math.hypot(p[0]-a[0]-t*dx,p[1]-a[1]-t*dy);}
 export function insidePolygon(p,vertices){let inside=false;for(let i=0,j=vertices.length-1;i<vertices.length;j=i++){const a=vertices[i],b=vertices[j];if(segmentDistance(p,a,b)<.001)return true;if((a[1]>p[1])!==(b[1]>p[1])&&p[0]<(b[0]-a[0])*(p[1]-a[1])/(b[1]-a[1])+a[0])inside=!inside;}return inside;}
-export function hit(item,base,p){const g=geometry(item,base);if(g.rings)return g.rings.reduce((inside,ring)=>inside!==insidePolygon(p,ring),false);if(g.polygon)return insidePolygon(p,g.polygon);const dist=g.points?Math.min(...g.points.slice(1).map((b,i)=>segmentDistance(p,g.points[i],b))):Math.hypot(p[0]-g.center[0],p[1]-g.center[1]);return dist<=g.radius;}
+export function hit(item,base,p){const g=geometry(item,base);if(g.polygon)return insidePolygon(p,g.polygon);const dist=g.points?Math.min(...g.points.slice(1).map((b,i)=>segmentDistance(p,g.points[i],b))):Math.hypot(p[0]-g.center[0],p[1]-g.center[1]);return dist<=g.radius;}
 
 // Work in rendered pixels so anchor targets remain usable at any zoom level.
 export function layoutAnchors(items,base,dims,scale=1){
- const k=1/scale,placed=[],centers=items.map(item=>({id:item.id,p:geometry(item,base).center}));
+ const k=1/scale,placed=[],centers=items.map(item=>({id:item.id,p:mapPosition(item,base)}));
  for(const item of items){
-  const center=geometry(item,base).center;let pos=center;
+  const center=mapPosition(item,base);let pos=center;
   search:for(let ring=0;ring<20;ring++){
    const steps=ring?24:1;
    for(let n=0;n<steps;n++){
