@@ -37,7 +37,7 @@ export function geometry(item,base){
 }
 export function segmentDistance(p,a,b){const dx=b[0]-a[0],dy=b[1]-a[1],t=Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dy)/(dx*dx+dy*dy||1)));return Math.hypot(p[0]-a[0]-t*dx,p[1]-a[1]-t*dy);}
 export function insidePolygon(p,vertices){let inside=false;for(let i=0,j=vertices.length-1;i<vertices.length;j=i++){const a=vertices[i],b=vertices[j];if(segmentDistance(p,a,b)<.001)return true;if((a[1]>p[1])!==(b[1]>p[1])&&p[0]<(b[0]-a[0])*(p[1]-a[1])/(b[1]-a[1])+a[0])inside=!inside;}return inside;}
-export function hit(item,base,p){const g=geometry(item,base);if(g.polygon)return insidePolygon(p,g.polygon);const dist=g.points?Math.min(...g.points.slice(1).map((b,i)=>segmentDistance(p,g.points[i],b))):Math.hypot(p[0]-g.center[0],p[1]-g.center[1]);return dist<=g.radius;}
+export function hit(item,base,p,minRadius=0){const g=geometry(item,base);if(g.polygon)return insidePolygon(p,g.polygon)||g.polygon.some((a,i)=>segmentDistance(p,a,g.polygon[(i+1)%g.polygon.length])<=minRadius);const dist=g.points?Math.min(...g.points.slice(1).map((b,i)=>segmentDistance(p,g.points[i],b))):Math.hypot(p[0]-g.center[0],p[1]-g.center[1]);return dist<=Math.max(g.radius,minRadius);}
 
 // Work in rendered pixels so anchor targets remain usable at any zoom level.
 export function layoutAnchors(items,base,dims,scale=1){

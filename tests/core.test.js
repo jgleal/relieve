@@ -20,3 +20,16 @@ test('questions distinguish peaks, ranges and their component sierras',async()=>
 test('nearby anchor choice is independent of the answer and respects zoom',async()=>{const {anchorChoices}=await import('../core.js');const a=[{index:1,pos:[50,50]},{index:2,pos:[74,50]},{index:3,pos:[120,50]}];assert.deepEqual(anchorChoices(a,[50,50]).map(x=>x.index),[1,2]);assert.deepEqual(anchorChoices(a,[50,50],2).map(x=>x.index),[1]);assert.deepEqual(anchorChoices(a,[0,0]),[]);});
 
 test('Finisterre uses the cape reference and the correct headland on the original',async()=>{const {mapPosition}=await import('../core.js');const cape=named('Cabo de Finisterre');assert.deepEqual(mapPosition(cape,'original'),[168/1057*1000,109/753*712.4]);assert.equal(cape.lon,-9.272194);assert.equal(cape.lat,42.8825);for(const item of ITEMS)assert.deepEqual(mapPosition(item,'terrain'),mapPosition(item,'natural'));});
+
+test('screen-space tolerance prevents tiny targets without growing with zoom',()=>{
+ const peak=named('Everest',world),center=geometry(peak,'terrain').center;
+ for(const scale of [.4,1,3]){
+  const p=[center[0]+16/scale,center[1]];
+  assert.equal(hit(peak,'terrain',p,18/scale),true);
+  assert.equal(hit(peak,'terrain',[center[0]+24/scale,center[1]],18/scale),false);
+ }
+ const meseta=named('Meseta Central'),g=geometry(meseta,'terrain');
+ const west=Math.min(...g.polygon.map(p=>p[0]));const vertex=g.polygon.find(p=>p[0]===west);
+ assert.equal(hit(meseta,'terrain',[vertex[0]-10,vertex[1]],18),true);
+ assert.equal(hit(meseta,'terrain',[vertex[0]-25,vertex[1]],18),false);
+});

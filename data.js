@@ -74,8 +74,8 @@ const iberia = [
 ['Golfo de Alicante',-.4,38.3,'alicante',760,490,null,.23],
 ['Cabo de Finisterre',-9.272194,42.8825,'finisterre|fisterra',168,109,null,.12],
 ['Cabo de San Vicente',-8.995,37.025,'san vicente',143,606,null,.12],
-['Cabo de Gata',-2.193,36.721,'gata',610,623,null,.12],
-['Cabo de Trafalgar',-6.034,36.183,'trafalgar',329,658,null,.12],
+['Cabo de Gata',-2.193,36.721,'gata',612,643,null,.12],
+['Cabo de Trafalgar',-6.034,36.183,'trafalgar',344,686,null,.12],
 ['Cabo de la Nao',.23,38.73,'nao',773,464,null,.12],
 ['Cabo de Roca',-9.5,38.78,'roca|cabo da roca|cabo de la roca',117,455,null,.12]
 ];

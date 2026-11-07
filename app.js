@@ -15,7 +15,8 @@ function updateFilters(){
 }
 function updateSetup(){const n=filtered().length;$('#available').textContent=`${n} ${n===1?'lugar disponible':'lugares disponibles'}${mode==='review'&&n===0?' · No tienes lugares pendientes de repaso en esta selección.':''}`;$('#start').disabled=n===0;$('#count').disabled=['drag','study'].includes(mode);$('#session-title').textContent=descriptions[mode][0];$('#mode-description').textContent=descriptions[mode][1];$('#start').innerHTML=(mode==='study'?'Explorar mapa':'Empezar práctica')+' <span>↗</span>';$('#setup-note').textContent=mode==='drag'?'Se incluyen todos los lugares de la selección. Pasa por un ancla para ver su tipo de relieve.':mode==='challenge'?'Cada respuesta se guarda al avanzar. El tiempo es informativo.':mode==='study'?'Consulta los puntos de referencia y aprende antes de practicar.':'Sin prisas. Las tildes y las pequeñas erratas no te frenan.';}
 function setMap(){dims=scope==='world'?(base==='original'?[1200,855]:[1200,500]):(base==='original'?[1000,712.4]:[1000,885]);$('#map-image').setAttribute('href',`assets/${base}-${scope}.webp`);$('#map-image').setAttribute('width',dims[0]);$('#map-image').setAttribute('height',dims[1]);$('#map-title').textContent=scope==='world'?'Relieve mundial':'Península Ibérica';$('#map-kicker').textContent=scope==='world'?'PLANISFERIO FÍSICO':'RELIEVE PENINSULAR';$('#map-tag').textContent=base==='original'?'MAPA ORIGINAL':base==='terrain'?'RELIEVE DETALLADO':'NATURAL EARTH';$('#map-credit').textContent=base==='original'?'Mapa original de la ficha':base==='terrain'?'NOAA / NCEI · relieve y batimetría':'Natural Earth · dominio público';$('#map').setAttribute('aria-label',`Mapa físico ${scope==='world'?'del mundo':'de la Península Ibérica'}. ${descriptions[mode][1]}`);resetView();renderMarks();}
-function applyView(){ $('#map').setAttribute('viewBox',view.join(' ')); renderMapDetail();renderMarks(); }
+let pendingPoint=null,confirmLocation=matchMedia('(any-pointer: coarse)').matches;
+function applyView(){ $('#map').setAttribute('viewBox',view.join(' ')); renderMapDetail();renderMarks();renderPendingPoint(); }
 // Keep the overview underneath while visible high-resolution tiles load.
 function renderMapDetail(){
  const layer=$('#map-detail');let html='';
@@ -29,7 +30,7 @@ function renderMapDetail(){
  }
  if(layer.innerHTML!==html)layer.innerHTML=html;
 }
-function resetView(){view=[0,0,...dims];applyView();}
+function resetView(){clearPendingPoint();view=[0,0,...dims];applyView();}
 function maxZoom(){return base==='natural'?3:base==='original'?6:scope==='world'?12:8;}
 function zoom(factor,center){const cx=center?.[0]??view[0]+view[2]/2,cy=center?.[1]??view[1]+view[3]/2;const w=Math.max(dims[0]/maxZoom(),Math.min(dims[0],view[2]*factor)),h=w*dims[1]/dims[0];view=[cx-(cx-view[0])*w/view[2],cy-(cy-view[1])*h/view[3],w,h];clampView();}
 function clampView(){view[0]=Math.max(0,Math.min(dims[0]-view[2],view[0]));view[1]=Math.max(0,Math.min(dims[1]-view[3],view[1]));applyView();}
@@ -75,14 +76,15 @@ function renderGame(){
   html+=mode==='study'?'<button class="secondary" id="focus-place">Acercar al lugar <span>↗</span></button>':'<button class="secondary" id="reveal">Ver ancla de la etiqueta <span>↗</span></button>';
  }else{
   const i=current();html+=`<div class="question-block"><div class="question-context"><span>${esc(i.group)}</span><span>${esc(featureType(i))}</span></div><h2 class="question-title">${mode==='point'?esc(i.name):`¿Qué ${featureType(i)} es?`}</h2>`;
-  if(mode==='point')html+='<div class="map-instruction"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg><div><strong>Señala su ubicación</strong><span>Haz clic en el mapa. Puedes ampliarlo.</span></div></div>';
+  if(mode==='point')html+='<div class="map-instruction"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg><div><strong>Señala su ubicación</strong><span>Señala en el mapa. Con el dedo, ajusta el punto y confirma.</span></div></div>';
   else html+='<p class="muted">Pon nombre al punto naranja.</p><form id="answer-form"><label for="answer">Tu respuesta</label><input id="answer" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Escribe el nombre…" required maxlength="120"><button class="primary" type="submit">'+(mode==='challenge'?'Guardar y continuar':'Comprobar')+' <span>↵</span></button></form>';
   html+='</div><div class="session-controls"><div id="feedback" role="status" aria-live="polite"></div><button class="primary" id="next" hidden>Siguiente lugar <span>→</span></button><div class="action-row">'+(mode!=='challenge'?'<button class="secondary" id="reveal">Ver solución</button>':'')+'<button class="secondary" id="skip">Saltar <span>→</span></button></div>';
   if(mode!=='point')html+='<button class="text-button focus-button" id="focus-place">Acercar al punto ↗</button>';
-  else html+='<details class="keyboard-help"><summary>Usar el teclado</summary><p>Enfoca el mapa con <kbd>Tab</kbd>, mueve el cursor con las flechas y confirma con <kbd>Intro</kbd>.</p></details>';
+  else html+=`<label class="confirm-option"><input type="checkbox" id="confirm-location" ${confirmLocation?'checked':''}> Confirmar antes de responder</label>`+'<details class="keyboard-help"><summary>Usar el teclado</summary><p>Enfoca el mapa con <kbd>Tab</kbd>, mueve el cursor con las flechas y confirma con <kbd>Intro</kbd>.</p></details>';
  }
  html+='<button class="text-button" id="finish">Terminar sesión</button></div>';
  $('#game').innerHTML=html;if($('.chips'))$('.chips').scrollTop=oldScroll;
+ $('#confirm-location')?.addEventListener('change',e=>{confirmLocation=e.target.checked;clearPendingPoint();});
  $('#answer-form')?.addEventListener('submit',e=>{e.preventDefault();submitText();});$('#next')?.addEventListener('click',next);$('#skip')?.addEventListener('click',()=>answer({ok:false,kind:'skip'},'Sin respuesta'));$('#reveal')?.addEventListener('click',reveal);$('#finish').onclick=finish;$('#focus-place')?.addEventListener('click',focusPlace);
  $$('.chip').forEach(b=>{
   let moved=false;
@@ -131,14 +133,14 @@ function selectItem(id){selected=session.items.find(i=>i.id===id);session.reveal
 function focusPlace(){const i=mode==='study'?selected:current();if(!i)return;const center=mapPosition(i,base),w=dims[0]/Math.min(maxZoom(),scope==='world'?4:2.5);view=[center[0]-w/2,center[1]-w*dims[1]/dims[0]/2,w,w*dims[1]/dims[0]];clampView();}
 function feedback(html,type=''){const el=$('#feedback');if(el){el.className='feedback '+type;el.innerHTML=html;}}
 function submitText(){if(!session||session.answered)return;const value=$('#answer').value.trim();if(!value)return;const result=checkAnswer(value,current(),pool());if(['generic','ambiguous'].includes(result.kind)){feedback(result.kind==='generic'?'Eso indica el tipo de relieve. Añade el nombre que identifica el lugar.':'Ese nombre es ambiguo. Añade una palabra más para identificar el lugar.','warning');return;}answer(result,value);}
-function answer(result,value){if(!session||session.answered)return;const item=current();session.answers.push({id:item.id,name:item.name,...result,value});session.answered=true;persist(item,result.ok);if(mode==='challenge'){next();return;}
+function answer(result,value){if(!session||session.answered)return;clearPendingPoint();const item=current();session.answers.push({id:item.id,name:item.name,...result,value});session.answered=true;persist(item,result.ok);if(mode==='challenge'){next();return;}
  let message=result.ok?(['exact','location'].includes(result.kind)?'Correcto.':result.kind==='typo'?'Correcto, con una pequeña errata.':'Correcto. Has usado un nombre abreviado o alternativo.'):(result.kind==='ambiguous'?'Ese nombre puede referirse a más de un lugar.':result.kind==='skip'?'Lo dejamos para repasar.':result.kind==='reveal'?'Solución consultada. Se guardará para repasar.':'Esta vez no. Lo guardamos para repasar.');
  feedback(`${message}<br><strong>${esc(item.name)}</strong>`,result.ok?(['exact','location'].includes(result.kind)?'':'warning'):'error');
  $('#answer-form')?.querySelectorAll('input,button').forEach(e=>e.disabled=true);$('#reveal')?.setAttribute('disabled','');$('#skip')?.setAttribute('disabled','');$('#next').hidden=false;$('#next').textContent=session.index===session.items.length-1?'Ver resultados →':'Siguiente lugar →';renderMarks();$('#next').focus({preventScroll:true});}
 function reveal(){if(mode==='drag'){if(!selected){feedback('Selecciona primero una etiqueta.','warning');return;}session.failed.add(selected.id);session.revealed=true;feedback(`El ancla resaltada corresponde a <strong>${esc(selected.name)}</strong>. Colócala para continuar; quedará en tu repaso.`,'warning');renderMarks();}else answer({ok:false,kind:'reveal'},'Solución consultada');}
 function next(){session.index++;session.answered=false;cursor=null;$('#cursor').innerHTML='';if(session.index>=session.items.length){finish();return;}resetView();renderGame();renderMarks();}
-function place(p,confirmedId=null){if(!session||mode==='study')return;
- if(mode==='point'&&!session.answered){answer({ok:hit(current(),base,p),kind:'location'},'Ubicación en el mapa');return;}
+function place(p,confirmedId=null,touch=false){if(!session||mode==='study')return;
+ if(mode==='point'&&!session.answered){answer({ok:hit(current(),base,p,(touch?18:6)/mapScale()),kind:'location'},'Ubicación en el mapa');return;}
  if(mode!=='drag')return;if(!selected){feedback('Selecciona primero una etiqueta.','warning');return;}if(session.placed.has(selected.id))return;
  const choices=anchorChoices(anchors.filter(a=>!session.placed.has(a.item.id)),p,mapScale());
  if(!confirmedId&&choices.length>1){
@@ -163,7 +165,36 @@ function mapPoint(e){const p=$('#map').createSVGPoint();p.x=e.clientX;p.y=e.clie
 $$('[data-scope]').forEach(b=>b.onclick=()=>{scope=b.dataset.scope;$$('[data-scope]').forEach(x=>{x.classList.toggle('active',x===b);x.setAttribute('aria-pressed',x===b);});updateFilters();back();setMap();});$$('[data-mode]').forEach(b=>b.onclick=()=>setMode(b.dataset.mode));$('#base').onchange=()=>{base=$('#base').value;setMap();};$('#group').onchange=updateSetup;$('#category').onchange=updateSetup;$('#start').onclick=start;
 $('#zoom-in').onclick=()=>zoom(.7);$('#zoom-out').onclick=()=>zoom(1/.7);$('#zoom-reset').onclick=resetView;
 const svg=$('#map');svg.addEventListener('pointerleave',()=>{if($('#anchor-tip'))$('#anchor-tip').hidden=true;});svg.addEventListener('wheel',e=>{e.preventDefault();zoom(e.deltaY>0?1.15:1/1.15,mapPoint(e));},{passive:false});
-let suppressClick=false;svg.addEventListener('pointerdown',e=>{if(e.shiftKey||e.button===1){e.preventDefault();draggingPan={x:e.clientX,y:e.clientY,view:[...view]};suppressClick=true;svg.setPointerCapture(e.pointerId);}});svg.addEventListener('pointermove',e=>{if(!draggingPan)return;const s=svg.getScreenCTM();view=[draggingPan.view[0]-(e.clientX-draggingPan.x)/s.a,draggingPan.view[1]-(e.clientY-draggingPan.y)/s.d,view[2],view[3]];clampView();});svg.addEventListener('pointerup',()=>{draggingPan=null;setTimeout(()=>suppressClick=false,0);});svg.addEventListener('click',e=>{if(!suppressClick&&!e.shiftKey)place(mapPoint(e));});svg.addEventListener('pointermove',e=>{if(!draggingPan)highlightAnchor(mapPoint(e));});
+let suppressClick=false,tap=null;
+svg.addEventListener('pointerdown',e=>{
+ tap={x:e.clientX,y:e.clientY,touch:e.pointerType==='touch',moved:false};
+ if(e.shiftKey||e.button===1){e.preventDefault();draggingPan={x:e.clientX,y:e.clientY,view:[...view]};suppressClick=true;svg.setPointerCapture(e.pointerId);}
+});
+svg.addEventListener('pointermove',e=>{
+ if(tap&&Math.hypot(e.clientX-tap.x,e.clientY-tap.y)>10)tap.moved=true;
+ if(!draggingPan){highlightAnchor(mapPoint(e));return;}
+ const s=svg.getScreenCTM();view=[draggingPan.view[0]-(e.clientX-draggingPan.x)/s.a,draggingPan.view[1]-(e.clientY-draggingPan.y)/s.d,view[2],view[3]];clampView();
+});
+svg.addEventListener('pointerup',()=>{draggingPan=null;setTimeout(()=>suppressClick=false,0);});
+svg.addEventListener('pointercancel',()=>{tap=null;draggingPan=null;});
+svg.addEventListener('click',e=>{
+ if(suppressClick||e.shiftKey||tap?.moved)return;
+ const touch=e.pointerType==='touch'||tap?.touch,p=mapPoint(e);tap=null;
+ if(session&&mode==='point'&&!session.answered&&(touch||confirmLocation)){
+  pendingPoint=p;renderPendingPoint();return;
+ }
+ place(p,null,touch);
+});
+function clearPendingPoint(){pendingPoint=null;$('#location-confirm')?.remove();$('#cursor').innerHTML='';}
+function renderPendingPoint(){
+ if(!pendingPoint)return;
+ const [x,y]=pendingPoint,k=1/mapScale();
+ $('#cursor').innerHTML=`<circle cx="${x}" cy="${y}" r="${9*k}" fill="#fffdf8" fill-opacity=".7" stroke="#173f67" stroke-width="${2*k}"/><path d="M${x-14*k} ${y}h${28*k}M${x} ${y-14*k}v${28*k}" stroke="#173f67" stroke-width="${k}"/>`;
+ if($('#location-confirm'))return;
+ const box=document.createElement('div');box.id='location-confirm';box.setAttribute('role','group');box.setAttribute('aria-label','Confirmar ubicación');
+ box.innerHTML='<span>Puedes tocar otra vez para ajustar.</span><button class="primary">Confirmar ubicación</button><button class="secondary">Cancelar</button>';
+ const buttons=box.querySelectorAll('button');buttons[0].onclick=()=>{const p=pendingPoint;if(!p)return;const nearby=pool().filter(i=>i.category===current()?.category&&!i.path&&!i.polygon&&Math.hypot(...mapPosition(i,base).map((v,n)=>v-p[n]))*mapScale()<=18);if(nearby.length>1&&dims[0]/view[2]<maxZoom()){zoom(.5,p);box.querySelector('span').textContent='Había lugares muy próximos. Ajusta el punto en esta vista ampliada.';return;}clearPendingPoint();place(p,null,true);};buttons[1].onclick=clearPendingPoint;$('#map-stage').append(box);
+}
 svg.addEventListener('keydown',e=>{if(!session||!['point','drag'].includes(mode))return;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();cursor??=[view[0]+view[2]/2,view[1]+view[3]/2];const step=view[2]/(e.shiftKey?200:60);if(e.key==='ArrowLeft')cursor[0]-=step;if(e.key==='ArrowRight')cursor[0]+=step;if(e.key==='ArrowUp')cursor[1]-=step;if(e.key==='ArrowDown')cursor[1]+=step;cursor=[Math.max(0,Math.min(dims[0],cursor[0])),Math.max(0,Math.min(dims[1],cursor[1]))];$('#cursor').innerHTML=`<circle cx="${cursor[0]}" cy="${cursor[1]}" r="${view[2]/100}" fill="none" stroke="#173f67" stroke-width="2"/>`; }else if(e.key==='Enter'&&cursor){e.preventDefault();place(cursor);}});
 $('#sources').onclick=()=>$('#about').showModal();$('#about .close').onclick=()=>$('#about').close();$('#about').addEventListener('click',e=>{if(e.target===$('#about')){const r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close();}});
 $('#reset-progress').onclick=()=>{if(confirm('¿Borrar todos los aciertos y fallos guardados en este navegador?')){saved={};try{localStorage.removeItem('relieve-progress-v1');}catch{}updateStats();if(!session)updateSetup();}};
