@@ -1,0 +1,93 @@
+{
+ "_nota": "Lista de lugares por ámbito y grupo. Es lo único que hace falta editar: scripts/build_places.py resuelve el resto (tipo, zona, punto, alias). Para los casos raros, sources/correcciones.json.",
+ "mundo": {
+  "Asia": [
+   "Cordillera del Himalaya",
+   "Everest",
+   "Meseta del Tíbet",
+   "Meseta de Irán",
+   "Gran Meseta de Siberia Central",
+   "Gran Llanura de Siberia Occidental",
+   "Península de Indochina",
+   "Península de Corea",
+   "Mar Caspio",
+   "Mar Muerto"
+  ],
+  "América": [
+   "Montañas Rocosas",
+   "Montes Apalaches",
+   "Cordillera de los Andes",
+   "Escudo Canadiense",
+   "Aconcagua",
+   "Macizo de las Guayanas",
+   "Meseta Brasileña",
+   "Cuenca del Amazonas",
+   "Península de Alaska",
+   "Península del Labrador",
+   "Península de Florida",
+   "Península de California",
+   "Tierra de Fuego",
+   "Cabo de Hornos",
+   "Desierto de Atacama"
+  ],
+  "África": [
+   "Montes Atlas",
+   "Montes Drakensberg",
+   "Meseta del Lago Victoria",
+   "Macizo Etiópico",
+   "Macizo de Ahaggar",
+   "Kilimanjaro",
+   "Cuenca del Chad",
+   "Rift Valley",
+   "Cabo de Buena Esperanza",
+   "Cabo Verde"
+  ],
+  "Europa": [
+   "Montes Urales",
+   "Macizo Central Francés",
+   "Montes Escandinavos",
+   "Alpes",
+   "Pirineos",
+   "Cárpatos",
+   "Cáucaso",
+   "Mont Blanc",
+   "Aneto",
+   "Elbrus",
+   "Balcanes",
+   "Gran Llanura Europea",
+   "Cabo de Finisterre"
+  ],
+  "Oceanía": [
+   "Gran Cordillera Divisoria",
+   "Alpes del Sur",
+   "Gran Desierto de Arena",
+   "Gran Desierto Victoria"
+  ]
+ },
+ "peninsula": {
+  "Península Ibérica": [
+   "Cordillera Cantábrica",
+   "Sistema Central",
+   "Sierra de Guadarrama",
+   "Sierra de Gredos",
+   "Sierra Nevada",
+   "Sistema Ibérico",
+   "Cordillera Bética",
+   "Sierra de Cazorla",
+   "Sierra de Grazalema",
+   "Meseta Central",
+   "Picos de Europa",
+   "Montes de León",
+   "Golfo de Vizcaya",
+   "Golfo de Cádiz",
+   "Golfo de Valencia",
+   "Golfo de Alicante",
+   "Cabo de Finisterre",
+   "Cabo de San Vicente",
+   "Cabo de Gata",
+   "Cabo de Trafalgar",
+   "Cabo de la Nao",
+   "Cabo de Roca"
+  ]
+ }
+}

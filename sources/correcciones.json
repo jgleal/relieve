@@ -1,0 +1,147 @@
+{
+ "_nota": "Correcciones para los casos que el script no resuelve bien solo con el nombre. Clave: el nombre, o \"mundo:Nombre\"/\"peninsula:Nombre\" si se repite en los dos ámbitos. Campos: wikidata (Q-id para fijar la identidad), tipo (categoría), natural_earth (nombres de Natural Earth; marine:/lake: para mares y lagos), contorno ([lon,lat] cuando no hay zona en fuentes abiertas), punto ([lon,lat] de picos y cabos), punto_original ([x,y] en píxeles del mapa original peninsular), radio, alias_extra (sinónimos que también se aceptan), alias (sustituye las respuestas cortas automáticas).",
+ "Meseta de Irán": {
+  "contorno": [[ 45, 35],[ 48, 38],[ 56, 37],[ 63, 35],[ 67, 32],[ 61, 28],[ 56, 27],[ 49, 30]]
+ },
+ "Península de Indochina": {
+  "natural_earth": ["INDOCHINA PENINSULA"]
+ },
+ "Mar Muerto": {
+  "wikidata": "Q23883",
+  "natural_earth": ["lake:Dead Sea"]
+ },
+ "Macizo de las Guayanas": {
+  "alias_extra": ["macizo guayanes"],
+  "natural_earth": ["GUIANA HIGHLANDS","GUIANA SHIELD"]
+ },
+ "Meseta Brasileña": {
+  "alias_extra": ["meseta de brasil"]
+ },
+ "Cuenca del Amazonas": {
+  "alias_extra": ["cuenca amazonica"]
+ },
+ "Península del Labrador": {
+  "contorno": [[ -79.6, 62.6],[ -72, 62.4],[ -64.5, 60.4],[ -60, 55.5],[ -55.6, 52.6],[ -57.2, 51.4],[ -60, 50.2],[ -66.5, 49.9],[ -69, 48.2],[ -71.2, 46.8],[ -74, 47.5],[ -79.5, 49.5],[ -79.6, 55]]
+ },
+ "Península de Florida": {
+  "natural_earth": ["FLORIDA"]
+ },
+ "Península de California": {
+  "alias_extra": ["baja california"]
+ },
+ "Tierra de Fuego": {
+  "alias_extra": ["tierra del fuego"]
+ },
+ "Montes Atlas": {
+  "natural_earth": ["ATLAS MOUNTAINS","HAUT ATLAS","Moyen Atlas","Anti Atlas","ATLAS SAHARIEN","Atlas Tellien"]
+ },
+ "Meseta del Lago Victoria": {
+  "alias_extra": ["meseta del victoria","lago victoria"],
+  "contorno": [[ 29, 2],[ 32, 4],[ 35, 2],[ 36, -2],[ 34, -5],[ 30, -4],[ 29, -1]]
+ },
+ "Macizo Etiópico": {
+  "alias_extra": ["macizo etiope"]
+ },
+ "Macizo de Ahaggar": {
+  "alias_extra": ["hoggar"],
+  "natural_earth": ["AHAGGAR MTS."]
+ },
+ "Kilimanjaro": {
+  "tipo": "Picos"
+ },
+ "Cuenca del Chad": {
+  "contorno": [[ 10, 15],[ 14, 20],[ 21, 21],[ 24, 16],[ 22, 11],[ 16, 8],[ 12, 10]]
+ },
+ "Rift Valley": {
+  "alias_extra": ["valle del rift","rift","gran valle del rift"],
+  "natural_earth": ["GREAT RIFT VALLEY"]
+ },
+ "Macizo Central Francés": {
+  "alias_extra": ["macizo central"]
+ },
+ "Montes Escandinavos": {
+  "alias_extra": ["alpes escandinavos"]
+ },
+ "Cárpatos": {
+  "natural_earth": ["CARPATHIAN MOUNTAINS","Transylvanian Alps"]
+ },
+ "Mont Blanc": {
+  "alias_extra": ["monte blanco"]
+ },
+ "Balcanes": {
+  "wikidata": "Q170427",
+  "tipo": "Cordilleras",
+  "alias_extra": ["montes balcanes"],
+  "natural_earth": ["Balkan Mts."]
+ },
+ "Gran Llanura Europea": {
+  "alias_extra": ["llanura de europa"],
+  "natural_earth": ["NORTHERN EUROPEAN PLAIN"]
+ },
+ "mundo:Cabo de Finisterre": {
+  "alias_extra": ["fisterra"]
+ },
+ "Gran Cordillera Divisoria": {
+  "natural_earth": ["GREAT DIVIDING RANGE","Australian Alps"]
+ },
+ "Alpes del Sur": {
+  "alias_extra": ["alpes meridionales"]
+ },
+ "Gran Desierto de Arena": {
+  "alias_extra": ["gran desierto arenoso"]
+ },
+ "Gran Desierto Victoria": {
+  "alias_extra": ["desierto de victoria"]
+ },
+ "Sistema Central": {
+  "contorno": [[ -7.9, 40.1],[ -7.4, 40.55],[ -6.3, 40.5],[ -5.3, 40.55],[ -4.4, 40.95],[ -3.6, 41.3],[ -2.85, 41.4],[ -2.8, 41.1],[ -3.6, 40.8],[ -4.3, 40.45],[ -5.2, 40.1],[ -6.4, 40.1],[ -7.4, 40]]
+ },
+ "Sierra de Guadarrama": {
+  "contorno": [[ -4.55, 40.55],[ -4.3, 40.85],[ -3.9, 41.08],[ -3.5, 41.12],[ -3.5, 40.88],[ -3.9, 40.65],[ -4.3, 40.42]]
+ },
+ "Sierra de Gredos": {
+  "contorno": [[ -5.95, 40.15],[ -5.7, 40.48],[ -5, 40.52],[ -4.5, 40.48],[ -4.45, 40.2],[ -5, 40.1],[ -5.6, 40]]
+ },
+ "Sierra Nevada": {
+  "contorno": [[ -3.65, 37],[ -3.45, 37.17],[ -2.95, 37.22],[ -2.55, 37.22],[ -2.5, 37.08],[ -3, 36.97],[ -3.5, 36.93]]
+ },
+ "Sistema Ibérico": {
+  "contorno": [[ -3.7, 42.2],[ -3, 42.4],[ -2.3, 42.15],[ -1.5, 41.85],[ -1.1, 41.35],[ -0.3, 40.85],[ 0.1, 40.35],[ -0.3, 39.75],[ -1, 39.75],[ -1.8, 39.95],[ -2.4, 40.35],[ -2.9, 40.9],[ -3.35, 41.4],[ -3.8, 41.85]]
+ },
+ "Cordillera Bética": {
+  "alias_extra": ["beticas","cordilleras beticas","sistemas beticos"],
+  "contorno": [[ -5.9, 36.05],[ -5.95, 36.75],[ -5.3, 37.15],[ -4.3, 37.45],[ -3.6, 37.8],[ -3, 38.15],[ -2.3, 38.4],[ -1.4, 38.6],[ -0.6, 38.95],[ 0.25, 38.85],[ 0.1, 38.55],[ -0.8, 38.25],[ -1.6, 37.7],[ -2, 37.2],[ -2.6, 36.8],[ -3.5, 36.7],[ -4.4, 36.6],[ -5, 36.35],[ -5.4, 36]]
+ },
+ "Sierra de Cazorla": {
+  "contorno": [[ -3.2, 37.7],[ -3.05, 38.15],[ -2.65, 38.4],[ -2.4, 38.2],[ -2.55, 37.85],[ -2.85, 37.62]]
+ },
+ "Sierra de Grazalema": {
+  "contorno": [[ -5.6, 36.66],[ -5.55, 36.88],[ -5.3, 36.9],[ -5.18, 36.75],[ -5.33, 36.62]]
+ },
+ "Meseta Central": {
+  "contorno": [[ -6.5, 41.7],[ -6, 42.3],[ -4, 42.7],[ -2.5, 41.7],[ -1.8, 40.8],[ -1.1, 39.3],[ -2, 38.5],[ -4.7, 38.5],[ -6.9, 39.1],[ -7, 40.1]]
+ },
+ "Picos de Europa": {
+  "alias": ["picos de europa"],
+  "contorno": [[ -5.2, 43.13],[ -5, 43.33],[ -4.6, 43.32],[ -4.45, 43.15],[ -4.7, 43.05],[ -5.05, 43.05]]
+ },
+ "Montes de León": {
+  "contorno": [[ -7.15, 42.05],[ -7.1, 42.45],[ -6.6, 42.68],[ -6, 42.62],[ -5.85, 42.4],[ -6.2, 42.12],[ -6.7, 41.98]]
+ },
+ "Golfo de Cádiz": {
+  "contorno": [[ -8.95, 37],[ -7.4, 37.2],[ -6.35, 36.9],[ -6, 36.3],[ -6.3, 35.95],[ -7.5, 36.15],[ -8.95, 36.55]]
+ },
+ "Golfo de Valencia": {
+  "contorno": [[ 0.9, 40.7],[ 0.3, 40.2],[ -0.25, 39.6],[ -0.3, 39.2],[ -0.05, 38.85],[ 0.25, 38.75],[ 1, 39.2],[ 1.4, 40.1]]
+ },
+ "Golfo de Alicante": {
+  "contorno": [[ 0.15, 38.72],[ -0.1, 38.45],[ -0.5, 38.3],[ -0.65, 38],[ -0.75, 37.6],[ -0.35, 37.55],[ 0.25, 38],[ 0.4, 38.55]]
+ },
+ "peninsula:Cabo de Finisterre": {
+  "alias_extra": ["fisterra"]
+ },
+ "Cabo de Roca": {
+  "wikidata": "Q169175",
+  "alias_extra": ["cabo da roca","cabo de la roca"]
+ }
+}

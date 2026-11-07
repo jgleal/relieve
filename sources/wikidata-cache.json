@@ -1,0 +1,1378 @@
+{
+ "iberia:Cabo de Finisterre": {
+  "aliases_es": [
+   "Cabo Fisterra",
+   "Cabo de Finisterre",
+   "Finisterre (cabo)"
+  ],
+  "confident": true,
+  "coord": [
+   -9.27222,
+   42.8825
+  ],
+  "label_en": "Cape Finisterre",
+  "label_es": "cabo Finisterre",
+  "qid": "Q1136198",
+  "types": [
+   "Q185113",
+   "Q191992"
+  ]
+ },
+ "iberia:Cabo de Gata": {
+  "aliases_es": [
+   "Faro de Cabo de Gata",
+   "Cerro de la Testa",
+   "Cabo de gata"
+  ],
+  "confident": true,
+  "coord": [
+   -2.19297,
+   36.72189
+  ],
+  "label_en": "Cape Gata",
+  "label_es": "Cabo de Gata",
+  "qid": "Q2932431",
+  "types": [
+   "Q185113"
+  ]
+ },
+ "iberia:Cabo de Roca": {
+  "aliases_es": [
+   "San Xiao de Roca",
+   "San Xulián de Roca",
+   "Roca (San Xiao)"
+  ],
+  "confident": false,
+  "coord": [
+   -7.7975,
+   43.18889
+  ],
+  "label_en": "Roca, Guitiriz",
+  "label_es": "Roca",
+  "qid": "Q12399136",
+  "types": [
+   "Q12397176"
+  ]
+ },
+ "iberia:Cabo de San Vicente": {
+  "aliases_es": [],
+  "confident": true,
+  "coord": [
+   -8.99444,
+   37.025
+  ],
+  "label_en": "Cape St. Vincent",
+  "label_es": "cabo de San Vicente",
+  "qid": "Q4103",
+  "types": [
+   "Q185113",
+   "Q191992"
+  ]
+ },
+ "iberia:Cabo de Trafalgar": {
+  "aliases_es": [
+   "Cabo de Trafalgar",
+   "Trafalgar"
+  ],
+  "confident": true,
+  "coord": [
+   -6.03333,
+   36.18333
+  ],
+  "label_en": "Cape Trafalgar",
+  "label_es": "Cabo Trafalgar",
+  "qid": "Q203950",
+  "types": [
+   "Q185113",
+   "Q191992"
+  ]
+ },
+ "iberia:Cabo de la Nao": {
+  "aliases_es": [
+   "Cabo de la nao"
+  ],
+  "confident": true,
+  "coord": [
+   0.21667,
+   38.73861
+  ],
+  "label_en": "Cap de la Nau",
+  "label_es": "cabo de la Nao",
+  "qid": "Q1024914",
+  "types": [
+   "Q185113"
+  ]
+ },
+ "iberia:Cordillera Bética": {
+  "aliases_es": [
+   "Cordillera Bética",
+   "Sistema Bético",
+   "Sistemas Béticos",
+   "Sistema bético",
+   "Sierras Béticas",
+   "Sistema Betico",
+   "Cordilleras Beticas",
+   "Sistemas Beticos",
+   "Sistema betico",
+   "Cordillera Betica",
+   "Sierras Beticas"
+  ],
+  "confident": true,
+  "coord": [
+   -3,
+   37
+  ],
+  "label_en": "Baetic System",
+  "label_es": "Cordilleras Béticas",
+  "qid": "Q831469",
+  "types": [
+   "Q1437459",
+   "Q46831"
+  ]
+ },
+ "iberia:Cordillera Cantábrica": {
+  "aliases_es": [
+   "Cordillera cantabrica",
+   "Montes Cantabricos",
+   "Montes Cantábricos",
+   "La Cantábrica",
+   "La Cantabrica",
+   "Cordillera Cantabricasa",
+   "El motivo por el cual suspendo geografía :("
+  ],
+  "confident": true,
+  "coord": [
+   -4.85167,
+   43.1975
+  ],
+  "label_en": "Cantabrian Mountains",
+  "label_es": "Cordillera Cantábrica",
+  "qid": "Q208076",
+  "types": [
+   "Q1437459",
+   "Q46831"
+  ]
+ },
+ "iberia:Golfo de Alicante": {
+  "aliases_es": [
+   "Bahia de Alicante"
+  ],
+  "confident": true,
+  "coord": [
+   -0.46667,
+   38.3
+  ],
+  "label_en": "Alicante Bay",
+  "label_es": "Bahía de Alicante",
+  "qid": "Q3230745",
+  "types": [
+   "Q39594"
+  ]
+ },
+ "iberia:Golfo de Cádiz": {
+  "aliases_es": [
+   "Golfo de cadiz"
+  ],
+  "confident": true,
+  "coord": [
+   -7.23333,
+   36.78333
+  ],
+  "label_en": "Gulf of Cádiz",
+  "label_es": "Golfo de Cádiz",
+  "qid": "Q117157",
+  "types": [
+   "Q1322134",
+   "Q15069452"
+  ]
+ },
+ "iberia:Golfo de Valencia": {
+  "aliases_es": [],
+  "confident": true,
+  "coord": [
+   -0.18333,
+   39.45
+  ],
+  "label_en": "Gulf of Valencia",
+  "label_es": "Golfo de Valencia",
+  "qid": "Q582246",
+  "types": [
+   "Q1322134"
+  ]
+ },
+ "iberia:Golfo de Vizcaya": {
+  "aliases_es": [
+   "Golf de gascogne",
+   "Golfo de Bizkaia",
+   "Golfo de Gascunya",
+   "Golfo de Bizcaya",
+   "Golfo de Gascuña",
+   "Golfo de Bizcaia"
+  ],
+  "confident": true,
+  "coord": [
+   -4.4,
+   45.5
+  ],
+  "label_en": "Bay of Biscay",
+  "label_es": "golfo de Vizcaya",
+  "qid": "Q41573",
+  "types": [
+   "Q39594"
+  ]
+ },
+ "iberia:Meseta Central": {
+  "aliases_es": [
+   "Meseta Central Iberica",
+   "Meseta Central Ibérica",
+   "Meseta castellana",
+   "meseta  ibérica"
+  ],
+  "confident": true,
+  "coord": [
+   -3.5,
+   40.5
+  ],
+  "label_en": "Meseta",
+  "label_es": "Meseta Central",
+  "qid": "Q821626",
+  "types": [
+   "Q75520",
+   "Q82794"
+  ]
+ },
+ "iberia:Montes de León": {
+  "aliases_es": [
+   "Montes de Leon"
+  ],
+  "confident": true,
+  "coord": [
+   -6.39274,
+   42.34536
+  ],
+  "label_en": "Montes de León",
+  "label_es": "Montes de León",
+  "qid": "Q3322331",
+  "types": [
+   "Q46831"
+  ]
+ },
+ "iberia:Picos de Europa": {
+  "aliases_es": [],
+  "confident": true,
+  "coord": [
+   -4.8005,
+   43.19967
+  ],
+  "label_en": "Picos de Europa",
+  "label_es": "Picos de Europa",
+  "qid": "Q1141172",
+  "types": [
+   "Q46831"
+  ]
+ },
+ "iberia:Q169175": {
+  "aliases_es": [
+   "Cabo da roca"
+  ],
+  "confident": true,
+  "coord": [
+   -9.50056,
+   38.78083
+  ],
+  "label_en": "Cabo da Roca",
+  "label_es": "Cabo de la Roca",
+  "qid": "Q169175",
+  "types": [
+   "Q185113",
+   "Q191992"
+  ]
+ },
+ "iberia:Sierra Nevada": {
+  "aliases_es": [],
+  "confident": true,
+  "coord": [
+   -3.31139,
+   37.05333
+  ],
+  "label_en": "Sierra Nevada",
+  "label_es": "Sierra Nevada",
+  "qid": "Q26955",
+  "types": [
+   "Q46831",
+   "Q1437459"
+  ]
+ },
+ "iberia:Sierra de Cazorla": {
+  "aliases_es": [
+   "Sierra de Cazorla, Segura y Las Villas",
+   "Parque Natural de la Sierra de Cazorla Segura y Las Villas",
+   "Parque natural de Cazorla, Segura y Las Villas",
+   "Sierra de Cazorla",
+   "Parque Natural de la Sierra de Cazorla, Segura y Las Villas",
+   "Sierras de Cazorla Segura y Las Villas",
+   "Parque Natural Sierras de Cazorla, Segura y Las Villas",
+   "Sierras de Cazorla, Segura y Las Villas",
+   "Sierra de Cazorla Segura y las Villas",
+   "Sierra de Las Villas",
+   "Parque natural de Cazorla Segura y Las Villas",
+   "Parque Natural de las Sierras de Cazorla Segura y Las Villas",
+   "Sierras de Cazorla, Segura y las Villas"
+  ],
+  "confident": true,
+  "coord": [
+   -2.75,
+   38.08333
+  ],
+  "label_en": "Sierras de Cazorla, Segura y Las Villas Natural Park",
+  "label_es": "Parque Natural de las Sierras de Segura, Cazorla y las Villas",
+  "qid": "Q1755523",
+  "types": [
+   "Q46831",
+   "Q796174",
+   "Q728904",
+   "Q158454",
+   "Q473972",
+   "Q16149276",
+   "Q1191622",
+   "Q2463705",
+   "Q107992622"
+  ]
+ },
+ "iberia:Sierra de Grazalema": {
+  "aliases_es": [
+   "Delimitación de la población de Crazalema",
+   "Delimitacion de la poblacion de Crazalema"
+  ],
+  "confident": false,
+  "coord": [
+   -5.36924,
+   36.75864
+  ],
+  "label_en": "Grazalema",
+  "label_es": "Grazalema",
+  "qid": "Q832949",
+  "types": [
+   "Q2074737"
+  ]
+ },
+ "iberia:Sierra de Gredos": {
+  "aliases_es": [],
+  "confident": true,
+  "coord": [
+   -5.21667,
+   40.25
+  ],
+  "label_en": "Sierra de Gredos",
+  "label_es": "sierra de Gredos",
+  "qid": "Q1132904",
+  "types": [
+   "Q46831",
+   "Q2624046"
+  ]
+ },
+ "iberia:Sierra de Guadarrama": {
+  "aliases_es": [
+   "sierra del Dragón"
+  ],
+  "confident": true,
+  "coord": [
+   -3.95623,
+   40.85014
+  ],
+  "label_en": "Sierra de Guadarrama",
+  "label_es": "sierra de Guadarrama",
+  "qid": "Q53711",
+  "types": [
+   "Q46831",
+   "Q2624046"
+  ]
+ },
+ "iberia:Sistema Central": {
+  "aliases_es": [],
+  "confident": true,
+  "coord": [
+   -5.29778,
+   40.24667
+  ],
+  "label_en": "Sistema Central",
+  "label_es": "Sistema Central",
+  "qid": "Q53715",
+  "types": [
+   "Q46831"
+  ]
+ },
+ "iberia:Sistema Ibérico": {
+  "aliases_es": [
+   "cordillera Ibérica"
+  ],
+  "confident": true,
+  "coord": [
+   -1.78139,
+   41.74583
+  ],
+  "label_en": "Iberian System",
+  "label_es": "sistema Ibérico",
+  "qid": "Q201496",
+  "types": [
+   "Q46831"
+  ]
+ },
+ "world:Aconcagua": {
+  "aliases_es": [
+   "Cerro Aconcagua",
+   "Aconcagüa",
+   "Monte Aconcagua"
+  ],
+  "confident": true,
+  "coord": [
+   -70.01167,
+   -32.65306
+  ],
+  "label_en": null,
+  "label_es": null,
+  "qid": "Q39739",
+  "types": [
+   "Q8502"
+  ]
+ },
+ "world:Alpes": {
+  "aliases_es": [],
+  "confident": true,
+  "coord": [
+   8.615,
+   46.57806
+  ],
+  "label_en": "Alps",
+  "label_es": "Alpes",
+  "qid": "Q1286",
+  "types": [
+   "Q46831"
+  ]
+ },
+ "world:Alpes del Sur": {
+  "aliases_es": [
+   "Alpes Neozelandeses",
+   "Alpes Meridionales",
+   "Southern Alps",
+   "Alpes Neocelandeses"
+  ],
+  "confident": true,
+  "coord": [
+   170.624,
+   -43.365
+  ],
+  "label_en": "Southern Alps / Kā Tiritiri o te Moana",
+  "label_es": "Alpes del Sur",
+  "qid": "Q206650",
+  "types": [
+   "Q46831"
+  ]
+ },
+ "world:Aneto": {
+  "aliases_es": [
+   "Aneto",
+   "Pico de Aneto",
+   "Pico del Aneto"
+  ],
+  "confident": true,
+  "coord": [
+   0.65669,
+   42.63099
+  ],
+  "label_en": "Aneto",
+  "label_es": "Pico Aneto",
+  "qid": "Q208081",
+  "types": [
+   "Q8502",
+   "Q111177881",
+   "Q1258187"
+  ]
+ },
+ "world:Balcanes": {
+  "aliases_es": [
+   "Peninsula Balcánica",
+   "Peninsula de los Balcanes",
+   "Balcánicos",
+   "Balcánica",
+   "Los Balcanes",
+   "Península de los Balcanes",
+   "Balcanica",
+   "Peninsula balcanica",
+   "Balcánico",
+   "Península Helénica",
+   "Península Balcanica",
+   "Balcanico",
+   "Balcanes",
+   "Balcanicos",
+   "Peninsula Helenica"
+  ],
+  "confident": true,
+  "coord": [
+   22,
+   42
+  ],
+  "label_en": "Balkans",
+  "label_es": "península balcánica",
+  "qid": "Q23522",
+  "types": [
+   "Q34763",
+   "Q3502482",
+   "Q1620908",
+   "Q82794"
+  ]
+ },
+ "world:Cabo Verde": {
+  "aliases_es": [
+   "Península de Cabo Verde",
+   "Peninsula de Cabo Verde"
+  ],
+  "confident": true,
+  "coord": [
+   -17.52028,
+   14.74472
+  ],
+  "label_en": "Cap-Vert",
+  "label_es": "Cabo Verde",
+  "qid": "Q216889",
+  "types": [
+   "Q185113",
+   "Q34763"
+  ]
+ },
+ "world:Cabo de Buena Esperanza": {
+  "aliases_es": [],
+  "confident": true,
+  "coord": [
+   18.47194,
+   -34.35806
+  ],
+  "label_en": "Cape of Good Hope",
+  "label_es": "Cabo de Buena Esperanza",
+  "qid": "Q4092",
+  "types": [
+   "Q185113",
+   "Q191992"
+  ]
+ },
+ "world:Cabo de Finisterre": {
+  "aliases_es": [
+   "Cabo Fisterra",
+   "Cabo de Finisterre",
+   "Finisterre (cabo)"
+  ],
+  "confident": true,
+  "coord": [
+   -9.27222,
+   42.8825
+  ],
+  "label_en": "Cape Finisterre",
+  "label_es": "cabo Finisterre",
+  "qid": "Q1136198",
+  "types": [
+   "Q185113",
+   "Q191992"
+  ]
+ },
+ "world:Cabo de Hornos": {
+  "aliases_es": [],
+  "confident": true,
+  "coord": [
+   -67.28917,
+   -55.98
+  ],
+  "label_en": "Cape Horn",
+  "label_es": "Cabo de Hornos",
+  "qid": "Q4078",
+  "types": [
+   "Q185113"
+  ]
+ },
+ "world:Cordillera de los Andes": {
+  "aliases_es": [
+   "Cordillera de los Andes"
+  ],
+  "confident": true,
+  "coord": [
+   -66.698,
+   -21.826
+  ],
+  "label_en": "Andes",
+  "label_es": "Cordillera de Los Andes",
+  "qid": "Q5456",
+  "types": [
+   "Q46831"
+  ]
+ },
+ "world:Cordillera del Himalaya": {
+  "aliases_es": [],
+  "confident": true,
+  "coord": [
+   84,
+   29
+  ],
+  "label_en": "Himalayas",
+  "label_es": "Himalaya",
+  "qid": "Q5451",
+  "types": [
+   "Q46831"
+  ]
+ },
+ "world:Cuenca del Amazonas": {
+  "aliases_es": [
+   "Bahia del Amazonas",
+   "Cuenca del Amazonas",
+   "Cuenca Amazónica",
+   "Bahía del Amazonas",
+   "Cuenca Amazonica",
+   "cuenca del Amazonas"
+  ],
+  "confident": false,
+  "coord": [
+   -60,
+   -3
+  ],
+  "label_en": "Amazon basin",
+  "label_es": "cuenca hidrográfica del Amazonas",
+  "qid": "Q244451",
+  "types": [
+   "Q166620"
+  ]
+ },
+ "world:Cuenca del Chad": {
+  "aliases_es": [
+   "República de Chad"
+  ],
+  "confident": false,
+  "coord": [
+   19.4,
+   15.46667
+  ],
+  "label_en": "Chad",
+  "label_es": "Chad",
+  "qid": "Q657",
+  "types": [
+   "Q3624078",
+   "Q123480",
+   "Q6256"
+  ]
+ },
+ "world:Cárpatos": {
+  "aliases_es": [
+   "montes Carpatos"
+  ],
+  "confident": true,
+  "coord": [
+   25.5,
+   47
+  ],
+  "label_en": "Carpathians",
+  "label_es": "montes Cárpatos",
+  "qid": "Q1288",
+  "types": [
+   "Q46831",
+   "Q1437459"
+  ]
+ },
+ "world:Cáucaso": {
+  "aliases_es": [
+   "Cáucaso"
+  ],
+  "confident": true,
+  "coord": [
+   45,
+   42.5
+  ],
+  "label_en": "Caucasus Mountains",
+  "label_es": "cordillera del Cáucaso",
+  "qid": "Q5477",
+  "types": [
+   "Q46831"
+  ]
+ },
+ "world:Desierto de Atacama": {
+  "aliases_es": [],
+  "confident": true,
+  "coord": [
+   -69.25,
+   -24.5
+  ],
+  "label_en": "Atacama Desert",
+  "label_es": "Desierto de Atacama",
+  "qid": "Q47141",
+  "types": [
+   "Q8514",
+   "Q6617741"
+  ]
+ },
+ "world:Elbrus": {
+  "aliases_es": [
+   "Elbrús",
+   "Elbrus"
+  ],
+  "confident": true,
+  "coord": [
+   42.43787,
+   43.35254
+  ],
+  "label_en": "Mount Elbrus",
+  "label_es": "Monte Elbrús",
+  "qid": "Q43105",
+  "types": [
+   "Q8502"
+  ]
+ },
+ "world:Escudo Canadiense": {
+  "aliases_es": [
+   "Escudo Canádico",
+   "Escudo Canadico"
+  ],
+  "confident": false,
+  "coord": [
+   -71,
+   52
+  ],
+  "label_en": "Canadian Shield",
+  "label_es": "Escudo Canadiense",
+  "qid": "Q76034",
+  "types": [
+   "Q852013"
+  ]
+ },
+ "world:Everest": {
+  "aliases_es": [
+   "Qomolangma Feng",
+   "monte Everest"
+  ],
+  "confident": true,
+  "coord": [
+   86.925,
+   27.98806
+  ],
+  "label_en": "Mount Everest",
+  "label_es": "Everest",
+  "qid": "Q513",
+  "types": [
+   "Q8502"
+  ]
+ },
+ "world:Gran Cordillera Divisoria": {
+  "aliases_es": [
+   "Gran barrera divisoria",
+   "Great Dividing Range",
+   "Cordillera australiana"
+  ],
+  "confident": true,
+  "coord": [
+   147,
+   -25
+  ],
+  "label_en": "Great Dividing Range",
+  "label_es": "Gran Cordillera Divisoria",
+  "qid": "Q192583",
+  "types": [
+   "Q46831"
+  ]
+ },
+ "world:Gran Desierto Victoria": {
+  "aliases_es": [],
+  "confident": true,
+  "coord": [
+   129.25972,
+   -29.15222
+  ],
+  "label_en": "Great Victoria Desert",
+  "label_es": "Gran Desierto de Victoria",
+  "qid": "Q145165",
+  "types": [
+   "Q8514",
+   "Q6617741",
+   "Q2904233",
+   "Q111907301"
+  ]
+ },
+ "world:Gran Desierto de Arena": {
+  "aliases_es": [
+   "Gran desierto de arena"
+  ],
+  "confident": true,
+  "coord": [
+   125,
+   -20
+  ],
+  "label_en": "Great Sandy Desert",
+  "label_es": "Gran Desierto Arenoso",
+  "qid": "Q326896",
+  "types": [
+   "Q8514",
+   "Q2904233"
+  ]
+ },
+ "world:Gran Llanura Europea": {
+  "aliases_es": [],
+  "confident": true,
+  "coord": [
+   29,
+   57.5
+  ],
+  "label_en": "European Plain",
+  "label_es": "Gran llanura europea",
+  "qid": "Q877091",
+  "types": [
+   "Q160091"
+  ]
+ },
+ "world:Gran Llanura de Siberia Occidental": {
+  "aliases_es": [
+   "Siberia Occidental",
+   "Llanura siberiana"
+  ],
+  "confident": true,
+  "coord": [
+   76,
+   62
+  ],
+  "label_en": "West Siberian Plain",
+  "label_es": "Llanura de Siberia Occidental",
+  "qid": "Q191566",
+  "types": [
+   "Q160091",
+   "Q144019",
+   "Q2177064"
+  ]
+ },
+ "world:Gran Meseta de Siberia Central": {
+  "aliases_es": [
+   "Meseta de Siberia Central",
+   "Meseta Central de Siberia"
+  ],
+  "confident": true,
+  "coord": [
+   95,
+   68
+  ],
+  "label_en": "Central Siberian Plateau",
+  "label_es": "Meseta Central Siberiana",
+  "qid": "Q155197",
+  "types": [
+   "Q46831",
+   "Q2177064",
+   "Q55075651"
+  ]
+ },
+ "world:Kilimanjaro": {
+  "aliases_es": [],
+  "confident": true,
+  "coord": [
+   37.35917,
+   -3.06667
+  ],
+  "label_en": "Mount Kilimanjaro",
+  "label_es": "Kilimanjaro",
+  "qid": "Q7296",
+  "types": [
+   "Q1061151",
+   "Q1325302"
+  ]
+ },
+ "world:Macizo Central Francés": {
+  "aliases_es": [],
+  "confident": false,
+  "coord": [
+   2.96667,
+   45.775
+  ],
+  "label_en": "Massif Central",
+  "label_es": "Macizo Central",
+  "qid": "Q190695",
+  "types": [
+   "Q1437459",
+   "Q55075651",
+   "Q46831"
+  ]
+ },
+ "world:Macizo Etiópico": {
+  "aliases_es": [
+   "Macizo Etiópico",
+   "Macizo de Etiopía",
+   "Macizo etiope",
+   "Macizo Etiopico",
+   "Macizo de Etiopia"
+  ],
+  "confident": true,
+  "coord": [
+   38.16667,
+   10
+  ],
+  "label_en": "Ethiopian Highlands",
+  "label_es": "Macizo abisino",
+  "qid": "Q319288",
+  "types": [
+   "Q46831",
+   "Q792425",
+   "Q6617741"
+  ]
+ },
+ "world:Macizo de Ahaggar": {
+  "aliases_es": [],
+  "confident": false,
+  "coord": [
+   1.24306,
+   19.46583
+  ],
+  "label_en": "Ahaggar",
+  "label_es": null,
+  "qid": "Q27691631",
+  "types": [
+   "Q54050"
+  ]
+ },
+ "world:Macizo de las Guayanas": {
+  "aliases_es": [],
+  "confident": false,
+  "coord": [
+   -56.07672,
+   4.3201
+  ],
+  "label_en": "Guyanas",
+  "label_es": "Las Guayanas",
+  "qid": "Q650667",
+  "types": [
+   "Q82794"
+  ]
+ },
+ "world:Mar Caspio": {
+  "aliases_es": [],
+  "confident": true,
+  "coord": [
+   50.5,
+   42
+  ],
+  "label_en": "Caspian Sea",
+  "label_es": "mar Caspio",
+  "qid": "Q5484",
+  "types": [
+   "Q9019918",
+   "Q188025",
+   "Q23397",
+   "Q165"
+  ]
+ },
+ "world:Mar Muerto": {
+  "aliases_es": [],
+  "confident": false,
+  "coord": [
+   -2.57107,
+   37.84162
+  ],
+  "label_en": "Muerto",
+  "label_es": "Muerto",
+  "qid": "Q115506833",
+  "types": [
+   "Q131862"
+  ]
+ },
+ "world:Meseta Brasileña": {
+  "aliases_es": [
+   "Planalto Brasileiro",
+   "Escudo del Brasil",
+   "Meseta Brasilena"
+  ],
+  "confident": false,
+  "coord": [
+   -49.2,
+   -17.67324
+  ],
+  "label_en": "Brazilian Highlands",
+  "label_es": "Meseta Brasileña",
+  "qid": "Q118899",
+  "types": [
+   "Q4835091",
+   "Q792425",
+   "Q878223",
+   "Q82794"
+  ]
+ },
+ "world:Meseta de Irán": {
+  "aliases_es": [
+   "Altiplano Iraní",
+   "Llanura iraní",
+   "Meseta de Irán",
+   "Meseta persa",
+   "Meseta irani",
+   "Meseta de Iran",
+   "Altiplano Irani",
+   "Llanura irani"
+  ],
+  "confident": true,
+  "coord": [
+   59.05,
+   36.28333
+  ],
+  "label_en": "Iranian plateau",
+  "label_es": "Meseta iraní",
+  "qid": "Q237660",
+  "types": [
+   "Q75520"
+  ]
+ },
+ "world:Meseta del Lago Victoria": {
+  "aliases_es": [
+   "Estado de Victoria",
+   "Victoria (Australia)"
+  ],
+  "confident": false,
+  "coord": [
+   144.28111,
+   -36.85417
+  ],
+  "label_en": "Victoria",
+  "label_es": "Victoria",
+  "qid": "Q36687",
+  "types": [
+   "Q5852411",
+   "Q1351282"
+  ]
+ },
+ "world:Meseta del Tíbet": {
+  "aliases_es": [
+   "Meseta del Tíbet",
+   "Meseta del Tibet"
+  ],
+  "confident": true,
+  "coord": [
+   88,
+   33
+  ],
+  "label_en": "Tibetan Plateau",
+  "label_es": "Meseta Tibetana",
+  "qid": "Q179842",
+  "types": [
+   "Q82794",
+   "Q75520"
+  ]
+ },
+ "world:Mont Blanc": {
+  "aliases_es": [
+   "Monte Blanco"
+  ],
+  "confident": true,
+  "coord": [
+   6.865,
+   45.83278
+  ],
+  "label_en": "Mont Blanc",
+  "label_es": "Mont Blanc",
+  "qid": "Q583",
+  "types": [
+   "Q8502",
+   "Q111177881",
+   "Q3393392",
+   "Q1570358",
+   "Q3116906",
+   "Q22009162",
+   "Q1740763"
+  ]
+ },
+ "world:Montañas Rocosas": {
+  "aliases_es": [],
+  "confident": true,
+  "coord": [
+   -113.8,
+   44.15
+  ],
+  "label_en": "Rocky Mountains",
+  "label_es": "Montañas Rocosas",
+  "qid": "Q5463",
+  "types": [
+   "Q1437459",
+   "Q46831"
+  ]
+ },
+ "world:Montes Apalaches": {
+  "aliases_es": [
+   "Montañas Apalaches",
+   "Montañas Apalache",
+   "Montanas Apalaches",
+   "Montes Apalaches"
+  ],
+  "confident": true,
+  "coord": [
+   -82.26528,
+   35.76472
+  ],
+  "label_en": "Appalachian Mountains",
+  "label_es": "Apalaches",
+  "qid": "Q93332",
+  "types": [
+   "Q46831"
+  ]
+ },
+ "world:Montes Atlas": {
+  "aliases_es": [
+   "Montes Atlas",
+   "Cordillera del Atlas"
+  ],
+  "confident": true,
+  "coord": [
+   -7.91611,
+   31.06194
+  ],
+  "label_en": "Atlas Mountains",
+  "label_es": "Atlas",
+  "qid": "Q130135",
+  "types": [
+   "Q46831"
+  ]
+ },
+ "world:Montes Drakensberg": {
+  "aliases_es": [
+   "UKhahlamba"
+  ],
+  "confident": true,
+  "coord": [
+   29.53333,
+   -29.36667
+  ],
+  "label_en": "Drakensberg",
+  "label_es": "Drakensberg",
+  "qid": "Q183295",
+  "types": [
+   "Q46831",
+   "Q792425"
+  ]
+ },
+ "world:Montes Escandinavos": {
+  "aliases_es": [
+   "Kjolen",
+   "Kjølen",
+   "Montes Escandinavos"
+  ],
+  "confident": true,
+  "coord": [
+   14,
+   65
+  ],
+  "label_en": "Scandinavian Mountains",
+  "label_es": "Alpes escandinavos",
+  "qid": "Q186547",
+  "types": [
+   "Q1437459",
+   "Q46831"
+  ]
+ },
+ "world:Montes Urales": {
+  "aliases_es": [
+   "Urales"
+  ],
+  "confident": true,
+  "coord": [
+   59,
+   60
+  ],
+  "label_en": "Ural Mountains",
+  "label_es": "Montes Urales",
+  "qid": "Q35600",
+  "types": [
+   "Q46831"
+  ]
+ },
+ "world:Península de Alaska": {
+  "aliases_es": [
+   "Peninsula de Alaska"
+  ],
+  "confident": true,
+  "coord": [
+   -158.75,
+   56.5
+  ],
+  "label_en": "Alaska Peninsula",
+  "label_es": "Península de Alaska",
+  "qid": "Q60064",
+  "types": [
+   "Q34763"
+  ]
+ },
+ "world:Península de California": {
+  "aliases_es": [
+   "Baja California",
+   "Peninsula de California",
+   "Península de Baja California",
+   "Peninsula de Baja California"
+  ],
+  "confident": true,
+  "coord": [
+   -113.5,
+   28
+  ],
+  "label_en": "Baja California peninsula",
+  "label_es": "península de California",
+  "qid": "Q178543",
+  "types": [
+   "Q34763"
+  ]
+ },
+ "world:Península de Corea": {
+  "aliases_es": [
+   "Peninsula coreana",
+   "Peninsula de Corea",
+   "Península Coreana"
+  ],
+  "confident": true,
+  "coord": [
+   127,
+   37.5
+  ],
+  "label_en": "Korean Peninsula",
+  "label_es": "península de Corea",
+  "qid": "Q483134",
+  "types": [
+   "Q34763"
+  ]
+ },
+ "world:Península de Florida": {
+  "aliases_es": [
+   "península de la Florida"
+  ],
+  "confident": true,
+  "coord": [
+   -81.5,
+   28.0
+  ],
+  "label_en": "Florida Peninsula",
+  "label_es": "Península de Florida",
+  "qid": "Q2661894",
+  "types": [
+   "Q34763"
+  ]
+ },
+ "world:Península de Indochina": {
+  "aliases_es": [
+   "Península de Indochina",
+   "Peninsula Indochina",
+   "Península Indochina",
+   "Peninsula de Indochina"
+  ],
+  "confident": true,
+  "coord": [
+   102,
+   16
+  ],
+  "label_en": "Mainland Southeast Asia",
+  "label_es": "Indochina",
+  "qid": "Q43467",
+  "types": [
+   "Q34763",
+   "Q82794"
+  ]
+ },
+ "world:Península del Labrador": {
+  "aliases_es": [
+   "Peninsula del Labrador"
+  ],
+  "confident": true,
+  "coord": [
+   -69,
+   55
+  ],
+  "label_en": "Labrador Peninsula",
+  "label_es": "Península del Labrador",
+  "qid": "Q84170",
+  "types": [
+   "Q34763"
+  ]
+ },
+ "world:Pirineos": {
+  "aliases_es": [
+   "Montes Pirineos",
+   "Los Pirineos"
+  ],
+  "confident": true,
+  "coord": [
+   0.6,
+   42.7
+  ],
+  "label_en": "Pyrenees",
+  "label_es": "Pirineos",
+  "qid": "Q12431",
+  "types": [
+   "Q46831"
+  ]
+ },
+ "world:Q170427": {
+  "aliases_es": [
+   "Cordillera de los Balcanes",
+   "Parque Nacional de Stara Planina",
+   "Cordillera Balcanica",
+   "Cordillera Balcánica",
+   "Stara Planina"
+  ],
+  "confident": true,
+  "coord": [
+   24.97626,
+   42.78421
+  ],
+  "label_en": "Balkan Mountains",
+  "label_es": "Montes Balcanes",
+  "qid": "Q170427",
+  "types": [
+   "Q46831"
+  ]
+ },
+ "world:Q23883": {
+  "aliases_es": [
+   "Lago de asfaltites"
+  ],
+  "confident": true,
+  "coord": [
+   35.4845,
+   31.5207
+  ],
+  "label_en": "Dead Sea",
+  "label_es": "mar Muerto",
+  "qid": "Q23883",
+  "types": [
+   "Q9019918",
+   "Q2912558"
+  ]
+ },
+ "world:Rift Valley": {
+  "aliases_es": [
+   "Valle del Gran Rift",
+   "Rift valley",
+   "Valle del Rift",
+   "Valle Rift",
+   "Falla Albertina"
+  ],
+  "confident": false,
+  "coord": [
+   36.1,
+   -0.1
+  ],
+  "label_en": "Great Rift Valley",
+  "label_es": "Gran Valle del Rift",
+  "qid": "Q81591",
+  "types": [
+   "Q192810"
+  ]
+ },
+ "world:Tierra de Fuego": {
+  "aliases_es": [
+   "Archipielago de Tierra del Fuego",
+   "Archipielago Tierra del Fuego",
+   "Archipiélago Tierra del Fuego",
+   "Tierra del Fuego"
+  ],
+  "confident": false,
+  "coord": [
+   -70,
+   -54
+  ],
+  "label_en": "Tierra del Fuego",
+  "label_es": "Archipiélago de Tierra del Fuego",
+  "qid": "Q82601",
+  "types": [
+   "Q1402592"
+  ]
+ }
+}

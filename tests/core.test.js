@@ -19,7 +19,7 @@ test('Alicante and La Nao stay on their geographic centres when both circles fit
 test('questions distinguish peaks, ranges and their component sierras',async()=>{const {featureType}=await import('../core.js');for(const [name,type] of [['Everest','pico'],['Cordillera del Himalaya','cordillera'],['Sierra de Gredos','sierra'],['Sistema Central','sistema'],['Rift Valley','valle'],['Tierra de Fuego','archipiélago'],['Picos de Europa','macizo']])assert.equal(featureType(named(name,ITEMS)),type);});
 test('nearby anchor choice is independent of the answer and respects zoom',async()=>{const {anchorChoices}=await import('../core.js');const a=[{index:1,pos:[50,50]},{index:2,pos:[74,50]},{index:3,pos:[120,50]}];assert.deepEqual(anchorChoices(a,[50,50]).map(x=>x.index),[1,2]);assert.deepEqual(anchorChoices(a,[50,50],2).map(x=>x.index),[1]);assert.deepEqual(anchorChoices(a,[0,0]),[]);});
 
-test('Finisterre sits on its own headland of the original map, not on Monte Louro',async()=>{const {mapPosition,originalIberia}=await import('../core.js');const cape=named('Cabo de Finisterre');assert.deepEqual(mapPosition(cape,'original'),[156/1057*1000,96/753*712.4]);assert.equal(cape.lon,-9.272194);assert.equal(cape.lat,42.8825);for(const item of ITEMS)assert.deepEqual(mapPosition(item,'terrain'),mapPosition(item,'natural'));
+test('Finisterre sits on its own headland of the original map, not on Monte Louro',async()=>{const {mapPosition,originalIberia}=await import('../core.js');const cape=named('Cabo de Finisterre');const [x,y]=mapPosition(cape,'original');assert.ok(Math.abs(x-156/1057*1000)<.5&&Math.abs(y-96/753*712.4)<.5);assert.ok(Math.abs(cape.lon+9.2722)<.001&&Math.abs(cape.lat-42.8825)<.001);for(const item of ITEMS)assert.deepEqual(mapPosition(item,'terrain'),mapPosition(item,'natural'));
  // Capes are pinned to the drawn coast; they must agree with the coastline registration.
  for(const c of ib.filter(i=>i.category==='Cabos')){const [x,y]=mapPosition(c,'original'),[u,v]=originalIberia(c.lon,c.lat);assert.ok(Math.hypot(x-u,y-v)<5,c.name);}
 });
@@ -70,4 +70,10 @@ test('land zones stay out of the sea and the Labrador peninsula is complete',asy
 test('hints keep the landform words and mask only what identifies the place',async()=>{const {hintPattern}=await import('../core.js');
  assert.equal(hintPattern('Macizo de las Guayanas'),'Macizo de las G·······');assert.equal(hintPattern('Cordillera Bética'),'Cordillera B·····');assert.equal(hintPattern('Everest'),'E······');
  for(const i of ITEMS)assert.notEqual(hintPattern(i.name),i.name,i.name);
+});
+
+test('places.js is generated from the names in sources/lugares.json with stable ids',async()=>{const {readFileSync}=await import('node:fs');
+ const read=f=>JSON.parse(readFileSync(new URL('../sources/'+f,import.meta.url),'utf8'));const lugares=read('lugares.json'),ids=read('ids.json');
+ const expected=[];for(const [sk,scope] of [['mundo','world'],['peninsula','iberia']])for(const [group,names] of Object.entries(lugares[sk]))for(const name of names)expected.push({id:ids[`${sk}:${name}`],scope,group,name});
+ assert.deepEqual(ITEMS.map(({id,scope,group,name})=>({id,scope,group,name})),expected);
 });
