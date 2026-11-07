@@ -7,10 +7,10 @@ Práctica de geografía para escritorio: **52 elementos del relieve mundial** y 
 ## Modos
 
 - **Escribe:** identifica el punto señalado con una pregunta que indica el tipo de relieve; sesiones aleatorias de 5, 10, 20 o todos los lugares disponibles.
-- **Localiza:** lee un nombre y señala su ubicación.
+- **Localiza:** lee un nombre y señala su ubicación. Si fallas, se marca dónde pinchaste, una línea hasta el punto aceptado más próximo y la distancia en kilómetros.
 - **Mapa mudo:** arrastra etiquetas a anclas mudas numeradas, o selecciona una y haz clic en el ancla. Usa todos los elementos del filtro elegido.
 - **Reto:** escribe los nombres y consulta la corrección al finalizar.
-- **Repasa fallos:** vuelve sobre las últimas respuestas incorrectas. Un acierto posterior sin ayuda saca el elemento de este modo.
+- **Repasa fallos:** vuelve sobre las últimas respuestas incorrectas, en el mismo tipo de juego en que se fallaron: lo fallado en Localiza o Mapa mudo se señala en el mapa y lo demás se escribe. Un acierto posterior sin ayuda saca el elemento de este modo.
 - **Explora:** consulta nombres y puntos de referencia sin puntuación.
 
 Filtra por continente y tipo de relieve; cambia entre relieve detallado, Natural Earth y el mapa original incluso durante una sesión. El número real de preguntas se limita a los elementos disponibles.
@@ -50,7 +50,7 @@ npm test
 
 Requisitos de desarrollo: Node.js 18+ para las pruebas y Python 3 para el servidor local. El navegador solo necesita soporte de módulos ES, SVG, Canvas 2D y Pointer Events.
 
-GitHub Pages publica la raíz de la rama `main`, con `.nojekyll`. Cada push actualiza la web. No requiere secretos ni un backend. Para trasladarla a otra URL, actualiza canonical, Open Graph, Twitter, `robots.txt` y `sitemap.xml`.
+GitHub Pages publica la raíz de la rama `main`, con `.nojekyll`. Cada push actualiza la web. Pages sirve los archivos con 10 minutos de caché: al cambiar código o datos, sube la versión `?v=` de `index.html`, `app.js` y `data.js` (un test comprueba que coinciden). No requiere secretos ni un backend. Para trasladarla a otra URL, actualiza canonical, Open Graph, Twitter, `robots.txt` y `sitemap.xml`.
 
 Incluye favicon SVG, imagen social JPEG de 1200 × 630, metadatos en español y sitemap. Los assets se sirven desde rutas relativas, compatibles con la subruta `/relieve/`.
 

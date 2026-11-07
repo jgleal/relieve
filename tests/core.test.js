@@ -44,3 +44,12 @@ test('Localiza accepts any part of a feature and rejects its neighbours on every
  const w=(n,lon,lat,ok)=>{const i=named(n,world);for(const b of ['natural','original'])assert.equal(hit(i,b,project(lon,lat,'world',b)),ok,`${n} ${b} ${lon},${lat}`);};
  w('Montañas Rocosas',-116.5,51.5,true);w('Montañas Rocosas',-106,37,true);w('Cordillera del Himalaya',77,33,true);w('Cordillera del Himalaya',92,28,true);w('Mar Caspio',50,45.5,true);w('Mar Caspio',53,39,true);w('Alpes',7,45.8,true);w('Alpes',2,46,false);w('Pirineos',-1,43,true);w('Pirineos',-1,40.5,false);
 });
+
+test('every module and stylesheet reference carries the same cache version',async()=>{const {readFileSync}=await import('node:fs');const v=new Set();for(const f of ['index.html','app.js','data.js']){const refs=[...readFileSync(new URL('../'+f,import.meta.url),'utf8').matchAll(/(?:href|src|from) ?=? ?["']\.?\/?([\w-]+\.(?:js|css))(\?v=[\w]+)?["']/g)];for(const m of refs){assert.ok(m[2],`${f}: ${m[1]} sin versión`);v.add(m[2]);}}assert.equal(v.size,1);});
+
+test('miss distance is measured to the nearest accepted point, consistently on every base',async()=>{const {missKm,project,originalIberia,toLonLat}=await import('../core.js');
+ const gredos=named('Sierra de Gredos');const d=['natural','terrain','original'].map(b=>missKm(gredos,b,b==='original'?originalIberia(-3.96,40.85):project(-3.96,40.85,'iberia',b)));
+ for(const x of d)assert.ok(x>40&&x<90,String(x));assert.ok(Math.abs(d[0]-d[2])<5);
+ const andes=named('Cordillera de los Andes',world);{const x=missKm(andes,'natural',project(-58.4,-34.6,'world','natural'));assert.ok(x>700&&x<1100,String(x));}
+ for(const b of ['natural','original']){const [lon,lat]=toLonLat(project(-70,-33,'world',b),'world',b);assert.ok(Math.abs(lon+70)<1e-4&&Math.abs(lat+33)<1e-4);}
+});

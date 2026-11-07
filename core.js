@@ -78,3 +78,28 @@ export function anchorChoices(anchors,p,scale=1){
  const nearest=closestAnchor(anchors,p,scale);
  return nearest?anchors.filter(a=>Math.hypot(a.pos[0]-nearest.pos[0],a.pos[1]-nearest.pos[1])*scale<=32).sort((a,b)=>a.index-b.index):[];
 }
+
+// Inverse of the map projection for any base (Newton with a numeric Jacobian).
+export function toLonLat(p,scope,base,guess=[0,scope==='world'?20:40]){
+ const f=([lon,lat])=>scope==='iberia'&&base==='original'?originalIberia(lon,lat):project(lon,lat,scope,base);
+ let g=[...guess];
+ for(let n=0;n<20;n++){
+  const a=f(g),h=1e-4,dx=f([g[0]+h,g[1]]),dy=f([g[0],g[1]+h]);
+  const j=[[(dx[0]-a[0])/h,(dy[0]-a[0])/h],[(dx[1]-a[1])/h,(dy[1]-a[1])/h]],det=j[0][0]*j[1][1]-j[0][1]*j[1][0];
+  const ex=p[0]-a[0],ey=p[1]-a[1];if(Math.hypot(ex,ey)<1e-6||!det)break;
+  g=[g[0]+(j[1][1]*ex-j[0][1]*ey)/det,Math.max(-85,Math.min(85,g[1]+(-j[1][0]*ex+j[0][0]*ey)/det))];
+ }
+ return g;
+}
+export function km([lon1,lat1],[lon2,lat2]){const r=Math.PI/180,a=Math.sin((lat2-lat1)*r/2)**2+Math.cos(lat1*r)*Math.cos(lat2*r)*Math.sin((lon2-lon1)*r/2)**2;return 12742*Math.asin(Math.sqrt(a));}
+function closestOnSegment(p,a,b){const dx=b[0]-a[0],dy=b[1]-a[1],t=Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dy)/(dx*dx+dy*dy||1)));return [a[0]+t*dx,a[1]+t*dy];}
+// Closest accepted point of a feature's Localiza zone, used to explain a miss.
+export function closestZonePoint(item,base,p){
+ const g=geometry(item,base),cands=[];
+ const toward=(c,r)=>{const d=Math.hypot(p[0]-c[0],p[1]-c[1])||1;return [c[0]+(p[0]-c[0])*Math.min(1,r/d),c[1]+(p[1]-c[1])*Math.min(1,r/d)];};
+ for(const poly of g.polygons||[])poly.forEach((a,i)=>cands.push(closestOnSegment(p,a,poly[(i+1)%poly.length])));
+ if(g.points)g.points.slice(1).forEach((b,i)=>cands.push(toward(closestOnSegment(p,g.points[i],b),g.radius)));
+ cands.push(toward(g.center,g.polygons||g.points?g.min:g.radius));
+ return cands.sort((a,b)=>Math.hypot(a[0]-p[0],a[1]-p[1])-Math.hypot(b[0]-p[0],b[1]-p[1]))[0];
+}
+export function missKm(item,base,p){const q=closestZonePoint(item,base,p),guess=[item.lon,item.lat];return km(toLonLat(p,item.scope,base,guess),toLonLat(q,item.scope,base,guess));}

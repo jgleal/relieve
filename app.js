@@ -1,14 +1,16 @@
-import {ITEMS} from './data.js';
-import {checkAnswer,shuffle,mapPosition,hit,layoutAnchors,closestAnchor,featureType,anchorChoices} from './core.js';
+import {ITEMS} from './data.js?v=20261107b';
+import {checkAnswer,shuffle,mapPosition,hit,layoutAnchors,closestAnchor,featureType,anchorChoices,closestZonePoint,missKm} from './core.js?v=20261107b';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let saved={};try{saved=JSON.parse(localStorage.getItem('relieve-progress-v1')||'{}');if(!saved||typeof saved!=='object'||Array.isArray(saved))saved={};}catch{}
 let scope='world',mode='write',base='terrain',session=null,selected=null,view=[0,0,1200,500],dims=[1200,500],cursor=null,draggingPan=null,anchors=[];
-const descriptions={write:['¿Cuántos recuerdas?','Identifica el punto señalado. La pregunta indica qué tipo de relieve buscamos.'],point:['Encuentra su lugar.','Lee el nombre y señala su ubicación. Amplía el mapa cuando necesites precisión.'],drag:['Todo por colocar.','Cada ancla señala un lugar. Arrastra las etiquetas al ancla correspondiente, o selecciona una y haz clic.'],challenge:['Un reto para recordar.','Escribe el nombre de cada punto señalado. Verás la corrección al finalizar. Si una respuesta es genérica o ambigua, te pediremos precisarla.'],review:['Una segunda vuelta.','Practica escribiendo los lugares que fallaste. Desaparecerán de este repaso cuando los aciertes sin ayuda.'],study:['Mira con calma.','Selecciona un nombre para ver su punto de referencia. Explora el mapa sin tiempo ni puntuación.']};
+const descriptions={write:['¿Cuántos recuerdas?','Identifica el punto señalado. La pregunta indica qué tipo de relieve buscamos.'],point:['Encuentra su lugar.','Lee el nombre y señala su ubicación. Amplía el mapa cuando necesites precisión.'],drag:['Todo por colocar.','Cada ancla señala un lugar. Arrastra las etiquetas al ancla correspondiente, o selecciona una y haz clic.'],challenge:['Un reto para recordar.','Escribe el nombre de cada punto señalado. Verás la corrección al finalizar. Si una respuesta es genérica o ambigua, te pediremos precisarla.'],review:['Una segunda vuelta.','Repite los lugares que fallaste en el mismo tipo de juego: los que fallaste en el mapa se señalan y los demás se escriben. Desaparecen del repaso cuando los aciertas sin ayuda.'],study:['Mira con calma.','Selecciona un nombre para ver su punto de referencia. Explora el mapa sin tiempo ni puntuación.']};
+// Review repeats each place in the kind of game where it was missed: on the map or writing.
+function qmode(i=current()){return mode==='review'?(saved[i?.id]?.game==='map'?'point':'write'):mode;}
 function pool(){return ITEMS.filter(i=>i.scope===scope);}
 function filtered(){return pool().filter(i=>($('#group').value==='all'||i.group===$('#group').value)&&($('#category').value==='all'||i.category===$('#category').value)&&(mode!=='review'||saved[i.id]?.last===false));}
 function updateStats(){const n=ITEMS.filter(i=>saved[i.id]?.last===true).length;$('#mastered').innerHTML=`${n} <small>/ 74</small>`;$('#overall-bar').style.width=`${n/74*100}%`;}
-function persist(item,ok){const old=saved[item.id]||{};saved[item.id]={attempts:(Number(old.attempts)||0)+1,correct:(Number(old.correct)||0)+(ok?1:0),last:ok};try{localStorage.setItem('relieve-progress-v1',JSON.stringify(saved));}catch{$('.local-badge').textContent='Progreso solo durante esta visita';}updateStats();}
+function persist(item,ok,game=qmode(item)){const old=saved[item.id]||{};saved[item.id]={attempts:(Number(old.attempts)||0)+1,correct:(Number(old.correct)||0)+(ok?1:0),last:ok,game:game==='drag'||game==='point'?'map':'write'};try{localStorage.setItem('relieve-progress-v1',JSON.stringify(saved));}catch{$('.local-badge').textContent='Progreso solo durante esta visita';}updateStats();}
 function updateFilters(){
  $('#group').innerHTML=scope==='world'?'<option value="all">Todo el mundo</option>'+['Asia','América','África','Europa','Oceanía'].map(v=>`<option>${v}</option>`).join(''):'<option value="all">Toda la Península</option>';
  $('#category').innerHTML='<option value="all">Todos los tipos</option>'+[...new Set(pool().map(i=>i.category))].map(v=>`<option>${v}</option>`).join('');
@@ -40,6 +42,9 @@ function pointMark(item,label=false,color='#b45332'){
  const [x,y]=mapPosition(item,base), k=1/mapScale();
  return `<g><circle cx="${x}" cy="${y}" r="${12*k}" fill="${color}" fill-opacity=".13"/><circle cx="${x}" cy="${y}" r="${4.5*k}" fill="${color}" stroke="#fffdf7" stroke-width="${1.5*k}"/>${label?`<text x="${x+11*k}" y="${y-10*k}" font-size="${12*k}" style="stroke-width:${3*k}px" stroke-linejoin="round">${esc(item.name)}</text>`:''}</g>`;
 }
+// After a miss in Localiza: where the click was, and a line to the nearest accepted point.
+function missMark(){const m=session.miss;if(!m)return '';const k=1/mapScale(),[x,y]=m.p,[qx,qy]=m.q;
+ return `<g class="miss"><line x1="${x}" y1="${y}" x2="${qx}" y2="${qy}" stroke="#fffdf8" stroke-width="${3.5*k}"/><line x1="${x}" y1="${y}" x2="${qx}" y2="${qy}" stroke="#a3402a" stroke-width="${1.5*k}" stroke-dasharray="${5*k} ${4*k}"/><circle cx="${qx}" cy="${qy}" r="${3*k}" fill="#a3402a" stroke="#fffdf8" stroke-width="${k}"/><path d="M${x-6*k} ${y-6*k}l${12*k} ${12*k}M${x+6*k} ${y-6*k}l${-12*k} ${12*k}" stroke="#fffdf8" stroke-width="${4*k}" stroke-linecap="round"/><path d="M${x-6*k} ${y-6*k}l${12*k} ${12*k}M${x+6*k} ${y-6*k}l${-12*k} ${12*k}" stroke="#a3402a" stroke-width="${2*k}" stroke-linecap="round"/></g>`;}
 function nearestAnchor(p){return closestAnchor(anchors.filter(a=>!session.placed.has(a.item.id)),p,mapScale());}
 function highlightAnchor(p){const target=session&&mode==='drag'?nearestAnchor(p):null;const tip=$('#anchor-tip');if(tip){tip.hidden=!target;tip.textContent=target?`Ancla ${target.index} · ${featureType(target.item)}`:'';}$$('#marks [data-anchor]').forEach(g=>g.classList.toggle('hovered',g.dataset.anchor===target?.item.id));}
 function renderMarks(){
@@ -53,8 +58,8 @@ function renderMarks(){
     return `<g data-anchor="${a.item.id}" class="map-anchor ${done?'placed':''} ${hint?'hinted':''}">${Math.hypot(x-cx,y-cy)>k?`<line class="anchor-leader" x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#fffdf8" stroke-width="${3.5*k}"/><line x1="${cx}" y1="${cy}" x2="${x}" y2="${y}" stroke="#375344" stroke-width="${1.25*k}"/><circle class="anchor-origin" cx="${cx}" cy="${cy}" r="${3*k}" fill="#375344" stroke="#fffdf8" stroke-width="${k}"/>`:""}<circle class="anchor-ring" cx="${x}" cy="${y}" r="${11*k}" stroke-width="${1.5*k}"/><text class="anchor-number" x="${x}" y="${y}" text-anchor="middle" dominant-baseline="central" font-size="${10*k}">${a.index}</text><title>${done?esc(a.item.name):`Ancla ${a.index} · ${featureType(a.item)}`}</title></g>`;
    }).join('');
   }else if(mode==='study'&&selected)html=pointMark(selected,true,'#315b46');
-  else if(current()&&['write','challenge','review'].includes(mode))html=pointMark(current(),session.answered&&mode!=='challenge');
-  else if(mode==='point'&&session.answered)html=pointMark(current(),true);
+  else if(current()&&['write','challenge'].includes(qmode()))html=pointMark(current(),session.answered&&mode!=='challenge');
+  else if(qmode()==='point'&&session.answered)html=missMark()+pointMark(current(),true);
  }
  $('#marks').innerHTML=html;if(session&&mode==='drag'){const tip=document.createElement('div');tip.id='anchor-tip';tip.hidden=true;tip.setAttribute('aria-live','polite');$('#map-stage').append(tip);}
 }
@@ -75,11 +80,11 @@ function renderGame(){
   html+='<div class="session-controls"><div id="feedback" role="status" aria-live="polite"></div>';
   html+=mode==='study'?'<button class="secondary" id="focus-place">Acercar al lugar <span>↗</span></button>':'<button class="secondary" id="reveal">Ver ancla de la etiqueta <span>↗</span></button>';
  }else{
-  const i=current();html+=`<div class="question-block"><div class="question-context"><span>${esc(i.group)}</span><span>${esc(featureType(i))}</span></div><h2 class="question-title">${mode==='point'?esc(i.name):`¿Qué ${featureType(i)} es?`}</h2>`;
-  if(mode==='point')html+='<div class="map-instruction"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg><div><strong>Señala su ubicación</strong><span>Señala en el mapa. Con el dedo, ajusta el punto y confirma.</span></div></div>';
+  const i=current(),qm=qmode(i);html+=`<div class="question-block"><div class="question-context"><span>${esc(i.group)}</span><span>${esc(featureType(i))}</span></div><h2 class="question-title">${qm==='point'?esc(i.name):`¿Qué ${featureType(i)} es?`}</h2>`;
+  if(qm==='point')html+='<div class="map-instruction"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/><path d="M12 2v3m0 14v3M2 12h3m14 0h3"/></svg><div><strong>Señala su ubicación</strong><span>Señala en el mapa. Con el dedo, ajusta el punto y confirma.</span></div></div>';
   else html+='<p class="muted">Pon nombre al punto naranja.</p><form id="answer-form"><label for="answer">Tu respuesta</label><input id="answer" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Escribe el nombre…" required maxlength="120"><button class="primary" type="submit">'+(mode==='challenge'?'Guardar y continuar':'Comprobar')+' <span>↵</span></button></form>';
   html+='</div><div class="session-controls"><div id="feedback" role="status" aria-live="polite"></div><button class="primary" id="next" hidden>Siguiente lugar <span>→</span></button><div class="action-row">'+(mode!=='challenge'?'<button class="secondary" id="reveal">Ver solución</button>':'')+'<button class="secondary" id="skip">Saltar <span>→</span></button></div>';
-  if(mode!=='point')html+='<button class="text-button focus-button" id="focus-place">Acercar al punto ↗</button>';
+  if(qm!=='point')html+='<button class="text-button focus-button" id="focus-place">Acercar al punto ↗</button>';
   else html+=`<label class="confirm-option"><input type="checkbox" id="confirm-location" ${confirmLocation?'checked':''}> Confirmar antes de responder</label>`+'<details class="keyboard-help"><summary>Usar el teclado</summary><p>Enfoca el mapa con <kbd>Tab</kbd>, mueve el cursor con las flechas y confirma con <kbd>Intro</kbd>.</p></details>';
  }
  html+='<button class="text-button" id="finish">Terminar sesión</button></div>';
@@ -113,7 +118,7 @@ function renderGame(){
    b.onpointerup=event=>end(event);b.onpointercancel=event=>end(event,true);
   };
  });
- if(mode!=='point'&&!['drag','study'].includes(mode))$('#answer')?.focus({preventScroll:true});
+ if(qmode()!=='point'&&!['drag','study'].includes(mode))$('#answer')?.focus({preventScroll:true});
 }
 // A small name pill follows a precise hotspot instead of the full sidebar button.
 let dragPreview=null;
@@ -134,13 +139,16 @@ function focusPlace(){const i=mode==='study'?selected:current();if(!i)return;con
 function feedback(html,type=''){const el=$('#feedback');if(el){el.className='feedback '+type;el.innerHTML=html;}}
 function submitText(){if(!session||session.answered)return;const value=$('#answer').value.trim();if(!value)return;const result=checkAnswer(value,current(),pool());if(['generic','ambiguous'].includes(result.kind)){feedback(result.kind==='generic'?'Eso indica el tipo de relieve. Añade el nombre que identifica el lugar.':'Ese nombre es ambiguo. Añade una palabra más para identificar el lugar.','warning');return;}answer(result,value);}
 function answer(result,value){if(!session||session.answered)return;clearPendingPoint();const item=current();session.answers.push({id:item.id,name:item.name,...result,value});session.answered=true;persist(item,result.ok);if(mode==='challenge'){next();return;}
- let message=result.ok?(['exact','location'].includes(result.kind)?'Correcto.':result.kind==='typo'?'Correcto, con una pequeña errata.':'Correcto. Has usado un nombre abreviado o alternativo.'):(result.kind==='ambiguous'?'Ese nombre puede referirse a más de un lugar.':result.kind==='skip'?'Lo dejamos para repasar.':result.kind==='reveal'?'Solución consultada. Se guardará para repasar.':'Esta vez no. Lo guardamos para repasar.');
+ let message=result.ok?(['exact','location'].includes(result.kind)?'Correcto.':result.kind==='typo'?'Correcto, con una pequeña errata.':'Correcto. Has usado un nombre abreviado o alternativo.'):(result.kind==='ambiguous'?'Ese nombre puede referirse a más de un lugar.':result.kind==='skip'?'Lo dejamos para repasar.':result.kind==='reveal'?'Solución consultada. Se guardará para repasar.':result.kind==='location'&&session.miss?`Esta vez no: te quedaste ${session.miss.txt}.`:'Esta vez no. Lo guardamos para repasar.');
  feedback(`${message}<br><strong>${esc(item.name)}</strong>`,result.ok?(['exact','location'].includes(result.kind)?'':'warning'):'error');
  $('#answer-form')?.querySelectorAll('input,button').forEach(e=>e.disabled=true);$('#reveal')?.setAttribute('disabled','');$('#skip')?.setAttribute('disabled','');$('#next').hidden=false;$('#next').textContent=session.index===session.items.length-1?'Ver resultados →':'Siguiente lugar →';renderMarks();$('#next').focus({preventScroll:true});}
 function reveal(){if(mode==='drag'){if(!selected){feedback('Selecciona primero una etiqueta.','warning');return;}session.failed.add(selected.id);session.revealed=true;feedback(`El ancla resaltada corresponde a <strong>${esc(selected.name)}</strong>. Colócala para continuar; quedará en tu repaso.`,'warning');renderMarks();}else answer({ok:false,kind:'reveal'},'Solución consultada');}
-function next(){session.index++;session.answered=false;cursor=null;$('#cursor').innerHTML='';if(session.index>=session.items.length){finish();return;}resetView();renderGame();renderMarks();}
+function next(){session.index++;session.answered=false;session.miss=null;cursor=null;$('#cursor').innerHTML='';if(session.index>=session.items.length){finish();return;}resetView();renderGame();renderMarks();}
 function place(p,confirmedId=null,touch=false){if(!session||mode==='study')return;
- if(mode==='point'&&!session.answered){answer({ok:hit(current(),base,p,(touch?18:6)/mapScale()),kind:'location'},'Ubicación en el mapa');return;}
+ if(qmode()==='point'&&!session.answered){const item=current(),ok=hit(item,base,p,(touch?18:6)/mapScale());
+  let value='Ubicación correcta';session.miss=null;
+  if(!ok){const d=missKm(item,base,p),txt=d<10?'a menos de 10 km':`a ${new Intl.NumberFormat('es-ES').format(Math.round(d/(d<100?5:10))*(d<100?5:10))} km`;session.miss={p,q:closestZonePoint(item,base,p),txt};value=`Te quedaste ${txt}`;}
+  answer({ok,kind:'location'},value);return;}
  if(mode!=='drag')return;if(!selected){feedback('Selecciona primero una etiqueta.','warning');return;}if(session.placed.has(selected.id))return;
  const choices=anchorChoices(anchors.filter(a=>!session.placed.has(a.item.id)),p,mapScale());
  if(!confirmedId&&choices.length>1){
@@ -150,12 +158,12 @@ function place(p,confirmedId=null,touch=false){if(!session||mode==='study')retur
   box.querySelector('[data-zoom]').onclick=()=>zoom(.5,choices[0].center);box.querySelector('[data-cancel]').onclick=()=>box.remove();box.querySelector('button').focus({preventScroll:true});return;
  }
  $('#anchor-choice')?.remove();
- const anchor=confirmedId?anchors.find(a=>a.item.id===confirmedId&&!session.placed.has(a.item.id)):nearestAnchor(p);if(anchor?.item.id===selected.id){const ok=!session.failed.has(selected.id);session.placed.add(selected.id);session.answers.push({id:selected.id,name:selected.name,ok,kind:'location',value:ok?'Ubicación correcta':'Colocado tras un error o una pista'});persist(selected,ok);selected=null;session.revealed=false;renderGame();renderMarks();feedback(ok?'Bien colocado. Continúa con otra etiqueta.':'Colocado. Lo volveremos a practicar.');if(session.placed.size===session.items.length)finish();}
+ const anchor=confirmedId?anchors.find(a=>a.item.id===confirmedId&&!session.placed.has(a.item.id)):nearestAnchor(p);if(anchor?.item.id===selected.id){const ok=!session.failed.has(selected.id);session.placed.add(selected.id);session.answers.push({id:selected.id,name:selected.name,ok,kind:'location',value:ok?'Ubicación correcta':'Colocado tras un error o una pista'});persist(selected,ok,'drag');selected=null;session.revealed=false;renderGame();renderMarks();feedback(ok?'Bien colocado. Continúa con otra etiqueta.':'Colocado. Lo volveremos a practicar.');if(session.placed.size===session.items.length)finish();}
  else{if(anchor)session.failed.add(selected.id);feedback(`${anchor?'Esa ancla no corresponde.':'Elige un ancla del mapa.'} Busca <strong>${esc(selected.name)}</strong>.`,'error');}
 }
 function finish(){if(!session)return;if(mode==='study'){back();return;}
  // Preserve mistakes from unfinished drag attempts, without counting untouched labels.
- if(mode==='drag')for(const id of session.failed)if(!session.placed.has(id)){const i=session.items.find(x=>x.id===id);session.answers.push({id,name:i.name,ok:false,kind:'location',value:'Sin completar tras un error o una pista'});persist(i,false);}
+ if(mode==='drag')for(const id of session.failed)if(!session.placed.has(id)){const i=session.items.find(x=>x.id===id);session.answers.push({id,name:i.name,ok:false,kind:'location',value:'Sin completar tras un error o una pista'});persist(i,false,'drag');}
  const answers=session.answers;const n=answers.filter(a=>a.ok).length;const secs=Math.round((Date.now()-session.started)/1000);$('#game').hidden=true;$('#results').hidden=false;
  $('#results').innerHTML=`<p class="eyebrow">SESIÓN TERMINADA</p><h2>${n===answers.length&&n>0?'Bien aprendido.':'Cada vuelta cuenta.'}</h2><div class="result-score">${n}<small> / ${answers.length}</small></div><p class="muted">Aciertos · ${Math.floor(secs/60)} min ${secs%60} s<br>${session.items.length-answers.length?`${session.items.length-answers.length} lugares sin intentar.`:'Has completado toda la sesión.'}</p><ul class="result-list">${answers.map(a=>`<li class="${a.ok?'':'wrong'}">${a.ok?'✓':'↺'} ${esc(a.name)}<small>${esc(a.value)}${a.ok&&['short','typo'].includes(a.kind)?(a.kind==='short'?' · Nombre abreviado o alternativo':' · Pequeña errata aceptada'):''}</small></li>`).join('')}</ul><button class="primary" id="again">Otra ronda <span>↗</span></button><button class="secondary" id="review-now">Repasar mis fallos</button><button class="text-button" id="configure">Cambiar configuración</button>`;
  $('#again').onclick=()=>{back();start();};$('#configure').onclick=back;$('#review-now').onclick=()=>{back();setMode('review');};lock(false);session=null;selected=null;$('#marks').innerHTML='';$('#cursor').innerHTML='';resetView();}
@@ -180,7 +188,7 @@ svg.addEventListener('pointercancel',()=>{tap=null;draggingPan=null;});
 svg.addEventListener('click',e=>{
  if(suppressClick||e.shiftKey||tap?.moved)return;
  const touch=e.pointerType==='touch'||tap?.touch,p=mapPoint(e);tap=null;
- if(session&&mode==='point'&&!session.answered&&(touch||confirmLocation)){
+ if(session&&qmode()==='point'&&!session.answered&&(touch||confirmLocation)){
   pendingPoint=p;renderPendingPoint();return;
  }
  place(p,null,touch);
@@ -195,7 +203,7 @@ function renderPendingPoint(){
  box.innerHTML='<span>Puedes tocar otra vez para ajustar.</span><button class="primary">Confirmar ubicación</button><button class="secondary">Cancelar</button>';
  const buttons=box.querySelectorAll('button');buttons[0].onclick=()=>{const p=pendingPoint;if(!p)return;const nearby=pool().filter(i=>i.category===current()?.category&&!i.path&&!i.polygons&&Math.hypot(...mapPosition(i,base).map((v,n)=>v-p[n]))*mapScale()<=18);if(nearby.length>1&&dims[0]/view[2]<maxZoom()){zoom(.5,p);box.querySelector('span').textContent='Había lugares muy próximos. Ajusta el punto en esta vista ampliada.';return;}clearPendingPoint();place(p,null,true);};buttons[1].onclick=clearPendingPoint;$('#map-stage').append(box);
 }
-svg.addEventListener('keydown',e=>{if(!session||!['point','drag'].includes(mode))return;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();cursor??=[view[0]+view[2]/2,view[1]+view[3]/2];const step=view[2]/(e.shiftKey?200:60);if(e.key==='ArrowLeft')cursor[0]-=step;if(e.key==='ArrowRight')cursor[0]+=step;if(e.key==='ArrowUp')cursor[1]-=step;if(e.key==='ArrowDown')cursor[1]+=step;cursor=[Math.max(0,Math.min(dims[0],cursor[0])),Math.max(0,Math.min(dims[1],cursor[1]))];$('#cursor').innerHTML=`<circle cx="${cursor[0]}" cy="${cursor[1]}" r="${view[2]/100}" fill="none" stroke="#173f67" stroke-width="2"/>`; }else if(e.key==='Enter'&&cursor){e.preventDefault();place(cursor);}});
+svg.addEventListener('keydown',e=>{if(!session||!(mode==='drag'||qmode()==='point'))return;if(['ArrowUp','ArrowDown','ArrowLeft','ArrowRight'].includes(e.key)){e.preventDefault();cursor??=[view[0]+view[2]/2,view[1]+view[3]/2];const step=view[2]/(e.shiftKey?200:60);if(e.key==='ArrowLeft')cursor[0]-=step;if(e.key==='ArrowRight')cursor[0]+=step;if(e.key==='ArrowUp')cursor[1]-=step;if(e.key==='ArrowDown')cursor[1]+=step;cursor=[Math.max(0,Math.min(dims[0],cursor[0])),Math.max(0,Math.min(dims[1],cursor[1]))];$('#cursor').innerHTML=`<circle cx="${cursor[0]}" cy="${cursor[1]}" r="${view[2]/100}" fill="none" stroke="#173f67" stroke-width="2"/>`; }else if(e.key==='Enter'&&cursor){e.preventDefault();place(cursor);}});
 $('#sources').onclick=()=>$('#about').showModal();$('#about .close').onclick=()=>$('#about').close();$('#about').addEventListener('click',e=>{if(e.target===$('#about')){const r=e.target.getBoundingClientRect();if(e.clientX<r.left||e.clientX>r.right||e.clientY<r.top||e.clientY>r.bottom)e.target.close();}});
 $('#reset-progress').onclick=()=>{if(confirm('¿Borrar todos los aciertos y fallos guardados en este navegador?')){saved={};try{localStorage.removeItem('relieve-progress-v1');}catch{}updateStats();if(!session)updateSetup();}};
 new ResizeObserver(()=>renderMarks()).observe($('#map-stage'));

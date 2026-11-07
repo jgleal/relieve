@@ -1,4 +1,4 @@
-import {NATURAL_REGIONS} from './regions-natural-earth.js';
+import {NATURAL_REGIONS} from './regions-natural-earth.js?v=20261107b';
 // Geographic centres and teaching corridors; coordinates are [longitude, latitude].
 // Corridors are approximate learning zones, not administrative boundaries.
 const rows = [
