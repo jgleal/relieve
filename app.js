@@ -3,7 +3,7 @@ import {checkAnswer,shuffle,mapPosition,hit,layoutAnchors,closestAnchor,featureT
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 const esc=s=>String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let saved={};try{saved=JSON.parse(localStorage.getItem('relieve-progress-v1')||'{}');if(!saved||typeof saved!=='object'||Array.isArray(saved))saved={};}catch{}
-let scope='world',mode='write',base='natural',session=null,selected=null,view=[0,0,1200,500],dims=[1200,500],cursor=null,draggingPan=null,anchors=[];
+let scope='world',mode='write',base='terrain',session=null,selected=null,view=[0,0,1200,500],dims=[1200,500],cursor=null,draggingPan=null,anchors=[];
 const descriptions={write:['¿Cuántos recuerdas?','Identifica el punto señalado. La pregunta indica qué tipo de relieve buscamos.'],point:['Encuentra su lugar.','Lee el nombre y señala su ubicación. Amplía el mapa cuando necesites precisión.'],drag:['Todo por colocar.','Cada ancla señala un lugar. Arrastra las etiquetas al ancla correspondiente, o selecciona una y haz clic.'],challenge:['Un reto para recordar.','Escribe el nombre de cada punto señalado. Verás la corrección al finalizar. Si una respuesta es genérica o ambigua, te pediremos precisarla.'],review:['Una segunda vuelta.','Practica escribiendo los lugares que fallaste. Desaparecerán de este repaso cuando los aciertes sin ayuda.'],study:['Mira con calma.','Selecciona un nombre para ver su punto de referencia. Explora el mapa sin tiempo ni puntuación.']};
 function pool(){return ITEMS.filter(i=>i.scope===scope);}
 function filtered(){return pool().filter(i=>($('#group').value==='all'||i.group===$('#group').value)&&($('#category').value==='all'||i.category===$('#category').value)&&(mode!=='review'||saved[i.id]?.last===false));}
@@ -14,16 +14,30 @@ function updateFilters(){
  $('#category').innerHTML='<option value="all">Todos los tipos</option>'+[...new Set(pool().map(i=>i.category))].map(v=>`<option>${v}</option>`).join('');
 }
 function updateSetup(){const n=filtered().length;$('#available').textContent=`${n} ${n===1?'lugar disponible':'lugares disponibles'}${mode==='review'&&n===0?' · No tienes lugares pendientes de repaso en esta selección.':''}`;$('#start').disabled=n===0;$('#count').disabled=['drag','study'].includes(mode);$('#session-title').textContent=descriptions[mode][0];$('#mode-description').textContent=descriptions[mode][1];$('#start').innerHTML=(mode==='study'?'Explorar mapa':'Empezar práctica')+' <span>↗</span>';$('#setup-note').textContent=mode==='drag'?'Se incluyen todos los lugares de la selección. Pasa por un ancla para ver su tipo de relieve.':mode==='challenge'?'Cada respuesta se guarda al avanzar. El tiempo es informativo.':mode==='study'?'Consulta los puntos de referencia y aprende antes de practicar.':'Sin prisas. Las tildes y las pequeñas erratas no te frenan.';}
-function setMap(){dims=scope==='world'?(base==='original'?[1200,855]:[1200,500]):(base==='original'?[1000,712.4]:[1000,885]);$('#map-image').setAttribute('href',`assets/${base==='original'?'original':'natural'}-${scope}.webp`);$('#map-image').setAttribute('width',dims[0]);$('#map-image').setAttribute('height',dims[1]);$('#map-title').textContent=scope==='world'?'Relieve mundial':'Península Ibérica';$('#map-kicker').textContent=scope==='world'?'PLANISFERIO FÍSICO':'RELIEVE PENINSULAR';$('#map-tag').textContent=base==='original'?'MAPA ORIGINAL':'NATURAL EARTH';$('#map-credit').textContent=base==='original'?'Mapa original de la ficha':'Natural Earth · dominio público';$('#map').setAttribute('aria-label',`Mapa físico ${scope==='world'?'del mundo':'de la Península Ibérica'}. ${descriptions[mode][1]}`);resetView();renderMarks();}
-function applyView(){ $('#map').setAttribute('viewBox',view.join(' ')); renderMarks(); }
+function setMap(){dims=scope==='world'?(base==='original'?[1200,855]:[1200,500]):(base==='original'?[1000,712.4]:[1000,885]);$('#map-image').setAttribute('href',`assets/${base}-${scope}.webp`);$('#map-image').setAttribute('width',dims[0]);$('#map-image').setAttribute('height',dims[1]);$('#map-title').textContent=scope==='world'?'Relieve mundial':'Península Ibérica';$('#map-kicker').textContent=scope==='world'?'PLANISFERIO FÍSICO':'RELIEVE PENINSULAR';$('#map-tag').textContent=base==='original'?'MAPA ORIGINAL':base==='terrain'?'RELIEVE DETALLADO':'NATURAL EARTH';$('#map-credit').textContent=base==='original'?'Mapa original de la ficha':base==='terrain'?'NOAA / NCEI · relieve y batimetría':'Natural Earth · dominio público';$('#map').setAttribute('aria-label',`Mapa físico ${scope==='world'?'del mundo':'de la Península Ibérica'}. ${descriptions[mode][1]}`);resetView();renderMarks();}
+function applyView(){ $('#map').setAttribute('viewBox',view.join(' ')); renderMapDetail();renderMarks(); }
+// Keep the overview underneath while visible high-resolution tiles load.
+function renderMapDetail(){
+ const layer=$('#map-detail');let html='';
+ if(base==='terrain'&&dims[0]/view[2]>1.5){
+  const cols=scope==='world'?8:4,rows=4,w=dims[0]/cols,h=dims[1]/rows;
+  for(let row=0;row<rows;row++)for(let col=0;col<cols;col++){
+   const x=col*w,y=row*h;
+   if(x+w<view[0]||x>view[0]+view[2]||y+h<view[1]||y>view[1]+view[3])continue;
+   html+=`<image href="assets/terrain/${scope}/${col}-${row}.webp" x="${x}" y="${y}" width="${w}" height="${h}" preserveAspectRatio="none"/>`;
+  }
+ }
+ if(layer.innerHTML!==html)layer.innerHTML=html;
+}
 function resetView(){view=[0,0,...dims];applyView();}
-function zoom(factor,center){const cx=center?.[0]??view[0]+view[2]/2,cy=center?.[1]??view[1]+view[3]/2;const w=Math.max(dims[0]/12,Math.min(dims[0],view[2]*factor)),h=w*dims[1]/dims[0];view=[cx-(cx-view[0])*w/view[2],cy-(cy-view[1])*h/view[3],w,h];clampView();}
+function maxZoom(){return base==='natural'?3:base==='original'?6:scope==='world'?12:8;}
+function zoom(factor,center){const cx=center?.[0]??view[0]+view[2]/2,cy=center?.[1]??view[1]+view[3]/2;const w=Math.max(dims[0]/maxZoom(),Math.min(dims[0],view[2]*factor)),h=w*dims[1]/dims[0];view=[cx-(cx-view[0])*w/view[2],cy-(cy-view[1])*h/view[3],w,h];clampView();}
 function clampView(){view[0]=Math.max(0,Math.min(dims[0]-view[2],view[0]));view[1]=Math.max(0,Math.min(dims[1]-view[3],view[1]));applyView();}
 function current(){return session?.items[session.index];}
 function mapScale(){return $('#map').getScreenCTM()?.a||1;}
 function pointMark(item,label=false,color='#b45332'){
  const [x,y]=mapPosition(item,base), k=1/mapScale();
- return `<g><circle cx="${x}" cy="${y}" r="${12*k}" fill="${color}" fill-opacity=".13"/><circle cx="${x}" cy="${y}" r="${4.5*k}" fill="${color}" stroke="#fffdf7" stroke-width="${1.5*k}"/>${label?`<text x="${x+11*k}" y="${y-10*k}" font-size="${12*k}">${esc(item.name)}</text>`:''}</g>`;
+ return `<g><circle cx="${x}" cy="${y}" r="${12*k}" fill="${color}" fill-opacity=".13"/><circle cx="${x}" cy="${y}" r="${4.5*k}" fill="${color}" stroke="#fffdf7" stroke-width="${1.5*k}"/>${label?`<text x="${x+11*k}" y="${y-10*k}" font-size="${12*k}" style="stroke-width:${3*k}px" stroke-linejoin="round">${esc(item.name)}</text>`:''}</g>`;
 }
 function nearestAnchor(p){return closestAnchor(anchors.filter(a=>!session.placed.has(a.item.id)),p,mapScale());}
 function highlightAnchor(p){const target=session&&mode==='drag'?nearestAnchor(p):null;const tip=$('#anchor-tip');if(tip){tip.hidden=!target;tip.textContent=target?`Ancla ${target.index} · ${featureType(target.item)}`:'';}$$('#marks [data-anchor]').forEach(g=>g.classList.toggle('hovered',g.dataset.anchor===target?.item.id));}
@@ -114,7 +128,7 @@ function compactDragImage(name){
  return canvas;
 }
 function selectItem(id){selected=session.items.find(i=>i.id===id);session.revealed=false;renderGame();renderMarks();}
-function focusPlace(){const i=mode==='study'?selected:current();if(!i)return;const center=mapPosition(i,base),w=dims[0]/(scope==='world'?4:2.5);view=[center[0]-w/2,center[1]-w*dims[1]/dims[0]/2,w,w*dims[1]/dims[0]];clampView();}
+function focusPlace(){const i=mode==='study'?selected:current();if(!i)return;const center=mapPosition(i,base),w=dims[0]/Math.min(maxZoom(),scope==='world'?4:2.5);view=[center[0]-w/2,center[1]-w*dims[1]/dims[0]/2,w,w*dims[1]/dims[0]];clampView();}
 function feedback(html,type=''){const el=$('#feedback');if(el){el.className='feedback '+type;el.innerHTML=html;}}
 function submitText(){if(!session||session.answered)return;const value=$('#answer').value.trim();if(!value)return;const result=checkAnswer(value,current(),pool());if(['generic','ambiguous'].includes(result.kind)){feedback(result.kind==='generic'?'Eso indica el tipo de relieve. Añade el nombre que identifica el lugar.':'Ese nombre es ambiguo. Añade una palabra más para identificar el lugar.','warning');return;}answer(result,value);}
 function answer(result,value){if(!session||session.answered)return;const item=current();session.answers.push({id:item.id,name:item.name,...result,value});session.answered=true;persist(item,result.ok);if(mode==='challenge'){next();return;}

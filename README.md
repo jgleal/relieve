@@ -13,7 +13,7 @@ Práctica de geografía para escritorio: **52 elementos del relieve mundial** y 
 - **Repasa fallos:** vuelve sobre las últimas respuestas incorrectas. Un acierto posterior sin ayuda saca el elemento de este modo.
 - **Explora:** consulta nombres y puntos de referencia sin puntuación.
 
-Filtra por continente y tipo de relieve; cambia entre cartografía en color y el mapa original incluso durante una sesión. El número real de preguntas se limita a los elementos disponibles.
+Filtra por continente y tipo de relieve; cambia entre relieve detallado, Natural Earth y el mapa original incluso durante una sesión. El número real de preguntas se limita a los elementos disponibles.
 
 ## Corrección
 
@@ -57,6 +57,7 @@ Incluye favicon SVG, imagen social JPEG de 1200 × 630, metadatos en español y 
 ## Fuentes y materiales
 
 - **Ficha proporcionada:** «Taller 2_Geografía Física_Relieve.pdf». Se han recortado y orientado sus dos mapas; no se publica el PDF completo. Se conserva la nomenclatura de la ficha. «Cabo Verde» identifica el cabo senegalés, no el archipiélago; «Alpes del Sur», la cordillera de Nueva Zelanda.
+- **Relieve detallado:** [NOAA / NCEI DEM Global Mosaic](https://gis.ngdc.noaa.gov/arcgis/rest/services/DEM_mosaics/DEM_global_mosaic_hillshade/ImageServer), que incluye [ETOPO 2022](https://www.ncei.noaa.gov/products/etopo-global-relief-model). Exportaciones sin nombres, con relieve terrestre y batimetría, en coordenadas geográficas. Se sirven desde el repositorio: vista general y teselas de detalle que se cargan al ampliar. Resolución total: 14.400 × 6.000 píxeles mundial y 4.000 × 3.540 peninsular. `scripts/terrain.py` reproduce la descarga y empaquetado con Python y Pillow.
 - **Natural Earth II with Shaded Relief and Water**, 1:10m, versión 3.2.0: https://www.naturalearthdata.com/downloads/10m-raster-data/10m-natural-earth-2/ — datos de dominio público. Descarga original: https://naturalearth.s3.amazonaws.com/10m_raster/NE2_LR_LC_SR_W.zip . Se generaron recortes equirectangulares en WebP; el mundo abarca −180°/180°, −60°/90° y la Península −11°/4,5°, 35°/45,5°.
 - Las tolerancias de **Localiza** son aproximaciones didácticas propias: polígonos sencillos, corredores y radios. La Meseta usa el mismo modelo de polígonos que otras superficies, sin contornos oficiales ni exclusiones interiores. Véase [cartografía y tolerancias](sources/README.md).
 
@@ -66,3 +67,5 @@ Los derechos de los mapas originales de la ficha corresponden a sus respectivos 
 
 `npm test` verifica el inventario, nombres completos, alias, erratas, rechazo de genéricos y ambigüedades, centros de las 74 ubicaciones en ambas bases, corredores de cordilleras y puntos interiores/exteriores de la Meseta Central, además de la separación y detección de las anclas a diferentes escalas. También verifica los tipos de relieve y la selección entre anclas cercanas a distintas escalas. La interfaz se comprueba además en navegador para escritura, arrastre, mapas originales y cambio de modos.
 
+
+El zoom se limita por fondo: Natural Earth es una vista general (3×), el original conserva la resolución de la ficha (6×) y el detallado permite 12× en el mundo y 8× en la Península. El texto, su halo y los puntos mantienen su tamaño en pantalla. Ningún fondo raster ofrece detalle ilimitado.
