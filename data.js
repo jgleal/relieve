@@ -1,3 +1,4 @@
+import {NATURAL_REGIONS} from './regions-natural-earth.js';
 // Geographic centres and teaching corridors; coordinates are [longitude, latitude].
 // Corridors are approximate learning zones, not administrative boundaries.
 const rows = [
@@ -55,58 +56,60 @@ const rows = [
 ['Gran Desierto Victoria', 'Oceanía', 'Desiertos', 129, -29, 'desierto victoria|desierto de victoria|victoria', null, 2]
 ];
 const iberia = [
-// name, lon, lat, alias, original-map x/y in pixels, corridor lon/lat, width degrees
-['Cordillera Cantábrica',-5,43,'cantabrica',430,103,[[-7,42.8],[-5,43.1],[-3.5,43]],.23],
-['Sistema Central',-4.8,40.4,'central',426,303,[[-7,40.3],[-5.3,40.3],[-4,40.8],[-3,41.1]],.23],
-['Sierra de Guadarrama',-4,40.8,'guadarrama',476,278,[[-4.4,40.6],[-3.7,41]],.16],
-['Sierra de Gredos',-5.2,40.3,'gredos',392,324,[[-5.7,40.2],[-4.8,40.3]],.16],
-['Sierra Nevada',-3.3,37.05,'nevada',514,616,[[-3.6,37.05],[-2.8,37.1]],.17],
-['Sistema Ibérico',-2,40.8,'iberico',620,272,[[-3.2,42],[-2.3,41.3],[-1.5,40.3],[-.7,40]],.27],
-['Cordillera Bética',-3.5,37.4,'betica|beticas|cordilleras beticas|sistemas beticos',530,575,[[-5.4,36.7],[-4,37],[-3,37.7],[-1.5,38.1],[-.3,38.6]],.3],
-['Sierra de Cazorla',-2.95,37.9,'cazorla',553,521,[[-3.05,37.7],[-2.8,38.1]],.16],
-['Sierra de Grazalema',-5.4,36.76,'grazalema',374,614,null,.15],
-['Meseta Central',-4.5,40,'central',440,365,null,.75],
-['Picos de Europa',-4.85,43.2,'picos de europa',440,96,null,.16],
-['Montes de León',-6.4,42.4,'leon',318,163,[[-7,42.3],[-6,42.5]],.2],
-['Golfo de Vizcaya',-3,44,'vizcaya',543,35,null,.5],
-['Golfo de Cádiz',-6.8,36.5,'cadiz',275,642,null,.4],
-['Golfo de Valencia',-.1,39.4,'valencia',755,374,null,.35],
-['Golfo de Alicante',-.4,38.3,'alicante',760,490,null,.23],
-['Cabo de Finisterre',-9.272194,42.8825,'finisterre|fisterra',168,109,null,.12],
-['Cabo de San Vicente',-8.995,37.025,'san vicente',143,606,null,.12],
-['Cabo de Gata',-2.193,36.721,'gata',612,643,null,.12],
-['Cabo de Trafalgar',-6.034,36.183,'trafalgar',344,686,null,.12],
-['Cabo de la Nao',.23,38.73,'nao',773,464,null,.12],
-['Cabo de Roca',-9.5,38.78,'roca|cabo da roca|cabo de la roca',117,455,null,.12]
+// name, lon, lat, alias, original-map x/y in pixels (capes only, snapped to the drawn coast;
+// otherwise derived from lon/lat with originalIberia), corridor lon/lat, width degrees
+['Cordillera Cantábrica',-5,43,'cantabrica',null,null,[[-7,42.8],[-5,43.1],[-3.5,43]],.23],
+['Sistema Central',-4.8,40.4,'central',null,null,[[-7,40.3],[-5.3,40.3],[-4,40.8],[-3,41.1]],.23],
+['Sierra de Guadarrama',-4,40.8,'guadarrama',null,null,[[-4.4,40.6],[-3.7,41]],.16],
+['Sierra de Gredos',-5.2,40.3,'gredos',null,null,[[-5.7,40.2],[-4.8,40.3]],.16],
+['Sierra Nevada',-3.3,37.05,'nevada',null,null,[[-3.6,37.05],[-2.8,37.1]],.17],
+['Sistema Ibérico',-2,40.8,'iberico',null,null,[[-3.2,42],[-2.3,41.3],[-1.5,40.3],[-.7,40]],.27],
+['Cordillera Bética',-3.5,37.4,'betica|beticas|cordilleras beticas|sistemas beticos',null,null,[[-5.4,36.7],[-4,37],[-3,37.7],[-1.5,38.1],[-.3,38.6]],.3],
+['Sierra de Cazorla',-2.95,37.9,'cazorla',null,null,[[-3.05,37.7],[-2.8,38.1]],.16],
+['Sierra de Grazalema',-5.4,36.76,'grazalema',null,null,null,.15],
+['Meseta Central',-4.5,40,'central',null,null,null,.75],
+['Picos de Europa',-4.85,43.2,'picos de europa',null,null,null,.16],
+['Montes de León',-6.4,42.4,'leon',null,null,[[-7,42.3],[-6,42.5]],.2],
+['Golfo de Vizcaya',-3,44,'vizcaya',null,null,null,.5],
+['Golfo de Cádiz',-6.8,36.5,'cadiz',null,null,null,.4],
+['Golfo de Valencia',.25,39.5,'valencia',null,null,null,.35],
+['Golfo de Alicante',-.2,38.05,'alicante',null,null,null,.23],
+['Cabo de Finisterre',-9.272194,42.8825,'finisterre|fisterra',156,96,null,.12],
+['Cabo de San Vicente',-8.995,37.025,'san vicente',142,605,null,.12],
+['Cabo de Gata',-2.193,36.721,'gata',610,643,null,.12],
+['Cabo de Trafalgar',-6.034,36.183,'trafalgar',344,687,null,.12],
+['Cabo de la Nao',.23,38.73,'nao',773,466,null,.12],
+['Cabo de Roca',-9.5,38.78,'roca|cabo da roca|cabo de la roca',116,452,null,.12]
 ];
 export const ITEMS = [
  ...rows.map((r,i)=>({id:`w${i}`,scope:'world',name:r[0],group:r[1],category:r[2],lon:r[3],lat:r[4],aliases:r[5].split('|').filter(Boolean),path:r[6],radius:r[7]})),
- ...iberia.map((r,i)=>({id:`i${i}`,scope:'iberia',name:r[0],group:'Península Ibérica',category:i<12?(i===9?'Mesetas':'Cordilleras'):i<16?'Golfos':'Cabos',lon:r[1],lat:r[2],aliases:r[3].split('|'),original:[r[4]/1057,r[5]/753],path:r[6],radius:r[7]}))
+ ...iberia.map((r,i)=>({id:`i${i}`,scope:'iberia',name:r[0],group:'Península Ibérica',category:i<12?(i===9?'Mesetas':'Cordilleras'):i<16?'Golfos':'Cabos',lon:r[1],lat:r[2],aliases:r[3].split('|'),original:r[4]==null?null:[r[4]/1057,r[5]/753],path:r[6],radius:r[7]}))
 ];
 
 // Approximate learning areas for Localiza only; never drawn on the map.
-// These deliberately broad shapes are not official geographic boundaries.
+// Natural Earth regions (scripts/regions.py) take precedence; these hand-drawn
+// [lon,lat] outlines cover the rest. They are generous teaching zones, not official boundaries.
 const areas = {
+ i1:[[-7.9,40.1],[-7.4,40.55],[-6.3,40.5],[-5.3,40.55],[-4.4,40.95],[-3.6,41.3],[-2.85,41.4],[-2.8,41.1],[-3.6,40.8],[-4.3,40.45],[-5.2,40.1],[-6.4,40.1],[-7.4,40.0]],
+ i2:[[-4.55,40.55],[-4.3,40.85],[-3.9,41.08],[-3.5,41.12],[-3.5,40.88],[-3.9,40.65],[-4.3,40.42]],
+ i3:[[-5.95,40.15],[-5.7,40.48],[-5.0,40.52],[-4.5,40.48],[-4.45,40.2],[-5.0,40.1],[-5.6,40.0]],
+ i4:[[-3.65,37.0],[-3.45,37.17],[-2.95,37.22],[-2.55,37.22],[-2.5,37.08],[-3.0,36.97],[-3.5,36.93]],
+ i5:[[-3.7,42.2],[-3.0,42.4],[-2.3,42.15],[-1.5,41.85],[-1.1,41.35],[-0.3,40.85],[0.1,40.35],[-0.3,39.75],[-1.0,39.75],[-1.8,39.95],[-2.4,40.35],[-2.9,40.9],[-3.35,41.4],[-3.8,41.85]],
+ i6:[[-5.9,36.05],[-5.95,36.75],[-5.3,37.15],[-4.3,37.45],[-3.6,37.8],[-3.0,38.15],[-2.3,38.4],[-1.4,38.6],[-0.6,38.95],[0.25,38.85],[0.1,38.55],[-0.8,38.25],[-1.6,37.7],[-2.0,37.2],[-2.6,36.8],[-3.5,36.7],[-4.4,36.6],[-5.0,36.35],[-5.4,36.0]],
+ i7:[[-3.2,37.7],[-3.05,38.15],[-2.65,38.4],[-2.4,38.2],[-2.55,37.85],[-2.85,37.62]],
+ i8:[[-5.6,36.66],[-5.55,36.88],[-5.3,36.9],[-5.18,36.75],[-5.33,36.62]],
  i9:[[-6.5,41.7],[-6,42.3],[-4,42.7],[-2.5,41.7],[-1.8,40.8],[-1.1,39.3],[-2,38.5],[-4.7,38.5],[-6.9,39.1],[-7,40.1]],
+ i10:[[-5.2,43.13],[-5.0,43.33],[-4.6,43.32],[-4.45,43.15],[-4.7,43.05],[-5.05,43.05]],
+ i11:[[-7.15,42.05],[-7.1,42.45],[-6.6,42.68],[-6.0,42.62],[-5.85,42.4],[-6.2,42.12],[-6.7,41.98]],
+ i13:[[-8.95,37.0],[-7.4,37.2],[-6.35,36.9],[-6.0,36.3],[-6.3,35.95],[-7.5,36.15],[-8.95,36.55]],
+ i14:[[0.9,40.7],[0.3,40.2],[-0.25,39.6],[-0.3,39.2],[-0.05,38.85],[0.25,38.75],[1.0,39.2],[1.4,40.1]],
+ i15:[[0.15,38.72],[-0.1,38.45],[-0.5,38.3],[-0.65,38.0],[-0.75,37.6],[-0.35,37.55],[0.25,38.0],[0.4,38.55]],
 
- w2:[[78,34],[80,36],[87,37],[94,36],[99,32],[96,29],[88,28.5],[82,30]],
  w3:[[45,35],[48,38],[56,37],[63,35],[67,32],[61,28],[56,27],[49,30]],
- w4:[[85,68],[94,71],[109,70],[118,65],[112,57],[103,53],[92,56],[86,62]],
- w5:[[60,61],[65,68],[74,70],[83,67],[88,61],[82,55],[70,51],[62,55]],
- w13:[[-119,65],[-106,69],[-96,68],[-90,68],[-91,63],[-95,60],[-94,57],[-89,56],[-85,55],[-81,52],[-79,55],[-77,58],[-78,62],[-73,63],[-64,60],[-57,52],[-70,47],[-84,46],[-97,50],[-110,58]],
- w16:[[-57,-13],[-49,-8],[-41,-10],[-37,-16],[-43,-23],[-50,-28],[-55,-22]],
- w17:[[-77,-4],[-72,1],[-65,3],[-57,1],[-50,-1],[-50,-4],[-58,-10],[-66,-13],[-73,-9]],
  w27:[[29,2],[32,4],[35,2],[36,-2],[34,-5],[30,-4],[29,-1]],
- w31:[[10,15],[14,20],[21,21],[24,16],[22,11],[16,8],[12,10]],
- w46:[[1,51],[6,54],[13,55],[20,55],[28,59],[40,60],[50,59],[54,55],[48,51],[36,49],[28,50],[18,51],[9,50]],
- w50:[[120,-19],[125,-18],[129,-20],[129,-23],[124,-23],[120,-21]],
- w51:[[122,-28],[126,-27],[132,-28],[134,-30],[131,-32],[125,-31],[122,-30]]
-};
-// Original-map areas are registered directly in that image's coordinates.
-const originalAreas = {
- i9:[[260,210],[340,160],[530,170],[600,260],[650,440],[540,520],[360,505],[240,420],[260,310]].map(([x,y])=>[x/1057*1000,y/753*712.4])
+ w31:[[10,15],[14,20],[21,21],[24,16],[22,11],[16,8],[12,10]]
 };
 for(const item of ITEMS){
- if(areas[item.id])item.polygon=areas[item.id];
- if(originalAreas[item.id])item.originalPolygon=originalAreas[item.id];
+ const rings=NATURAL_REGIONS[item.id]||(areas[item.id]&&[areas[item.id]]);
+ if(rings){item.polygons=rings;item.path=null;}
 }
