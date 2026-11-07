@@ -1,8 +1,12 @@
 export const normalize = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9\s]/g,' ').replace(/\s+/g,' ').trim();
 export function distance(a,b){const d=Array.from({length:a.length+1},(_,i)=>[i]);for(let j=1;j<=b.length;j++)d[0][j]=j;for(let i=1;i<=a.length;i++)for(let j=1;j<=b.length;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]!==b[j-1]));return d[a.length][b.length];}
+// Words that name the kind of landform, not the place: never enough to identify it.
+export const GENERIC=new Set('gran grande grandes cordillera cordilleras monte montes montana montanas sierra sierras meseta mesetas cuenca cuencas cabo cabos golfo golfos peninsula peninsulas macizo macizos escudo mar mares lago llanura llanuras desierto desiertos valle pico picos sistema sistemas de del la los las el'.split(' '));
+// Hint: generic words in full, the identifying words as initial + one dot per letter.
+export function hintPattern(name){const words=name.split(' ');if(words.every(w=>GENERIC.has(normalize(w))))return name[0]+'·'.repeat(name.length-1);return words.map(w=>GENERIC.has(normalize(w))?w:w[0]+'·'.repeat(w.length-1)).join(' ');}
 export function checkAnswer(value,item,pool){
+ const generic=GENERIC;
  const input=normalize(value);if(!input)return {ok:false,kind:'empty'};
- const generic=new Set('gran grande grandes cordillera cordilleras monte montes montana montanas sierra sierras meseta mesetas cuenca cuencas cabo cabos golfo golfos peninsula peninsulas macizo macizos escudo mar mares lago llanura llanuras desierto desiertos valle pico picos sistema sistemas de del la los las el'.split(' '));
  if(input.split(' ').every(t=>generic.has(t)))return {ok:false,kind:'generic'};
  const variants=i=>[i.name,...i.aliases].map(normalize);
  if(input===normalize(item.name))return {ok:true,kind:'exact'};

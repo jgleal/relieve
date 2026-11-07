@@ -1,14 +1,20 @@
 # Cartografía y tolerancias de localización
 
-La app muestra puntos, no áreas coloreadas. Solo **Localiza** usa geometrías para decidir si una ubicación es válida, y se definen una sola vez en longitud/latitud para los tres fondos:
+La app muestra puntos, no áreas coloreadas. Solo **Localiza** usa zonas para decidir si una ubicación es válida (y las dibuja tras responder si activas «Ver la zona aceptada»).
 
-- **Natural Earth** (`ne_10m_geography_regions_polys`, `ne_10m_geography_marine_polys`, `ne_10m_lakes`, dominio público) para la mayoría de elementos del mundial, la Cordillera Cantábrica y el golfo de Vizcaya. `scripts/regions.py` genera `regions-natural-earth.js` a partir de `sources/region-mapping.json`.
-- **Polígonos propios** en `data.js` para el resto de la península (sistemas, sierras, Meseta, golfos) y unas pocas regiones mundiales sin equivalente en Natural Earth (meseta de Irán, meseta del lago Victoria, cuenca del Chad).
-- **Corredores** solo donde no hay polígono (Montes Escandinavos) y **radios** para picos y cabos.
+Todas las zonas se construyen con **un mismo criterio** en `scripts/regions.py`, que genera `zones.js`:
 
-Son zonas didácticas generosas, no límites oficiales, y pueden solaparse: una sierra queda dentro del sistema del que forma parte. Además de la zona, siempre vale un pequeño margen alrededor del punto de referencia y un mínimo en píxeles de pantalla.
+1. **Origen:** la región de Natural Earth cuando existe (`sources/region-mapping.json`); si no, un contorno propio (`sources/hand-zones.json`: meseta de Irán, meseta del lago Victoria, cuenca del Chad, península del Labrador completa, Montes Escandinavos y las unidades peninsulares salvo la Cantábrica y el golfo de Vizcaya).
+2. **Costa real:** los accidentes de tierra se recortan con la tierra de Natural Earth 10m; mares y golfos se quedan solo con el agua.
+3. **Marco del original:** las zonas peninsulares se recortan al área del mapa original.
+4. **Mismo detalle:** todas se simplifican con la misma tolerancia por ámbito (0,08° el mundo, 0,015° la Península) y se descartan islotes diminutos.
+5. **Punto de referencia:** el punto interior más alejado de los bordes (polo de inaccesibilidad), descontando antes los accidentes que la zona contiene (el Sistema Central dentro de la Meseta, Sierra Nevada dentro de la Bética…), para que nunca caiga sobre otro lugar de la lista. Picos y cabos conservan su coordenada exacta y un radio de tolerancia.
 
-**Mapa mudo** comprueba el ancla elegida; no utiliza superficies de acierto. Escribe, Reto y Explora también usan únicamente puntos de referencia.
+Son zonas didácticas generosas, no límites oficiales; una sierra queda dentro del sistema del que forma parte. Además de la zona, siempre vale un pequeño margen alrededor del punto de referencia y un mínimo en píxeles de pantalla. Los tests comprueban que cada punto cae dentro de su zona y lejos del borde.
+
+Para regenerar: `pip install shapely` en un entorno de desarrollo y `python3 scripts/regions.py` (con `NE_CACHE=<carpeta>` se reutilizan las descargas de Natural Earth).
+
+**Mapa mudo** comprueba el ancla elegida; no utiliza zonas. Escribe, Reto y Explora usan los puntos de referencia.
 
 ## Registro de los mapas originales
 
@@ -17,8 +23,8 @@ Son zonas didácticas generosas, no límites oficiales, y pueden solaparse: una 
 
 ## Organización del código
 
-- `data.js`: nombres, puntos, polígonos propios y tolerancias.
-- `regions-natural-earth.js`: polígonos generados de Natural Earth.
+- `data.js`: nombres, alias, categorías, coordenadas exactas de picos y cabos.
+- `zones.js`: zonas y puntos de referencia generados.
 - `core.js`: `mapPosition` proyecta el punto que se muestra; `geometry` y `hit` calculan la tolerancia de Localiza.
 - `app.js`: presenta los puntos y gestiona los modos de juego.
 

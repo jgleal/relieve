@@ -91,3 +91,47 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 #game .session-controls>*{margin-top:0}
 #game .session-controls>#finish{margin-top:auto}
 #game #feedback:empty{display:none}
+/* Explora: progress legend, study sheet */
+.legend{display:flex;flex-wrap:wrap;gap:6px 12px;margin:0 0 10px;font-size:11px;color:var(--muted)}
+.legend span{display:flex;align-items:center;gap:5px}.legend i{width:9px;height:9px;border-radius:50%;display:inline-block;border:1.5px solid #fffdf8;box-shadow:0 0 0 1px #0002}
+.study-dot{cursor:pointer}.study-dot text.covered{fill:#8a3f26;font-weight:700}
+.sheet-help{font-size:11px;color:var(--muted);margin:0;line-height:1.5}
+/* Escribe: hint */
+.hint-button{display:flex;align-items:center;gap:6px;margin-top:10px;color:var(--green);font-size:12px}
+.hint-text{display:flex;align-items:center;gap:6px;margin:10px 0 0;padding:8px 10px;border-radius:6px;background:#f4ecd9;color:#6b4a14;font-size:12px}
+.hint-text strong{font-size:14px}
+/* Setup: print link */
+.available-row{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.print-link{display:flex;align-items:center;gap:5px;color:var(--green);font-size:11px;white-space:nowrap}
+#print-dialog label{display:block;font-size:11px;font-weight:600;margin:14px 0 6px}
+#print-dialog select{width:100%;border:1px solid #cfd7ca;border-radius:6px;background-color:var(--white);height:40px;padding:0 38px 0 11px}
+#print-dialog .confirm-option{display:flex;font-weight:400;margin:12px 0 0}
+#print-dialog .primary{margin-top:20px}
+#print-sheet{display:none}
+@media print{
+ @page{size:A4 landscape;margin:10mm}
+ html,body{height:auto!important;overflow:visible!important;display:block!important;background:#fff!important}
+ body>*:not(#print-sheet){display:none!important}
+ #print-sheet{display:block;color:#111;font:12px/1.4 Georgia,serif}
+ .ps-page{page-break-after:always;break-after:page}.ps-page:last-child{page-break-after:auto;break-after:auto}
+ .ps-head{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:1px solid #999;padding-bottom:6px;margin-bottom:10px}
+ .ps-head strong{font-size:16px;display:block}.ps-head span{color:#555}
+ .ps-fields{display:flex;gap:24px}
+ .ps-map{display:block;margin:0 auto}
+ .ps-lines{columns:3;column-gap:28px;margin:6px 0 0;padding-left:28px;font-size:13px}
+ .ps-lines li{break-inside:avoid;padding:9px 0 3px}.ps-lines li span{display:inline-block;width:90%;border-bottom:1px solid #777;height:1em}
+ .ps-bank{margin-top:16px;border:1px solid #999;padding:10px 12px}.ps-bank p{margin:6px 0 0;line-height:1.9}
+ .ps-key{columns:3;column-gap:28px;padding-left:28px;font-size:13px}.ps-key li{padding:3px 0}
+}
+#map:focus:not(:focus-visible){outline:none}
+/* Checkbox options: the box centred on the text line, not styled as a text field. */
+.practice-panel .confirm-option,#print-dialog .confirm-option{display:flex;align-items:center;gap:9px;margin:0;font-size:12px;font-weight:500;line-height:1.3;color:var(--muted);cursor:pointer}
+.practice-panel .confirm-option input,#print-dialog .confirm-option input{-webkit-appearance:auto;appearance:auto;flex:none;width:16px;height:16px;margin:0;padding:0;border:0;accent-color:var(--green)}
+#print-dialog .confirm-option{margin-top:12px}
+.keyboard-help summary{list-style:none;display:flex;align-items:center;gap:9px;font-size:12px}
+.keyboard-help summary::-webkit-details-marker{display:none}
+.keyboard-help summary::before{content:'▸';width:16px;text-align:center;flex:none}
+.keyboard-help[open] summary::before{content:'▾'}
+.keyboard-help p{padding-left:25px}
+#map.panning{cursor:grabbing}
+.hint-text strong{font-size:14px;letter-spacing:.06em;font-weight:600}

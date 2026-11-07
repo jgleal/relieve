@@ -6,14 +6,16 @@ Práctica de geografía para escritorio: **52 elementos del relieve mundial** y 
 
 ## Modos
 
-- **Escribe:** identifica el punto señalado con una pregunta que indica el tipo de relieve; sesiones aleatorias de 5, 10, 20 o todos los lugares disponibles.
-- **Localiza:** lee un nombre y señala su ubicación. Si fallas, se marca dónde pinchaste, una línea hasta el punto aceptado más próximo y la distancia en kilómetros.
+- **Escribe:** identifica el punto señalado con una pregunta que indica el tipo de relieve; sesiones aleatorias de 5, 10, 20 o todos los lugares disponibles. Puedes pedir una pista (primera letra y número de palabras): si aciertas con ella, suma pero el lugar sigue en tu repaso.
+- **Localiza:** lee un nombre y señala su ubicación. Si fallas, se marca dónde pinchaste, una línea hasta el punto aceptado más próximo y la distancia en kilómetros. Con «Ver la zona aceptada al responder» se dibuja además la zona que valía (la preferencia se recuerda).
 - **Mapa mudo:** arrastra etiquetas a anclas mudas numeradas, o selecciona una y haz clic en el ancla. Usa todos los elementos del filtro elegido. Si detienes la etiqueta sobre una zona con muchas anclas, aparece una lupa ×3 donde las anclas se separan; se puede soltar dentro de ella.
 - **Reto:** escribe los nombres y consulta la corrección al finalizar.
 - **Repasa fallos:** vuelve sobre las últimas respuestas incorrectas, en el mismo tipo de juego en que se fallaron: lo fallado en Localiza o Mapa mudo se señala en el mapa y lo demás se escribe. Un acierto posterior sin ayuda saca el elemento de este modo.
-- **Explora:** consulta nombres y puntos de referencia sin puntuación.
+- **Explora:** consulta nombres y puntos de referencia sin puntuación. Cada punto se colorea según tu progreso (acertado, fallado, sin intentar). «Ver todos los nombres» convierte el mapa en una hoja de estudio: pulsa un nombre o un punto para taparlo o destaparlo, o tápalos todos y ve descubriéndolos.
 
 Filtra por continente y tipo de relieve; cambia entre relieve detallado, Natural Earth y el mapa original incluso durante una sesión. El número real de preguntas se limita a los elementos disponibles.
+
+- **Ficha para imprimir:** desde la configuración, genera una ficha sobre el mapa original con 10, 15, 20 o todos los lugares de la zona y tipo elegidos (al azar), líneas para responder, lista de nombres opcional y hoja de soluciones opcional. Se imprime o se guarda como PDF desde el navegador.
 
 ## Corrección
 
@@ -33,7 +35,7 @@ En Mapa mudo, un error previo o consultar la solución deja el lugar pendiente d
 
 1. Elige ámbito geográfico, mapa, modo y filtros.
 2. Inicia la sesión.
-3. Rueda del ratón o botones +/− para ampliar; Mayús + arrastrar para desplazar; ⤢ restablece la vista. Al cambiar de mapa se conservan la zona y el nivel de zoom.
+3. Rueda del ratón o botones +/− para ampliar; arrastra el mapa para desplazarte (también Mayús + arrastrar); ⤢ restablece la vista. Al cambiar de mapa se conservan la zona y el nivel de zoom.
 4. En Localiza o Mapa mudo también puedes enfocar el mapa con Tab, mover el cursor con las flechas y pulsar Intro. Mayús + flecha hace ajustes finos.
 
 El progreso se almacena en `localStorage` bajo `relieve-progress-v1`. No hay cuentas, analítica, cookies ni peticiones a terceros en ejecución. Si el almacenamiento no está disponible, se conserva durante la visita y se muestra un aviso.
@@ -59,7 +61,7 @@ Incluye favicon SVG, imagen social JPEG de 1200 × 630, metadatos en español y 
 - **Ficha proporcionada:** «Taller 2_Geografía Física_Relieve.pdf». Se han recortado y orientado sus dos mapas; no se publica el PDF completo. Se conserva la nomenclatura de la ficha. «Cabo Verde» identifica el cabo senegalés, no el archipiélago; «Alpes del Sur», la cordillera de Nueva Zelanda.
 - **Relieve detallado:** [NOAA / NCEI DEM Global Mosaic](https://gis.ngdc.noaa.gov/arcgis/rest/services/DEM_mosaics/DEM_global_mosaic_hillshade/ImageServer), que incluye [ETOPO 2022](https://www.ncei.noaa.gov/products/etopo-global-relief-model). Exportaciones sin nombres, con relieve terrestre y batimetría, en coordenadas geográficas. Se sirven desde el repositorio: vista general y teselas de detalle que se cargan al ampliar. Resolución total: 14.400 × 9.776 píxeles mundial (Mercator, 8 × 6 teselas) y 4.000 × 3.540 peninsular. `scripts/terrain.py` reproduce la descarga y empaquetado con Python y Pillow.
 - **Natural Earth II with Shaded Relief and Water**, 1:10m, versión 3.2.0: https://www.naturalearthdata.com/downloads/10m-raster-data/10m-natural-earth-2/ — datos de dominio público. Descarga original: https://naturalearth.s3.amazonaws.com/10m_raster/NE2_LR_LC_SR_W.zip . Se generaron recortes en WebP. La Península es equirectangular (−11°/4,5°, 35°/45,5°). Los fondos en color del mundo usan la proyección Mercator del planisferio original, entre 84° N y 60° S (proporción ~1,47:1): `scripts/mercator.py` reproyecta las imágenes equirectangulares moviendo solo filas, sin deformar los meridianos, y `scripts/terrain.py` lo aplica al regenerar el relieve.
-- Las zonas de **Localiza** combinan regiones de Natural Earth y polígonos didácticos propios, definidos una sola vez en longitud/latitud. El mapa original peninsular está registrado contra la costa real. Véase [cartografía y tolerancias](sources/README.md).
+- Las zonas de **Localiza** y los puntos de referencia se generan con un único criterio (Natural Earth o contorno propio, recortado a la costa real y simplificado igual para todas; punto en el interior más alejado de los bordes). El mapa original peninsular está registrado contra la costa real. Véase [cartografía y tolerancias](sources/README.md).
 
 Los derechos de los mapas originales de la ficha corresponden a sus respectivos autores. La condición de dominio público de Natural Earth no se extiende a esos recortes. La imagen social se compone con cartografía de Natural Earth y tipografía. `scripts/social.py` permite regenerarla con Python, Pillow y las fuentes Arial y Georgia de macOS; no interviene en el funcionamiento ni el despliegue de la web.
 

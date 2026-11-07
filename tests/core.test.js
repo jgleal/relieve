@@ -9,7 +9,7 @@ test('canonical names, accents, case and meaningful abbreviations',()=>{const i=
 test('small typo accepted but wrong nearby names not accepted',()=>{assert.equal(checkAnswer('Guadarrma',named('Sierra de Guadarrama'),ib).kind,'typo');assert.equal(checkAnswer('Gredos',named('Sierra de Guadarrama'),ib).ok,false);assert.equal(checkAnswer('',ib[0],ib).ok,false);});
 test('ambiguous abbreviations and distinct places are rejected',()=>{assert.equal(checkAnswer('victoria',named('Gran Desierto Victoria',world),world).kind,'ambiguous');assert.equal(checkAnswer('siberia',named('Gran Meseta de Siberia Central',world),world).ok,false);assert.equal(checkAnswer('alpes',named('Alpes del Sur',world),world).ok,false);});
 test('every official name is accepted, every map centre hits and remote points miss',()=>{for(const i of ITEMS){assert.equal(checkAnswer(i.name,i,i.scope==='world'?world:ib).ok,true,i.name);for(const base of ['natural','original','terrain']){const g=geometry(i,base);assert.ok(g.center.every(Number.isFinite));assert.equal(hit(i,base,g.center),true,`${i.name} ${base}`);assert.equal(hit(i,base,[-1000,-1000]),false);}}});
-test('mountain zones accept points along the range',()=>{const i=named('Cordillera de los Andes',world);for(const b of ['natural','original','terrain']){const g=geometry(i,b);for(const poly of g.polygons)for(const p of poly)assert.equal(hit(i,b,p),true);}const s=named('Montes Escandinavos',world);for(const b of ['natural','original'])for(const p of geometry(s,b).points)assert.equal(hit(s,b,p),true);});
+test('mountain zones accept points along the range',()=>{const i=named('Cordillera de los Andes',world);for(const b of ['natural','original','terrain']){const g=geometry(i,b);for(const poly of g.polygons)for(const p of poly)assert.equal(hit(i,b,p),true);}});
 test('shuffle preserves source and membership',()=>{const a=[1,2,3,4];assert.deepEqual(shuffle(a).sort(),a);assert.deepEqual(a,[1,2,3,4]);});
 test('generic landform words never identify a specific feature',()=>{for(const word of ['meseta','cordillera','sistema','sierra','cabo','golfo','mar','gran meseta','montes','llanura','cuenca','desierto','peninsula','macizo','pico'])for(const item of ITEMS)assert.equal(checkAnswer(word,item,item.scope==='world'?world:ib).ok,false,`${word}: ${item.name}`);assert.equal(checkAnswer('central',named('Meseta Central'),ib).kind,'ambiguous');});
 test('Meseta Central covers both submesetas but not the Ebro, Guadalquivir or Mediterranean coast',async()=>{const {project}=await import('../core.js');const meseta=named('Meseta Central');for(const p of [[-4.72,41.65],[-5.66,40.97],[-1.86,38.99],[-3.7,40.4],[-3.92,38.99]])assert.equal(hit(meseta,'natural',project(...p,'iberia','natural')),true,JSON.stringify(p));for(const p of [[-.88,41.65],[-5.99,37.39],[-.38,39.47],[-8.72,42.24]])assert.equal(hit(meseta,'natural',project(...p,'iberia','natural')),false,JSON.stringify(p));for(const p of [[410,220],[600,450],[330,400]])assert.equal(hit(meseta,'original',[p[0]/1057*1000,p[1]/753*712.4]),true);for(const p of [[700,230],[360,580],[750,400]])assert.equal(hit(meseta,'original',[p[0]/1057*1000,p[1]/753*712.4]),false);});
@@ -52,4 +52,22 @@ test('miss distance is measured to the nearest accepted point, consistently on e
  for(const x of d)assert.ok(x>40&&x<90,String(x));assert.ok(Math.abs(d[0]-d[2])<5);
  const andes=named('Cordillera de los Andes',world);{const x=missKm(andes,'natural',project(-58.4,-34.6,'world','natural'));assert.ok(x>700&&x<1100,String(x));}
  for(const b of ['natural','original']){const [lon,lat]=toLonLat(project(-70,-33,'world',b),'world',b);assert.ok(Math.abs(lon+70)<1e-4&&Math.abs(lat+33)<1e-4);}
+});
+
+test('one criterion: every zone is a polygon whose reference point sits well inside it',async()=>{const {insidePolygon,segmentDistance}=await import('../core.js');
+ for(const i of ITEMS){if(['Picos','Cabos'].includes(i.category)){assert.ok(!i.polygons,i.name);continue;}
+  assert.ok(i.polygons?.length,`${i.name} sin zona`);
+  for(const base of ['natural','original']){const g=geometry(i,base);const ring=g.polygons.find(r=>insidePolygon(g.center,r));assert.ok(ring,`${i.name} ${base}: punto fuera de su zona`);
+   const edge=Math.min(...ring.map((a,k)=>segmentDistance(g.center,a,ring[(k+1)%ring.length])));const xs=ring.map(p=>p[0]),ys=ring.map(p=>p[1]),size=Math.min(Math.max(...xs)-Math.min(...xs),Math.max(...ys)-Math.min(...ys));assert.ok(edge>Math.min(1,size*.15),`${i.name} ${base}: punto pegado al borde (${edge.toFixed(2)})`);}}
+});
+test('land zones stay out of the sea and the Labrador peninsula is complete',async()=>{const {project}=await import('../core.js');
+ const w=(n,lon,lat,ok)=>{const i=named(n,world);assert.equal(hit(i,'natural',project(lon,lat,'world','natural')),ok,`${n} ${lon},${lat}`);};
+ w('Península del Labrador',-71,53.5,true);w('Península del Labrador',-75,57,true);w('Península del Labrador',-62,54,true);
+ w('Meseta de Irán',54,32,true);w('Meseta de Irán',51,42,false);w('Meseta de Irán',51.5,27,false);
+ w('Escudo Canadiense',-86,60,false);w('Montes Escandinavos',12,63.5,true);
+});
+
+test('hints keep the landform words and mask only what identifies the place',async()=>{const {hintPattern}=await import('../core.js');
+ assert.equal(hintPattern('Macizo de las Guayanas'),'Macizo de las G·······');assert.equal(hintPattern('Cordillera Bética'),'Cordillera B·····');assert.equal(hintPattern('Everest'),'E······');
+ for(const i of ITEMS)assert.notEqual(hintPattern(i.name),i.name,i.name);
 });

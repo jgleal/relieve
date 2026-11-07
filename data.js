@@ -1,4 +1,4 @@
-import {NATURAL_REGIONS} from './regions-natural-earth.js?v=20261107m';
+import {ZONES} from './zones.js?v=20261107u';
 // Geographic centres and teaching corridors; coordinates are [longitude, latitude].
 // Corridors are approximate learning zones, not administrative boundaries.
 const rows = [
@@ -86,30 +86,9 @@ export const ITEMS = [
  ...iberia.map((r,i)=>({id:`i${i}`,scope:'iberia',name:r[0],group:'Península Ibérica',category:i<12?(i===9?'Mesetas':'Cordilleras'):i<16?'Golfos':'Cabos',lon:r[1],lat:r[2],aliases:r[3].split('|'),original:r[4]==null?null:[r[4]/1057,r[5]/753],path:r[6],radius:r[7]}))
 ];
 
-// Approximate learning areas for Localiza only; never drawn on the map.
-// Natural Earth regions (scripts/regions.py) take precedence; these hand-drawn
-// [lon,lat] outlines cover the rest. They are generous teaching zones, not official boundaries.
-const areas = {
- i1:[[-7.9,40.1],[-7.4,40.55],[-6.3,40.5],[-5.3,40.55],[-4.4,40.95],[-3.6,41.3],[-2.85,41.4],[-2.8,41.1],[-3.6,40.8],[-4.3,40.45],[-5.2,40.1],[-6.4,40.1],[-7.4,40.0]],
- i2:[[-4.55,40.55],[-4.3,40.85],[-3.9,41.08],[-3.5,41.12],[-3.5,40.88],[-3.9,40.65],[-4.3,40.42]],
- i3:[[-5.95,40.15],[-5.7,40.48],[-5.0,40.52],[-4.5,40.48],[-4.45,40.2],[-5.0,40.1],[-5.6,40.0]],
- i4:[[-3.65,37.0],[-3.45,37.17],[-2.95,37.22],[-2.55,37.22],[-2.5,37.08],[-3.0,36.97],[-3.5,36.93]],
- i5:[[-3.7,42.2],[-3.0,42.4],[-2.3,42.15],[-1.5,41.85],[-1.1,41.35],[-0.3,40.85],[0.1,40.35],[-0.3,39.75],[-1.0,39.75],[-1.8,39.95],[-2.4,40.35],[-2.9,40.9],[-3.35,41.4],[-3.8,41.85]],
- i6:[[-5.9,36.05],[-5.95,36.75],[-5.3,37.15],[-4.3,37.45],[-3.6,37.8],[-3.0,38.15],[-2.3,38.4],[-1.4,38.6],[-0.6,38.95],[0.25,38.85],[0.1,38.55],[-0.8,38.25],[-1.6,37.7],[-2.0,37.2],[-2.6,36.8],[-3.5,36.7],[-4.4,36.6],[-5.0,36.35],[-5.4,36.0]],
- i7:[[-3.2,37.7],[-3.05,38.15],[-2.65,38.4],[-2.4,38.2],[-2.55,37.85],[-2.85,37.62]],
- i8:[[-5.6,36.66],[-5.55,36.88],[-5.3,36.9],[-5.18,36.75],[-5.33,36.62]],
- i9:[[-6.5,41.7],[-6,42.3],[-4,42.7],[-2.5,41.7],[-1.8,40.8],[-1.1,39.3],[-2,38.5],[-4.7,38.5],[-6.9,39.1],[-7,40.1]],
- i10:[[-5.2,43.13],[-5.0,43.33],[-4.6,43.32],[-4.45,43.15],[-4.7,43.05],[-5.05,43.05]],
- i11:[[-7.15,42.05],[-7.1,42.45],[-6.6,42.68],[-6.0,42.62],[-5.85,42.4],[-6.2,42.12],[-6.7,41.98]],
- i13:[[-8.95,37.0],[-7.4,37.2],[-6.35,36.9],[-6.0,36.3],[-6.3,35.95],[-7.5,36.15],[-8.95,36.55]],
- i14:[[0.9,40.7],[0.3,40.2],[-0.25,39.6],[-0.3,39.2],[-0.05,38.85],[0.25,38.75],[1.0,39.2],[1.4,40.1]],
- i15:[[0.15,38.72],[-0.1,38.45],[-0.5,38.3],[-0.65,38.0],[-0.75,37.6],[-0.35,37.55],[0.25,38.0],[0.4,38.55]],
-
- w3:[[45,35],[48,38],[56,37],[63,35],[67,32],[61,28],[56,27],[49,30]],
- w27:[[29,2],[32,4],[35,2],[36,-2],[34,-5],[30,-4],[29,-1]],
- w31:[[10,15],[14,20],[21,21],[24,16],[22,11],[16,8],[12,10]]
-};
+// Localiza zones and reference points come from zones.js (scripts/regions.py): one criterion
+// for every feature. Peaks and capes keep their exact coordinates and a tolerance radius.
 for(const item of ITEMS){
- const rings=NATURAL_REGIONS[item.id]||(areas[item.id]&&[areas[item.id]]);
- if(rings){item.polygons=rings;item.path=null;}
+ const z=ZONES[item.id];if(!z)continue;
+ item.polygons=z.rings;item.path=null;[item.lon,item.lat]=z.label;
 }
