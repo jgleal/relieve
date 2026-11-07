@@ -1,41 +1,65 @@
-# Cartografía y tolerancias de localización
+# Lugares, zonas y mapas
 
-La app muestra puntos, no áreas coloreadas. Solo **Localiza** usa zonas para decidir si una ubicación es válida (y las dibuja tras responder si activas «Ver la zona aceptada»).
+Esta carpeta contiene la definición de los lugares y el resultado de generarlos. El funcionamiento general está en el [README principal](../README.md).
 
-Todas las zonas se construyen con **un mismo criterio** en `scripts/regions.py`, que genera `zones.js`:
+| Archivo | Quién lo escribe | Contenido |
+|---|---|---|
+| `lugares.json` | a mano | Los nombres, por ámbito (`mundo`, `peninsula`) y grupo |
+| `correcciones.json` | a mano | Los casos que las fuentes abiertas no resuelven |
+| `ids.json` | el generador | El identificador estable de cada lugar |
+| `wikidata-cache.json` | el generador | Las respuestas de Wikidata, para que el resultado sea reproducible |
+| `informe.md` | el generador | Cómo se resolvió cada lugar, con ⚠ en lo que conviene revisar |
 
-1. **Origen:** la región de Natural Earth cuando existe (`sources/region-mapping.json`); si no, un contorno propio (`sources/hand-zones.json`: meseta de Irán, meseta del lago Victoria, cuenca del Chad, península del Labrador completa, Montes Escandinavos y las unidades peninsulares salvo la Cantábrica y el golfo de Vizcaya).
-2. **Costa real:** los accidentes de tierra se recortan con la tierra de Natural Earth 10m; mares y golfos se quedan solo con el agua.
-3. **Marco del original:** las zonas peninsulares se recortan al área del mapa original.
-4. **Mismo detalle:** todas se simplifican con la misma tolerancia por ámbito (0,08° el mundo, 0,015° la Península) y se descartan islotes diminutos.
-5. **Punto de referencia:** el punto interior más alejado de los bordes (polo de inaccesibilidad), descontando antes los accidentes que la zona contiene (el Sistema Central dentro de la Meseta, Sierra Nevada dentro de la Bética…), para que nunca caiga sobre otro lugar de la lista. Picos y cabos conservan su coordenada exacta y un radio de tolerancia.
+## De nombres a datos
 
-Son zonas didácticas generosas, no límites oficiales; una sierra queda dentro del sistema del que forma parte. Además de la zona, siempre vale un pequeño margen alrededor del punto de referencia y un mínimo en píxeles de pantalla. Los tests comprueban que cada punto cae dentro de su zona y lejos del borde.
+`scripts/build_places.py` lee `lugares.json` y genera `places.js`:
 
-Para regenerar: `pip install shapely` en un entorno de desarrollo y `python3 scripts/regions.py` (con `NE_CACHE=<carpeta>` se reutilizan las descargas de Natural Earth).
+1. **Identidad.** Busca el nombre en Wikidata en español: completo, sin las palabras genéricas y sin la última palabra. Puntúa cada candidato según su nombre y alias coincidan con las palabras que identifican el lugar y según su tipo encaje con el que sugiere el nombre. Descarta los que caen fuera del ámbito; la Península abarca de 12° O a 6° E y de 34° N a 46° N. Así se evitan homónimos como insectos llamados Aconcagua o la Sierra Nevada de California.
+2. **Tipo.** Lo da la primera palabra del nombre (Cordillera, Sistema, Sierra, Meseta, Cabo, Golfo, Península…) o, si no lo dice, el tipo de Wikidata (montaña, volcán, cordillera…).
+3. **Zona** de Localiza, por este orden:
+   - un contorno de `correcciones.json`;
+   - las regiones de Natural Earth que indique la corrección;
+   - la región de Natural Earth con el mismo identificador de Wikidata o el mismo nombre en español, a menos de 3° (mundo) o 0,6° (Península) de la coordenada;
+   - si no hay ninguna, un círculo aproximado marcado con ⚠.
+4. **Mismo tratamiento para todas las zonas.** Se recortan con la costa de Natural Earth 1:10m, quedándose con la tierra o con el agua según el tipo; lagos y el Caspio no se recortan. En la Península también se recortan con el marco del mapa original. Se simplifican igual (0,08° el mundo, 0,015° la Península) y se descartan los fragmentos diminutos.
+5. **Punto de referencia.**
+   - Picos y cabos usan su coordenada de Wikidata o de la corrección, con un radio de acierto de 0,6° en el mundo y 0,12° en la Península.
+   - Los cabos peninsulares se ajustan además a la costa dibujada del mapa original, al píxel oscuro más cercano (a 6 píxeles como mucho).
+   - El resto usa el punto interior más alejado de los bordes, descontando los lugares de la lista que contiene. Por ejemplo, el punto de la Meseta Central no cae en el Sistema Central.
+6. **Respuestas cortas.** El nombre sin las palabras genéricas iniciales («Cordillera de los Andes» → andes) y, si empieza por «Gran», también sin «Gran». Los alias de Wikidata no se usan porque no son fiables.
 
-**Mapa mudo** comprueba el ancla elegida; no utiliza zonas. Escribe, Reto y Explora usan los puntos de referencia.
+`places.js` solo se escribe si todos los lugares se resuelven. Si alguno no se encuentra, el script lo indica y termina con error.
+
+Opciones: `--refresh` vuelve a consultar Wikidata, y `NE_CACHE=<carpeta>` reutiliza las descargas de Natural Earth entre ejecuciones.
+
+### Correcciones
+
+`correcciones.json` es un objeto cuyas claves son el nombre del lugar, o `mundo:Nombre` / `peninsula:Nombre` si hace falta distinguir el ámbito. Cada entrada admite:
+
+| Campo | Uso |
+|---|---|
+| `wikidata` | Fija la identidad (`"Q169175"`) cuando la búsqueda no da con ella |
+| `tipo` | Fuerza el tipo de relieve |
+| `natural_earth` | Lista de regiones de Natural Earth que forman la zona |
+| `contorno` | Polígono propio en `[lon, lat]`, para lugares sin zona en ninguna fuente |
+| `punto`, `punto_original` | Coordenada del punto de referencia, o píxel en el mapa original peninsular |
+| `radio` | Radio de acierto de un pico o cabo |
+| `alias_extra` | Sinónimos aceptados además de los automáticos (Hoggar, Fisterra…) |
+| `alias` | Sustituye por completo las respuestas cortas |
+
+Ahora mismo hay contornos propios para los sistemas y sierras peninsulares, los golfos de Cádiz, Valencia y Alicante, las mesetas de Irán y del lago Victoria, la cuenca del Chad y la península del Labrador entera (Natural Earth solo tiene su franja costera).
+
+Son zonas didácticas generosas, no límites oficiales: una sierra queda dentro del sistema del que forma parte. Los tests comprueban que cada punto cae dentro de su zona y lejos del borde, y que las zonas terrestres no se salen al mar.
 
 ## Registro de los mapas originales
 
-- **Planisferio:** se registra mediante su retícula de meridianos y paralelos (Mercator).
-- **Península:** una transformación cuadrática longitud/latitud → píxel (`originalIberia` en `core.js`), ajustada por ICP contra la línea de costa 10m de Natural Earth. El error mediano es de ~1 px sobre la imagen de 1057 × 753. Los puntos de cordilleras, sierras, Meseta y golfos se derivan de esa transformación. Los seis cabos se fijan a mano sobre la costa dibujada y los tests comprueban que no se separan más de 5 px de su posición registrada.
+- **Planisferio:** Mercator, registrado por su retícula de meridianos y paralelos.
+- **Península:** transformación cuadrática longitud/latitud → píxel (`originalIberia` en `core.js`), ajustada por ICP contra la costa 1:10m de Natural Earth. El error mediano es de ~1 píxel sobre la imagen de 1057 × 753. Todos los puntos peninsulares se derivan de ella, salvo los cabos, que se ajustan a la costa dibujada. Los tests comprueban que no se separan más de 5 píxeles de su posición registrada.
 
-## Organización del código
+Finisterre se sitúa en 42,8825° N, 9,272194° O, según [Turismo de Galicia](https://www.turismo.gal/recurso/-/detalle/190524000446/cabo-fisterra?ctre=40000140&langId=es_ES&tp=40003930). En el original está en el píxel (156, 96), el saliente occidental al norte de la ensenada de Corcubión. Una versión anterior lo ponía en el gancho de Monte Louro, más al sur y de forma parecida; el registro contra la costa real lo descartó. [Puertos del Estado sitúa Trafalgar en Los Caños de Meca](https://www.puertos.es/sites/default/files/2024-03/Cadiz_Faro%20de%20Trafalgar.pdf).
 
-- `data.js`: nombres, alias, categorías, coordenadas exactas de picos y cabos.
-- `zones.js`: zonas y puntos de referencia generados.
-- `core.js`: `mapPosition` proyecta el punto que se muestra; `geometry` y `hit` calculan la tolerancia de Localiza.
-- `app.js`: presenta los puntos y gestiona los modos de juego.
+## Mapas en color
 
-## Detalle raster y Finisterre
+`scripts/terrain.py` descarga las imágenes de NOAA con `bboxSR=4326`, `imageSR=4326` y `adjustAspectRatio=false`, comprueba el ámbito devuelto y genera la vista general y las teselas. Las del mundo se reproyectan a Mercator con `scripts/mercator.py`. Todo esto se hace al preparar los archivos, nunca desde el navegador del usuario.
 
-`terrain.py` exporta las imágenes con `bboxSR=4326`, `imageSR=4326` y `adjustAspectRatio=false`; comprueba el ámbito devuelto antes de crear los recortes. Las teselas se ajustan al mismo espacio de coordenadas que la vista general, sin cambiar las posiciones de los lugares. Las descargas del servicio se realizan al preparar los archivos, no desde el navegador del usuario.
-
-Finisterre se referencia en 42,8825° N, 9,272194° O, según [Turismo de Galicia](https://www.turismo.gal/recurso/-/detalle/190524000446/cabo-fisterra?ctre=40000140&langId=es_ES&tp=40003930). En el mapa original peninsular está en (156, 96) de la imagen de 1057 × 753, el saliente occidental al norte de la ensenada de Corcubión. La versión anterior lo situaba en el gancho de Monte Louro, más al sur, que tiene una forma parecida; el registro contra la costa real lo descartó.
-
-## Revisión del original y entrada táctil (7 de noviembre de 2026)
-
-Se ha revisado visualmente el conjunto peninsular, con especial atención a sus seis cabos y cuatro golfos. Además de Finisterre, se corrigieron Trafalgar (antes junto a Cádiz) y Gata (antes tierra adentro). El 7 de noviembre los seis cabos se reajustaron a la costa dibujada con el registro descrito arriba. Las coordenadas son píxeles del original 1057 × 753. [Puertos del Estado sitúa Trafalgar en Los Caños de Meca](https://www.puertos.es/sites/default/files/2024-03/Cadiz_Faro%20de%20Trafalgar.pdf). Esta revisión no convierte una ficha generalizada en cartografía de precisión ni certifica todos los límites didácticos.
-
-Localiza mantiene un mínimo de 6 píxeles de pantalla para ratón y 18 para entrada táctil/confirmada. No aumenta ese mínimo al ampliar: se convierte usando la escala actual del SVG. En superficies se admite ese pequeño margen junto al borde. La entrada táctil muestra primero el punto y permite ajustarlo o cancelarlo antes de evaluar. Si hay varios elementos puntuales del mismo tipo junto a la selección, se amplía antes de confirmar.
+Las teselas se cargan solo si se ven en pantalla y se solapan un píxel para que no aparezcan costuras.
