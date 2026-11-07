@@ -22,3 +22,72 @@ footer{display:flex;justify-content:space-between;align-items:center;padding:20p
 @media(max-width:760px){main{padding:24px 16px 0}.topbar{padding:0 16px;height:68px}.brand span,.overview{display:none}.header-right{gap:0}.intro{margin-bottom:24px}.intro h1{font-size:37px}.scope-row{display:block}.segmented button{min-width:0;flex:1}.segmented{margin-bottom:12px}.map-selector{margin-top:12px}.modes{grid-template-columns:repeat(3,1fr)}.workspace{display:flex;flex-direction:column}.practice-panel{border-left:0;border-top:1px solid var(--line)}.map-stage,#map{min-height:280px}.map-heading{padding:16px}.map-tag{font-size:8px}.map-footer{flex-wrap:wrap}.brand{font-size:30px}.subtitle{font-size:12px}h1{letter-spacing:-1px}.running .workspace{height:auto;max-height:none}.running .map-stage{height:360px;flex:none}.has-chips .chips{max-height:300px}.running .practice-panel{max-height:800px}}
 
 .confirm-option{display:flex;align-items:center;gap:8px;font-size:11px;color:var(--muted);margin-top:14px}.confirm-option input{width:17px;height:17px;accent-color:var(--green);margin:0}#location-confirm{position:absolute;left:12px;top:12px;z-index:4;display:flex;align-items:center;gap:8px;flex-wrap:wrap;max-width:calc(100% - 24px);padding:10px;background:var(--white);border:1px solid var(--line);border-radius:8px;box-shadow:0 3px 15px #203b3520}#location-confirm span{font-size:11px;color:var(--muted);flex-basis:100%}#location-confirm button{width:auto;min-height:44px;padding:9px 14px;margin:0;font-size:12px}
+/* Desktop and tablet never scroll: the page is a 100dvh column and the workspace takes
+   whatever height is left. The sidebar scrolls internally if its content needs it.
+   During a session scope and mode rows are locked anyway, so they are hidden and the base
+   selector moves into the map heading (app.js lock()). */
+@media(min-width:761px){
+ html,body{height:100%}
+ body{display:flex;flex-direction:column;overflow:hidden}
+ .topbar{flex:none}
+ main{flex:1;min-height:0;width:100%;box-sizing:border-box;display:flex;flex-direction:column;padding-bottom:0}
+ .intro,#configuration,footer{flex:none}
+ .workspace,.running .workspace{flex:1;min-height:0;height:auto}
+ footer{display:none}
+ .running #configuration{display:none}
+ main{padding-bottom:16px}
+ .running .map-heading{padding:10px 22px}
+ .running #map-kicker,.running #map-tag{display:none}
+ .running #map-title{font-size:20px;margin:0}
+}
+.map-heading .map-selector label{display:none}
+.map-heading .map-selector select{min-width:0;border:1px solid var(--line);border-radius:4px;padding:6px 26px 6px 9px;font-size:11px}
+.lens{position:absolute;z-index:5;border-radius:50%;background:#dce5dd;box-shadow:0 0 0 3px #fffdf8,0 8px 28px #1d322a55;pointer-events:none}
+.lens text{paint-order:stroke;stroke:var(--white);stroke-width:3px;fill:var(--ink);font-weight:600}
+@media(min-width:761px) and (max-height:1000px){
+ .practice-panel h2{font-size:24px}#setup label{margin:10px 0 5px}#setup select{padding-top:7px;padding-bottom:7px}.available{margin:10px 0}.setup-note{display:none}
+ .intro{margin-bottom:14px}.intro .eyebrow,.subtitle{display:none}.intro h1{font-size:34px;margin:0}
+ .overview strong{font-size:26px}
+ main{padding-top:16px}
+ .scope-row{margin-bottom:10px}.modes{margin-bottom:12px}
+}
+.header-right{display:flex;align-items:center;gap:22px}
+@media(min-width:761px) and (max-height:760px){.intro{display:none}.practice-panel{padding-top:18px}}
+#results:not([hidden]){display:flex;flex-direction:column;min-height:100%}
+#results>*{flex-shrink:0}
+@media(min-width:761px){#results:not([hidden]){height:100%;min-height:0}#results .result-list{flex:1 1 auto;min-height:80px;max-height:none;overflow-y:auto}}
+/* Design pass: icon buttons, a visible way out of a session, a findable question point. */
+.i{width:16px;height:16px;flex:none;fill:none;stroke:currentColor;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.focus-button{display:flex;margin-top:8px}
+#game:not([hidden]){display:flex;flex-direction:column;min-height:100%}
+#game .session-controls{flex:1 0 auto;display:flex;flex-direction:column}
+#game .session-controls>#finish{margin-top:auto}
+#finish.finish-button{width:100%;margin-top:auto;padding:11px 14px;border:1px solid #d9c3b6;color:#8a3f26;background:#fffaf5;font-size:12px;font-weight:600}
+#finish.finish-button:hover{background:#fbeee4;border-color:#c99a83}
+.secondary:hover{border-color:#9fb19a;background:#fbfcf7}
+.has-chips .session-controls{flex:none}
+.keyboard-help summary{color:var(--green)}
+.pulse{transform-box:fill-box;transform-origin:center;animation:pulse 1.8s ease-out infinite}
+@keyframes pulse{0%{opacity:.85;transform:scale(.6)}100%{opacity:0;transform:scale(1.6)}}
+@media(prefers-reduced-motion:reduce){.pulse{animation:none;opacity:.5}}
+#configure.home-button{margin-top:12px;padding:11px 14px;font-size:12px;font-weight:600}
+#results .result-list{margin-bottom:12px}
+/* Custom chevron with breathing room instead of the native arrow glued to the edge. */
+select{-webkit-appearance:none;appearance:none;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%23365440' stroke-width='1.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E")!important;background-repeat:no-repeat!important;background-size:11px 7px!important;background-position:right 14px center!important}
+.practice-panel select{padding-right:38px}
+.map-selector select{padding-right:30px;background-position:right 4px center!important}
+.map-heading .map-selector select{padding:7px 34px 7px 11px;background-color:var(--white);background-position:right 12px center!important}
+/* Wrong drop in Mapa mudo: shown where the label was dropped. */
+.map-anchor.wrong .anchor-ring{fill:#f6d9cf;stroke:#b0412a;stroke-width:3}
+.map-anchor.wrong{animation:shake .4s ease-in-out}
+@keyframes shake{0%,100%{transform:translateX(0)}25%{transform:translateX(-3px)}75%{transform:translateX(3px)}}
+.drop-bubble{position:absolute;z-index:6;transform:translate(-50%,calc(-100% - 18px));background:#8a3f26;color:#fffdf8;font-size:12px;line-height:1.35;padding:7px 11px;border-radius:6px;box-shadow:0 4px 14px #3a1c1040;pointer-events:none;white-space:nowrap;animation:bubble 2.2s ease forwards}
+.drop-bubble::after{content:'';position:absolute;left:50%;bottom:-5px;margin-left:-5px;border:5px solid transparent;border-bottom:0;border-top-color:#8a3f26}
+.drop-bubble.soft{background:#4b5f53}.drop-bubble.soft::after{border-top-color:#4b5f53}
+@keyframes bubble{0%{opacity:0;margin-top:6px}10%,80%{opacity:1;margin-top:0}100%{opacity:0}}
+@media(prefers-reduced-motion:reduce){.map-anchor.wrong,.drop-bubble{animation:none}}
+/* Stacked panel actions keep a minimum gap even when the panel is full. */
+#game .session-controls{gap:8px}
+#game .session-controls>*{margin-top:0}
+#game .session-controls>#finish{margin-top:auto}
+#game #feedback:empty{display:none}

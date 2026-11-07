@@ -15,8 +15,12 @@ export function checkAnswer(value,item,pool){
  return {ok:false,kind:'wrong'};
 }
 export function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+// Colour world maps share the Mercator projection of the original planisphere, framed
+// 84N..60S (scripts/mercator.py): 1200 x WORLD_H map units, about 1.47:1.
+const merc=lat=>Math.log(Math.tan(Math.PI/4+lat*Math.PI/360)),MERC_TOP=merc(84);
+export const WORLD_H=(MERC_TOP-merc(-60))/(2*Math.PI)*1200;
 export function project(lon,lat,scope,base){
- if(scope==='world')return base==='original'?[(676+4*lon)/1435*1200,(618-229*Math.log(Math.tan(Math.PI/4+lat*Math.PI/360)))/1022*855]:[(lon+180)/360*1200,(90-lat)/150*500];
+ if(scope==='world')return base==='original'?[(676+4*lon)/1435*1200,(618-229*merc(lat))/1022*855]:[(lon+180)/360*1200,(MERC_TOP-merc(lat))/(2*Math.PI)*1200];
  return [(lon+11)/15.5*1000,(45.5-lat)/10.5*885];
 }
 export function mapPosition(item,base){
@@ -28,6 +32,7 @@ export function mapPosition(item,base){
 const IB_X=[1196.350587,69.667337,-26.393858,-0.100313,-0.066351,0.39109];
 const IB_Y=[3720.280603,-3.102963,-82.105603,-0.345505,0.032024,-0.047331];
 export function originalIberia(lon,lat){const v=[1,lon,lat,lon*lon,lon*lat,lat*lat],dot=c=>c.reduce((s,k,i)=>s+k*v[i],0);return [dot(IB_X)/1057*1000,dot(IB_Y)/753*712.4];}
+export function toMap(lon,lat,scope,base){return scope==='iberia'&&base==='original'?originalIberia(lon,lat):project(lon,lat,scope,base);}
 // Tolerances are evaluated only by Localiza. Other modes use mapPosition.
 export function geometry(item,base){
  const scope=item.scope,center=mapPosition(item,base);
@@ -68,6 +73,7 @@ export function closestAnchor(anchors,p,scale=1){return anchors.map(a=>({a,d:Mat
 export function featureType(item){
  if(item.name==='Rift Valley')return 'valle';
  if(item.name==='Tierra de Fuego')return 'archipiélago';
+ if(item.name==='Picos de Europa')return 'macizo';
  for(const type of ['sierra','sistema','macizo'])if(item.name.toLowerCase().startsWith(type+' '))return type;
  const types={'Cordilleras':'cordillera','Picos':'pico','Mesetas':'meseta','Mares':'mar','Cabos':'cabo','Desiertos':'desierto','Golfos':'golfo'};
  if(item.category==='Llanuras y cuencas')return /cuenca/i.test(item.name)?'cuenca':'llanura';
