@@ -72,8 +72,12 @@ test('hints keep the landform words and mask only what identifies the place',asy
  for(const i of ITEMS)assert.notEqual(hintPattern(i.name),i.name,i.name);
 });
 
-test('places.js is generated from the names in sources/lugares.json with stable ids',async()=>{const {readFileSync}=await import('node:fs');
- const read=f=>JSON.parse(readFileSync(new URL('../sources/'+f,import.meta.url),'utf8'));const lugares=read('lugares.json'),ids=read('ids.json');
- const expected=[];for(const [sk,scope] of [['mundo','world'],['peninsula','iberia']])for(const [group,names] of Object.entries(lugares[sk]))for(const name of names)expected.push({id:ids[`${sk}:${name}`],scope,group,name});
- assert.deepEqual(ITEMS.map(({id,scope,group,name})=>({id,scope,group,name})),expected);
+test('places.js is generated from the names in lugares.json, with unique ids and a Wikidata identity',async()=>{const {readFileSync}=await import('node:fs');
+ const lugares=JSON.parse(readFileSync(new URL('../lugares.json',import.meta.url),'utf8'));
+ const expected=[];for(const [sk,scope] of [['mundo','world'],['peninsula','iberia']])for(const [group,names] of Object.entries(lugares[sk]))for(const e of names)expected.push({scope,group,name:typeof e==='string'?e:e.nombre});
+ assert.deepEqual(ITEMS.map(({scope,group,name})=>({scope,group,name})),expected);
+ assert.equal(new Set(ITEMS.map(i=>i.id)).size,ITEMS.length);
+ for(const i of ITEMS)assert.match(i.wikidata,/^Q\d+$/,i.name);
+ // ids depend on saved progress: the original syllabus keeps w0..w51 and i0..i21 in list order
+ assert.deepEqual(ITEMS.map(i=>i.id),[...Array(52).keys()].map(k=>'w'+k).concat([...Array(22).keys()].map(k=>'i'+k)));
 });

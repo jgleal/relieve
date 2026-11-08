@@ -1,27 +1,25 @@
-"""Build places.js from a list of names (sources/lugares.json).
+"""Build places.js from lugares.json, the list of place names.
 
-For every name:
-  1. Identity: Wikidata search in Spanish (retrying without generic landform words).
-     Results are cached in sources/wikidata-cache.json so builds are reproducible.
-  2. Type (category): from the leading word of the name (Cordillera, Cabo, Golfo...),
-     else from the Wikidata type (mountain, mountain range, cape...).
-  3. Zone for Localiza (not for peaks and capes):
-       correction outline  >  correction Natural Earth names
-       >  Natural Earth feature with the same Wikidata id or Spanish name
-       >  approximate circle around the Wikidata coordinate (flagged for review).
-     Land zones are clipped to the coast, seas and gulfs to the water, Iberian zones to
-     the frame of the original map; all are simplified with the same tolerance.
-  4. Reference point: peaks and capes use their exact coordinate (capes on the original
-     Iberian map are snapped to the drawn coast); other places use the interior point
-     farthest from the edges, excluding the listed places nested inside.
-  5. Accepted short answers: the identifying words of the name, Spanish Wikidata aliases
-     and any extra alias from the corrections.
-Writes places.js, keeps ids stable in sources/ids.json and writes sources/informe.md,
-a review report that says how each place was resolved.
+Each entry in lugares.json is a name, or an object with "nombre" plus optional fields for
+what open data does not resolve (wikidata, tipo, natural_earth, contorno, punto,
+punto_original, radio, alias_extra, alias). For every place:
+  1. Identity: Wikidata search in Spanish, scored by name and type within the scope.
+     The chosen Wikidata id is stored in places.js and reused on the next build, so a
+     place keeps its identity (and its id, on which saved progress depends).
+  2. Type: from the leading word of the name (Cordillera, Cabo, Golfo...), else Wikidata.
+  3. Zone for Localiza (not for peaks and capes): own outline > listed Natural Earth names
+     > Natural Earth feature with the same Wikidata id or Spanish name near the coordinate
+     > approximate circle (flagged). Clipped to the coast (water for seas and gulfs), to the
+     original map frame in Iberia, and simplified with one tolerance per scope.
+  4. Reference point: exact coordinate for peaks and capes (Iberian capes snapped to the
+     coast drawn on the original map); otherwise the interior point farthest from the
+     edges, excluding the listed places nested inside.
+  5. Short answers: the name without its leading landform words, plus alias_extra.
+Prints what needs a look and writes places.js only when every place resolves.
 
 Dev requirements: shapely, numpy, pillow. Data: Natural Earth (public domain) and
-Wikidata (CC0). NE_CACHE=<dir> reuses downloaded Natural Earth files. --refresh ignores
-the Wikidata cache.
+Wikidata (CC0). NE_CACHE=<dir> reuses downloaded Natural Earth files. --refresh searches
+Wikidata again instead of reusing the ids stored in places.js.
 """
 import json, math, os, re, sys, time, unicodedata, urllib.parse, urllib.request
 from pathlib import Path
@@ -32,14 +30,13 @@ from shapely.ops import unary_union, polylabel
 from shapely import affinity
 
 ROOT = Path(__file__).resolve().parents[1]
-SRC = ROOT / 'sources'
 REV = 'ca96624a56bd078437bca8184e78163e5039ad19'
 NE_BASE = f'https://raw.githubusercontent.com/nvkelso/natural-earth-vector/{REV}/geojson/'
 UA = 'relieve-build/1.0 (https://github.com/jgleal/relieve)'
 SCOPES = {'mundo': 'world', 'peninsula': 'iberia'}
 TOLERANCE = {'world': .08, 'iberia': .015}
 MIN_PART = {'world': .05, 'iberia': .0015}
-RADIUS = {('world', 'Picos'): .6, ('world', 'Cabos'): .6, ('iberia', 'Picos'): .12, ('iberia', 'Cabos'): .12}
+RADIUS = {('world', 'Picos'): .25, ('world', 'Cabos'): .25, ('iberia', 'Picos'): .12, ('iberia', 'Cabos'): .12}
 FALLBACK_RADIUS = {'world': 2.0, 'iberia': .3}
 GENERIC = set('gran grande grandes cordillera cordilleras monte montes montana montanas sierra sierras meseta mesetas cuenca cuencas cabo cabos golfo golfos peninsula peninsulas macizo macizos escudo mar mares lago llanura llanuras desierto desiertos valle pico picos sistema sistemas de del la los las el'.split())
 # Leading word of the name -> category used by the app (filters and question wording).
@@ -97,11 +94,8 @@ def wd_entities(qids):
     return out
 
 BBOX = {'iberia': (-12, 34, 6, 46), 'world': (-180, -90, 180, 90)}
-def wikidata(name, cache, scope, pinned=None):
-    """First search hit that is a place with coordinates inside the scope."""
-    key = f'{scope}:{pinned or name}'
-    if key in cache:
-        return cache[key]
+def wikidata(name, scope, pinned=None):
+    """The pinned entity, or the best search hit with coordinates inside the scope."""
     out = None
     if pinned:
         out = dict(wd_entities([pinned])[0], confident=True)
@@ -131,7 +125,6 @@ def wikidata(name, cache, scope, pinned=None):
                 out = dict(best, confident=best_score >= 5)
             if out and out.get('confident'):
                 break
-    cache[key] = out
     time.sleep(.2)
     return out
 
@@ -209,12 +202,16 @@ class Unresolved(Exception):
     pass
 
 def main():
-    lugares = json.loads((SRC / 'lugares.json').read_text())
-    fixes = json.loads((SRC / 'correcciones.json').read_text()) if (SRC / 'correcciones.json').exists() else {}
-    fixes = {k: v for k, v in fixes.items() if not k.startswith('_')}
-    ids = json.loads((SRC / 'ids.json').read_text())
-    cache_path = SRC / 'wikidata-cache.json'
-    cache = {} if '--refresh' in sys.argv else (json.loads(cache_path.read_text()) if cache_path.exists() else {})
+    lugares = json.loads((ROOT / 'lugares.json').read_text())
+    # the previous output keeps each place's id and Wikidata identity
+    out_path = ROOT / 'places.js'
+    previous = json.loads(out_path.read_text().split('PLACES = ', 1)[1].strip().rstrip(';')) if out_path.exists() else []
+    known = {(p['scope'], p['name']): p for p in previous}
+    used = {p['id'] for p in previous}
+    seen = [(SCOPES[k], e if isinstance(e, str) else e['nombre']) for k, gs in lugares.items() if not k.startswith('_') for es in gs.values() for e in es]
+    dup = sorted({n for sc, n in seen if seen.count((sc, n)) > 1})
+    if dup:
+        sys.exit('✗ Nombres repetidos en lugares.json: ' + ', '.join(dup))
     land_all = [shape(f['geometry']) for f in ne('ne_10m_land')]
     frame, to_px = iberia_frame()
     orig = np.asarray(Image.open(ROOT / 'assets/original-iberia.webp').convert('L'))
@@ -225,19 +222,22 @@ def main():
             continue
         scope = SCOPES[skey]
         for group, names in groups.items():
-            for name in names:
+            for entry in names:
+                fix = dict(entry) if isinstance(entry, dict) else {'nombre': entry}
+                name = fix.pop('nombre')
+                prev = known.get((scope, name))
+                if prev:
+                    pid = prev['id']
+                else:
+                    prefix = 'w' if scope == 'world' else 'i'
+                    pid = f"{prefix}{max((int(u[1:]) for u in used if u[0] == prefix), default=-1) + 1}"
+                    used.add(pid)
                 try:
-                    fix = {**fixes.get(name, {}), **fixes.get(f'{skey}:{name}', {})}
-                    key = f'{skey}:{name}'
-                    if key not in ids:
-                        prefix = 'w' if scope == 'world' else 'i'
-                        used = {int(v[1:]) for k, v in ids.items() if not k.startswith('_') and v.startswith(prefix)}
-                        ids[key] = f'{prefix}{max(used, default=-1) + 1}'
-                    pid = ids[key]
-                    wd = wikidata(name, cache, scope, fix.get('wikidata'))
+                    reuse = prev and prev.get('wikidata') and '--refresh' not in sys.argv
+                    wd = wikidata(name, scope, fix.get('wikidata') or (prev['wikidata'] if reuse else None))
                     cat, cat_src = category(name, wd, fix)
                     notes = []
-                    item = {'id': pid, 'scope': scope, 'name': name, 'group': group, 'category': cat}
+                    item = {'id': pid, 'scope': scope, 'name': name, 'group': group, 'category': cat, 'wikidata': wd and wd['qid']}
                     # zone
                     zone_src = None
                     if cat not in POINT_ONLY:
@@ -253,7 +253,7 @@ def main():
                                 k = math.cos(math.radians(wd['coord'][1]))
                                 geom = affinity.scale(Point(wd['coord']).buffer(FALLBACK_RADIUS[scope], 32), xfact=1 / k)
                                 zone_src = '⚠ aproximada: círculo alrededor de la coordenada de Wikidata'
-                                notes.append('revisar la zona (añadir natural_earth o contorno en correcciones)')
+                                notes.append('zona aproximada: añade natural_earth o contorno en lugares.json')
                             else:
                                 raise Unresolved('sin zona ni coordenada en Wikidata/Natural Earth')
                         lake = zone_src.startswith('Natural Earth') and all(s.startswith(('lake:', 'marine:Caspian')) for s in zone_src.split(': ', 1)[1].split(', '))
@@ -273,7 +273,7 @@ def main():
                     else:
                         pt = fix.get('punto') or (wd and wd['coord'])
                         if not pt:
-                            raise Unresolved('sin coordenada; añade "punto" en correcciones')
+                            raise Unresolved('sin coordenada; añade "punto" en lugares.json')
                         item['lon'], item['lat'] = pt
                         item['radius'] = fix.get('radio', RADIUS[(scope, cat)])
                         item['polygons'] = None
@@ -301,10 +301,12 @@ def main():
                     item['aliases'] = [norm(a) for a in fix['alias']] if 'alias' in fix else list(dict.fromkeys(aliases))
                     item.setdefault('original', None)
                     places.append(item)
-                    report.append((pid, name, cat, cat_src, wd, zone_src, notes, item['aliases']))
+                    if wd and not wd.get('confident'):
+                        notes.append(f"identidad dudosa: {wd['qid']} {wd.get('label_es') or wd.get('label_en') or ''}")
+                    report.append((pid, name, cat, cat_src, wd, zone_src, notes, item['aliases'], not prev))
                 except Unresolved as e:
                     failed.append(name)
-                    report.append((ids.get(f'{skey}:{name}', '?'), name, '?', '', None, f'✗ {e}', ['añadir corrección'], []))
+                    report.append((pid, name, '?', '', None, f'✗ {e}', ['añade campos en lugares.json'], [], not prev))
     # reference points: pole of inaccessibility, nested listed places excluded
     for item in places:
         if item['polygons'] is None:
@@ -313,22 +315,23 @@ def main():
         nested = [g for k, g in shapes.items() if k != item['id'] and k[0] == item['id'][0] and g.area < geom.area and g.intersection(geom).area > .5 * g.area]
         free = geom.difference(unary_union(nested)) if nested else geom
         item['lon'], item['lat'] = pole(free if not free.is_empty else geom)
-    cache_path.write_text(json.dumps(cache, ensure_ascii=False, indent=1, sort_keys=True) + '\n')
-    (SRC / 'ids.json').write_text(json.dumps(ids, ensure_ascii=False, indent=1) + '\n')
-    fields = ['id', 'scope', 'name', 'group', 'category', 'lon', 'lat', 'aliases', 'radius', 'original', 'polygons']
+    fields = ['id', 'scope', 'name', 'group', 'category', 'wikidata', 'lon', 'lat', 'aliases', 'radius', 'original', 'polygons']
     if not failed:
-     (ROOT / 'places.js').write_text('// Generated by scripts/build_places.py from sources/lugares.json. Do not edit by hand.\n'
-                                     'export const PLACES = ' + json.dumps([{f: p[f] for f in fields} for p in places], ensure_ascii=False, separators=(',', ':')) + ';\n')
-    lines = ['# Informe de lugares', '', 'Generado por `scripts/build_places.py`. ⚠ = conviene revisar.', '',
-             '| id | lugar | tipo | Wikidata | zona y punto | respuestas cortas |', '|---|---|---|---|---|---|']
-    for pid, name, cat, cat_src, wd, zone_src, notes, aliases in report:
-        w = (f"{wd['qid']} {wd.get('label_es') or wd.get('label_en') or ''}" + ('' if wd.get('confident') else ' ⚠ identidad dudosa')) if wd else '✗ no encontrado'
-        lines.append(f"| {pid} | {name} | {cat} ({cat_src}) | {w} | {zone_src}{' · ' + '; '.join(notes) if notes else ''} | {', '.join(aliases)} |")
-    (SRC / 'informe.md').write_text('\n'.join(lines) + '\n')
+        out_path.write_text('// Generated by scripts/build_places.py from lugares.json. Do not edit by hand.\n'
+                            'export const PLACES = ' + json.dumps([{f: p[f] for f in fields} for p in places], ensure_ascii=False, separators=(',', ':')) + ';\n')
+    # report: new places and anything worth a look; --todo prints every place
+    for pid, name, cat, cat_src, wd, zone_src, notes, aliases, new in report:
+        if new or notes or '--todo' in sys.argv:
+            w = f"{wd['qid']} {wd.get('label_es') or wd.get('label_en') or ''}" if wd else '✗ no encontrado'
+            print(f"{'⚠' if notes else '+' if new else ' '} {pid:<4} {name} · {cat} ({cat_src}) · {w} · {zone_src}"
+                  + (f" · respuestas: {', '.join(aliases)}" if aliases else '') + (''.join(f'\n         ⚠ {n}' for n in notes)))
+    gone = [p['name'] for p in previous if (p['scope'], p['name']) not in {(x['scope'], x['name']) for x in places}]
+    if gone:
+        print('− quitados: ' + ', '.join(gone))
     warn = sum(1 for r in report if r[6])
-    print(f'{len(places)} lugares · {warn} para revisar · informe en sources/informe.md')
+    print(f'{len(places)} lugares · {warn} para revisar')
     if failed:
-        sys.exit(f'✗ Sin resolver ({len(failed)}): ' + ', '.join(failed) + '. places.js no se ha actualizado; añade correcciones.')
+        sys.exit(f'✗ Sin resolver ({len(failed)}): ' + ', '.join(failed) + '. places.js no se ha actualizado.')
 
 if __name__ == '__main__':
     main()

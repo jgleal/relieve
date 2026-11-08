@@ -138,3 +138,5 @@ select{-webkit-appearance:none;appearance:none;background-image:url("data:image/
 /* About in two columns on wide screens so it fits without scrolling. */
 @media(min-width:761px){#about{max-width:min(1000px,calc(100vw - 48px));column-count:2;column-gap:44px;padding:30px 36px}#about .eyebrow,#about h2,#about h2+p{column-span:all}#about h3{break-after:avoid;margin:16px 0 6px}#about p{margin:0 0 10px}#about h2+p+h3{margin-top:0}#about p{break-inside:avoid}#about h2+p{margin-bottom:14px}}
 @media(min-width:761px) and (max-height:820px){#about{font-size:12.5px;line-height:1.6;padding:24px 32px}}
+/* Explora: the zone checkbox breathes between the place card and the buttons. */
+.study-detail+.confirm-option{margin:12px 0 4px}

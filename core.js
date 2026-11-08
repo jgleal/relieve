@@ -42,7 +42,7 @@ export function geometry(item,base){
  const scope=item.scope,center=mapPosition(item,base);
  const proj=([lon,lat])=>scope==='iberia'&&base==='original'?originalIberia(lon,lat):project(lon,lat,scope,base);
  const a=proj([item.lon,item.lat]),b=proj([item.lon,item.lat+item.radius]);
- return {center,polygons:item.polygons?.map(r=>r.map(proj)),points:item.path?.map(proj),radius:Math.max(scope==='world'?5:10,Math.hypot(b[0]-a[0],b[1]-a[1])),min:scope==='world'?5:10};
+ return {center,polygons:item.polygons?.map(r=>r.map(proj)),points:item.path?.map(proj),radius:Math.hypot(b[0]-a[0],b[1]-a[1]),min:scope==='world'?5:10};
 }
 export function segmentDistance(p,a,b){const dx=b[0]-a[0],dy=b[1]-a[1],t=Math.max(0,Math.min(1,((p[0]-a[0])*dx+(p[1]-a[1])*dy)/(dx*dx+dy*dy||1)));return Math.hypot(p[0]-a[0]-t*dx,p[1]-a[1]-t*dy);}
 export function insidePolygon(p,vertices){let inside=false;for(let i=0,j=vertices.length-1;i<vertices.length;j=i++){const a=vertices[i],b=vertices[j];if(segmentDistance(p,a,b)<.001)return true;if((a[1]>p[1])!==(b[1]>p[1])&&p[0]<(b[0]-a[0])*(p[1]-a[1])/(b[1]-a[1])+a[0])inside=!inside;}return inside;}

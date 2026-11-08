@@ -1,5 +1,5 @@
-import {ITEMS} from './data.js?v=20261107w';
-import {WORLD_H,checkAnswer,shuffle,mapPosition,hit,layoutAnchors,closestAnchor,featureType,anchorChoices,closestZonePoint,missKm,toLonLat,toMap,geometry,hintPattern} from './core.js?v=20261107w';
+import {ITEMS} from './data.js?v=20261108d';
+import {WORLD_H,checkAnswer,shuffle,mapPosition,hit,layoutAnchors,closestAnchor,featureType,anchorChoices,closestZonePoint,missKm,toLonLat,toMap,geometry,hintPattern} from './core.js?v=20261108d';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 // Small line icons shared by panel buttons.
 const ICON={zoom:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.8-4.8M8 10.5h5M10.5 8v5"/></svg>',eye:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>',home:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7M6 9.5V20h12V9.5M10 20v-5h4v5"/></svg>',print:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></svg>',bulb:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/></svg>',exit:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5v16h5M15 8l4 4-4 4M19 12H9"/></svg>'};
@@ -18,7 +18,7 @@ function updateFilters(){
  $('#category').innerHTML='<option value="all">Todos los tipos</option>'+[...new Set(pool().map(i=>i.category))].map(v=>`<option>${v}</option>`).join('');
 }
 function updateSetup(){const n=filtered().length;$('#available').textContent=`${n} ${n===1?'lugar disponible':'lugares disponibles'}${mode==='review'&&n===0?' · No tienes lugares pendientes de repaso en esta selección.':''}`;$('#start').disabled=n===0;$('#count').disabled=['drag','study'].includes(mode);$('#session-title').textContent=descriptions[mode][0];$('#mode-description').textContent=descriptions[mode][1];$('#start').innerHTML=(mode==='study'?'Explorar mapa':'Empezar práctica')+' <span>→</span>';$('#setup-note').textContent=mode==='drag'?'Se incluyen todos los lugares de la selección. Pasa por un ancla para ver su tipo de relieve.':mode==='challenge'?'Cada respuesta se guarda al avanzar. El tiempo es informativo.':mode==='study'?'Consulta los puntos de referencia y aprende antes de practicar.':'Sin prisas. Las tildes y las pequeñas erratas no te frenan.';}
-function setMap(){dims=scope==='world'?(base==='original'?[1200,855]:[1200,WORLD_H]):(base==='original'?[1000,712.4]:[1000,885]);$('#map-image').setAttribute('href',`assets/${base}-${scope}.webp`);$('#map-image').setAttribute('width',dims[0]);$('#map-image').setAttribute('height',dims[1]);$('#map-title').textContent=scope==='world'?'Relieve mundial':'Península Ibérica';$('#map-kicker').textContent=scope==='world'?'PLANISFERIO FÍSICO':'RELIEVE PENINSULAR';$('#map-tag').textContent=base==='original'?'MAPA ORIGINAL':base==='terrain'?'RELIEVE DETALLADO':'NATURAL EARTH';$('#map-credit').textContent=base==='original'?'Mapa original de la ficha':base==='terrain'?'NOAA / NCEI · relieve y batimetría':'Natural Earth · NOAA / NCEI al ampliar';$('#map').setAttribute('aria-label',`Mapa físico ${scope==='world'?'del mundo':'de la Península Ibérica'}. ${descriptions[mode][1]}`);resetView();renderMarks();}
+function setMap(){dims=scope==='world'?(base==='original'?[1200,855]:[1200,WORLD_H]):(base==='original'?[1000,712.4]:[1000,885]);$('#map-image').setAttribute('href',`assets/${base}-${scope}.webp`);$('#map-image').setAttribute('width',dims[0]);$('#map-image').setAttribute('height',dims[1]);$('#map-title').textContent=scope==='world'?'Relieve mundial':'Península Ibérica';$('#map-kicker').textContent=scope==='world'?'PLANISFERIO FÍSICO':'RELIEVE PENINSULAR';$('#map-tag').textContent=base==='original'?'MAPA ORIGINAL':base==='terrain'?'RELIEVE DETALLADO':'NATURAL EARTH';$('#map-credit').textContent=base==='original'?'Mapa original de la ficha':base==='terrain'?'NOAA / NCEI · relieve y batimetría':'Natural Earth II · dominio público';$('#map').setAttribute('aria-label',`Mapa físico ${scope==='world'?'del mundo':'de la Península Ibérica'}. ${descriptions[mode][1]}`);resetView();renderMarks();}
 // Localiza: optionally draw the accepted zone after answering (remembered per browser).
 let showZone=false;try{showZone=localStorage.getItem('relieve-show-zone')==='1';}catch{}
 let pendingPoint=null,confirmLocation=matchMedia('(any-pointer: coarse)').matches;
@@ -26,8 +26,8 @@ function applyView(){ $('#map').setAttribute('viewBox',view.join(' ')); renderMa
 // Keep the overview underneath while visible high-resolution tiles load.
 function renderMapDetail(){
  const layer=$('#map-detail');let html='';
- // Natural Earth is an overview: past 3x it hands over to the detailed relief tiles.
- if((base==='terrain'&&dims[0]/view[2]>1.5)||(base==='natural'&&dims[0]/view[2]>3)){
+ // Each colour base loads its own detail tiles when zoomed; Natural Earth only has them for the world.
+ if((base==='terrain'||(base==='natural'&&scope==='world'))&&dims[0]/view[2]>1.5){
   // Tiles overlap by one screen pixel so anti-aliasing never leaves a light seam.
   const cols=scope==='world'?8:4,rows=scope==='world'?6:4,w=dims[0]/cols,h=dims[1]/rows,seam=1/mapScale();
   // The stage can be taller or wider than the viewBox (aspect 'meet'): cull by what is on screen.
@@ -36,13 +36,13 @@ function renderMapDetail(){
   for(let row=0;row<rows;row++)for(let col=0;col<cols;col++){
    const x=col*w,y=row*h;
    if(x+w<vis[0]||x>vis[0]+vis[2]||y+h<vis[1]||y>vis[1]+vis[3])continue;
-   html+=`<image href="assets/terrain/${scope}/${col}-${row}.webp" x="${x}" y="${y}" width="${w+seam}" height="${h+seam}" preserveAspectRatio="none"/>`;
+   html+=`<image href="assets/${base}/${scope}/${col}-${row}.webp" x="${x}" y="${y}" width="${w+seam}" height="${h+seam}" preserveAspectRatio="none"/>`;
   }
  }
  if(layer.innerHTML!==html)layer.innerHTML=html;
 }
 function resetView(){clearPendingPoint();view=[0,0,...dims];applyView();}
-function maxZoom(){return base==='original'?6:scope==='world'?12:8;}
+function maxZoom(){return base==='original'?6:scope==='world'?12:base==='natural'?3:8;}
 function zoom(factor,center){const cx=center?.[0]??view[0]+view[2]/2,cy=center?.[1]??view[1]+view[3]/2;const w=Math.max(dims[0]/maxZoom(),Math.min(dims[0],view[2]*factor)),h=w*dims[1]/dims[0];view=[cx-(cx-view[0])*w/view[2],cy-(cy-view[1])*h/view[3],w,h];clampView();}
 function clampView(){view[0]=Math.max(0,Math.min(dims[0]-view[2],view[0]));view[1]=Math.max(0,Math.min(dims[1]-view[3],view[1]));applyView();}
 function current(){return session?.items[session.index];}
@@ -93,7 +93,7 @@ function highlightAnchor(p){const target=session&&mode==='drag'?nearestAnchor(p)
 const STATE_COLOR={ok:'#2f7a4f',bad:'#b0412a',none:'#8c958a'};
 function stateOf(i){const v=saved[i.id]?.last;return v===true?'ok':v===false?'bad':'none';}
 function studyMarks(){
- const k=1/mapScale();let html='';
+ const k=1/mapScale();let html=showZone&&selected?zoneSvg(selected):'';
  for(const i of session.items){
   const [x,y]=mapPosition(i,base),covered=session.covered.has(i.id),st=stateOf(i);
   html+=`<g class="study-dot" data-item="${i.id}"><circle cx="${x}" cy="${y}" r="${5.5*k}" fill="${STATE_COLOR[st]}" stroke="#fffdf8" stroke-width="${1.6*k}"/>${session.sheet?`<text class="${covered?'covered':''}" x="${x+8*k}" y="${y+4*k}" font-size="${11*k}" style="stroke-width:${3*k}px" stroke-linejoin="round">${covered?'?':esc(i.name)}</text>`:''}<title>${esc(i.name)}</title></g>`;
@@ -113,7 +113,7 @@ function zoneSvg(item){
  const g=geometry(item,base),k=1/mapScale(),edge=d=>`<path d="${d}" fill="none" stroke="#2b2100" stroke-opacity=".55" stroke-width="${3.5*k}" stroke-linejoin="round"/><path d="${d}" fill="#ffe08a" fill-opacity=".3" stroke="#ffe08a" stroke-width="${1.8*k}" stroke-linejoin="round"/>`;
  if(g.polygons)return `<g class="zone">${g.polygons.map(poly=>edge(`M${poly.map(p=>p.join(' ')).join('L')}Z`)).join('')}</g>`;
  if(g.points){const d=`M${g.points.map(p=>p.join(' ')).join('L')}`;return `<g class="zone"><path d="${d}" fill="none" stroke="#2b2100" stroke-opacity=".35" stroke-width="${2*g.radius+3*k}" stroke-linecap="round" stroke-linejoin="round"/><path d="${d}" fill="none" stroke="#ffe08a" stroke-opacity=".45" stroke-width="${2*g.radius}" stroke-linecap="round" stroke-linejoin="round"/></g>`;}
- const [x,y]=g.center,r=g.radius;return `<g class="zone">${edge(`M${x-r} ${y}a${r} ${r} 0 1 0 ${2*r} 0a${r} ${r} 0 1 0 ${-2*r} 0Z`)}</g>`;
+ const [x,y]=g.center,r=Math.max(g.radius,(session?.minPx||6)*k);return `<g class="zone">${edge(`M${x-r} ${y}a${r} ${r} 0 1 0 ${2*r} 0a${r} ${r} 0 1 0 ${-2*r} 0Z`)}</g>`;
 }
 function renderMarks(){
  $('#anchor-choice')?.remove();$('#anchor-tip')?.remove();let html='';anchors=[];
@@ -144,7 +144,7 @@ function renderGame(){
   html+=`<div class="task-heading"><h2>${mode==='drag'?'Cada nombre, en su lugar.':'Conoce el terreno.'}</h2><p class="muted">${mode==='drag'?'Arrastra al número o selecciona una etiqueta y pulsa su ancla.':'Elige un lugar para verlo en el mapa.'}</p></div><div class="chips" aria-label="Lista de lugares">${session.items.map(i=>`<button class="chip ${selected?.id===i.id?'selected':''} ${session.placed.has(i.id)?'solved':''}" data-item="${i.id}" draggable="false" ${session.placed.has(i.id)?'disabled':''}><span>${esc(i.name)}</span><span class="chip-mark" aria-hidden="true">${session.placed.has(i.id)?'✓ '+(session.anchorItems.findIndex(a=>a.id===i.id)+1):mode==='drag'?'⠿':''}</span></button>`).join('')}</div>`;
   if(mode==='study'){const n={ok:0,bad:0,none:0};session.items.forEach(i=>n[stateOf(i)]++);
    html=html.replace('<div class="chips"',`<div class="legend" aria-label="Tu progreso en el mapa"><span><i style="background:${STATE_COLOR.ok}"></i>Acertados ${n.ok}</span><span><i style="background:${STATE_COLOR.bad}"></i>Fallados ${n.bad}</span><span><i style="background:${STATE_COLOR.none}"></i>Sin intentar ${n.none}</span></div><div class="chips"`);}
-  if(mode==='study')html+=`<div class="study-detail"><strong>${esc(selected?.name||'')}</strong><small>${esc(selected?.group||'')} · ${esc(selected?featureType(selected):'')}</small></div>`;
+  if(mode==='study')html+=`<div class="study-detail"><strong>${esc(selected?.name||'')}</strong><small>${esc(selected?.group||'')} · ${esc(selected?featureType(selected):'')}</small></div><label class="confirm-option"><input type="checkbox" id="show-zone" ${showZone?'checked':''}> Ver la zona del lugar</label>`;
   html+='<div class="session-controls"><div id="feedback" role="status" aria-live="polite"></div>';
   html+=mode==='study'?`<button class="secondary" id="sheet-toggle">${session.sheet?'Ocultar los nombres':'Ver todos los nombres'} ${ICON.eye}</button>${session.sheet?'<div class="action-row"><button class="secondary" id="cover-all">Tapar todos</button><button class="secondary" id="uncover-all">Destapar todos</button></div><p class="sheet-help">Pulsa un nombre o un punto del mapa para taparlo o destaparlo.</p>':''}<button class="secondary" id="focus-place">Acercar al lugar ${ICON.zoom}</button>`:`<button class="secondary" id="reveal">Ver ancla de la etiqueta ${ICON.eye}</button>`;
  }else{
@@ -166,7 +166,7 @@ function renderGame(){
  $('#show-zone')?.addEventListener('change',e=>{showZone=e.target.checked;try{localStorage.setItem('relieve-show-zone',showZone?'1':'0');}catch{}renderMarks();});
  $$('.chip').forEach(b=>{
   let moved=false;
-  b.onclick=()=>{if(!moved)selectItem(b.dataset.item);};
+  b.onclick=()=>{if(moved)return;selectItem(b.dataset.item);if(mode==='study')centerOn(selected);};
   b.onpointerdown=e=>{
    if(mode!=='drag'||e.button!==0||b.disabled)return;
    moved=false;const start=[e.clientX,e.clientY];
@@ -216,6 +216,13 @@ function compactDragImage(name){
 function hintHtml(i){return `<p class="hint-text" id="hint">${ICON.bulb} <span>Pista: <strong>${esc(hintPattern(i.name))}</strong></span></p>`;}
 function showHint(){if(!session||session.answered)return;session.hinted=true;$('#hint').outerHTML=hintHtml(current());$('#answer')?.focus({preventScroll:true});}
 function selectItem(id){selected=session.items.find(i=>i.id===id);session.revealed=false;renderGame();renderMarks();}
+// Explora: picking a place from the list while zoomed glides the map to it, keeping the zoom.
+function centerOn(item){
+ if(!item||dims[0]/view[2]<1.01)return;
+ const [x,y]=mapPosition(item,base),from=[...view],to=[x-view[2]/2,y-view[3]/2],t0=performance.now(),still=matchMedia('(prefers-reduced-motion: reduce)').matches;
+ const step=now=>{const t=still?1:Math.min(1,(now-t0)/280),e=1-(1-t)**3;view=[from[0]+(to[0]-from[0])*e,from[1]+(to[1]-from[1])*e,from[2],from[3]];clampView();if(t<1)requestAnimationFrame(step);};
+ requestAnimationFrame(step);
+}
 function focusPlace(){const i=mode==='study'?selected:current();if(!i)return;const center=mapPosition(i,base),w=dims[0]/Math.min(maxZoom(),scope==='world'?4:2.5);view=[center[0]-w/2,center[1]-w*dims[1]/dims[0]/2,w,w*dims[1]/dims[0]];clampView();}
 function feedback(html,type=''){const el=$('#feedback');if(el){el.className='feedback '+type;el.innerHTML=html;}}
 function submitText(){if(!session||session.answered)return;const value=$('#answer').value.trim();if(!value)return;const result=checkAnswer(value,current(),pool());if(['generic','ambiguous'].includes(result.kind)){feedback(result.kind==='generic'?'Eso indica el tipo de relieve. Añade el nombre que identifica el lugar.':'Ese nombre es ambiguo. Añade una palabra más para identificar el lugar.','warning');return;}answer(result,value);}
@@ -231,7 +238,7 @@ function reveal(){if(mode==='drag'){if(!selected){feedback('Selecciona primero u
   const a=anchors.find(x=>x.item.id===selected.id);if(a){const [x,y]=a.pos,m=view[2]*.08;if(x<view[0]+m||x>view[0]+view[2]-m||y<view[1]+m||y>view[1]+view[3]-m){view=[x-view[2]/2,y-view[3]/2,view[2],view[3]];clampView();}}}else answer({ok:false,kind:'reveal'},'Solución consultada');}
 function next(){session.index++;session.answered=false;session.miss=null;session.hinted=false;cursor=null;$('#cursor').innerHTML='';if(session.index>=session.items.length){finish();return;}resetView();renderGame();renderMarks();}
 function place(p,confirmedId=null,touch=false){if(!session||mode==='study')return;
- if(qmode()==='point'&&!session.answered){const item=current(),ok=hit(item,base,p,(touch?18:6)/mapScale());
+ if(qmode()==='point'&&!session.answered){const item=current(),ok=hit(item,base,p,(touch?18:6)/mapScale());session.minPx=touch?18:6;
   let value='Ubicación correcta';session.miss=null;
   if(!ok){const d=missKm(item,base,p),txt=d<10?'a menos de 10 km':`a ${new Intl.NumberFormat('es-ES').format(Math.round(d/(d<100?5:10))*(d<100?5:10))} km`;session.miss={p,q:closestZonePoint(item,base,p),txt};value=`Te quedaste ${txt}`;}
   answer({ok,kind:'location'},value);return;}
@@ -260,10 +267,16 @@ $$('[data-scope]').forEach(b=>b.onclick=()=>{scope=b.dataset.scope;if(!baseChose
 $('#base').onchange=()=>{const z=dims[0]/view[2],c=toLonLat([view[0]+view[2]/2,view[1]+view[3]/2],scope,base);base=$('#base').value;baseChosen=true;setMap();
  if(z>1.05){const p=toMap(c[0],c[1],scope,base),w=dims[0]/Math.min(z,maxZoom()),h=w*dims[1]/dims[0];view=[p[0]-w/2,p[1]-h/2,w,h];clampView();}};$('#group').onchange=updateSetup;$('#category').onchange=updateSetup;$('#start').onclick=start;
 $('#zoom-in').onclick=()=>zoom(.7);$('#zoom-out').onclick=()=>zoom(1/.7);$('#zoom-reset').onclick=resetView;
-const svg=$('#map');svg.addEventListener('pointerleave',()=>{if($('#anchor-tip'))$('#anchor-tip').hidden=true;});svg.addEventListener('wheel',e=>{e.preventDefault();zoom(e.deltaY>0?1.15:1/1.15,mapPoint(e));},{passive:false});
+const svg=$('#map');svg.addEventListener('pointerleave',()=>{if($('#anchor-tip'))$('#anchor-tip').hidden=true;});svg.addEventListener('wheel',e=>{e.preventDefault();const d=e.deltaMode===1?e.deltaY*33:e.deltaY;zoom(Math.min(1.4,Math.max(1/1.4,Math.exp(d*(e.ctrlKey?.01:.0015)))),mapPoint(e));},{passive:false});
 let suppressClick=false,tap=null;
 // Click and drag pans the map (mouse or finger); a short press without moving is still a click.
+// Two fingers: pinch to zoom around the fingers and move with them; it never counts as a tap.
+const touches=new Map();let pinch=null;
+const pinchState=()=>{const [a,b]=[...touches.values()];return {d:Math.max(1,Math.hypot(a[0]-b[0],a[1]-b[1])),m:[(a[0]+b[0])/2,(a[1]+b[1])/2]};};
 svg.addEventListener('pointerdown',e=>{
+ if(e.pointerType==='touch'){touches.set(e.pointerId,[e.clientX,e.clientY]);
+  if(touches.size===2){pinch=pinchState();draggingPan=null;suppressClick=true;if(tap)tap.moved=true;for(const id of touches.keys())try{svg.setPointerCapture(id);}catch{}svg.classList.add('panning');return;}
+  if(touches.size>2)return;}
  tap={x:e.clientX,y:e.clientY,touch:e.pointerType==='touch',moved:false};
  if(e.button!==0&&e.button!==1)return;
  draggingPan={x:e.clientX,y:e.clientY,view:[...view],id:e.pointerId,active:false};
@@ -271,13 +284,17 @@ svg.addEventListener('pointerdown',e=>{
 });
 function startPan(){draggingPan.active=true;suppressClick=true;svg.setPointerCapture(draggingPan.id);svg.classList.add('panning');}
 svg.addEventListener('pointermove',e=>{
+ if(touches.has(e.pointerId))touches.set(e.pointerId,[e.clientX,e.clientY]);
+ if(pinch&&touches.size>=2){const now=pinchState();zoom(pinch.d/now.d,mapPoint({clientX:now.m[0],clientY:now.m[1]}));
+  const s=svg.getScreenCTM();view=[view[0]-(now.m[0]-pinch.m[0])/s.a,view[1]-(now.m[1]-pinch.m[1])/s.d,view[2],view[3]];clampView();pinch=now;return;}
  if(tap&&Math.hypot(e.clientX-tap.x,e.clientY-tap.y)>10)tap.moved=true;
  if(draggingPan&&!draggingPan.active&&Math.hypot(e.clientX-draggingPan.x,e.clientY-draggingPan.y)>6&&dims[0]/view[2]>1.01)startPan();
  if(!draggingPan?.active){highlightAnchor(mapPoint(e));return;}
  const s=svg.getScreenCTM();view=[draggingPan.view[0]-(e.clientX-draggingPan.x)/s.a,draggingPan.view[1]-(e.clientY-draggingPan.y)/s.d,view[2],view[3]];clampView();
 });
-svg.addEventListener('pointerup',()=>{draggingPan=null;svg.classList.remove('panning');setTimeout(()=>suppressClick=false,0);});
-svg.addEventListener('pointercancel',()=>{tap=null;draggingPan=null;svg.classList.remove('panning');});
+const endTouch=e=>{touches.delete(e.pointerId);if(pinch&&touches.size<2){pinch=null;if(tap)tap.moved=true;}};
+svg.addEventListener('pointerup',e=>{endTouch(e);draggingPan=null;svg.classList.remove('panning');setTimeout(()=>suppressClick=false,0);});
+svg.addEventListener('pointercancel',e=>{endTouch(e);tap=null;draggingPan=null;svg.classList.remove('panning');});
 svg.addEventListener('click',e=>{
  if(suppressClick||e.shiftKey||tap?.moved)return;
  const touch=e.pointerType==='touch'||tap?.touch,p=mapPoint(e);tap=null;
@@ -321,3 +338,5 @@ $('#sources').onclick=()=>$('#about').showModal();$('#about .close').onclick=()=
 $('#reset-progress').onclick=()=>{if(confirm('¿Borrar todos los aciertos y fallos guardados en este navegador?')){saved={};try{localStorage.removeItem('relieve-progress-v1');}catch{}updateStats();if(!session)updateSetup();}};
 new ResizeObserver(()=>{renderMapDetail();renderMarks();}).observe($('#map-stage'));
 $('#base').value=base;updateFilters();updateSetup();updateStats();setMap();$$('[data-mode],[data-scope]').forEach(b=>b.setAttribute('aria-pressed',b.classList.contains('active')));
+// Touch screens: the zoom hint mentions pinching instead of the wheel.
+if(matchMedia('(pointer: coarse)').matches&&$('#map-help'))$('#map-help').textContent='Pellizca o usa +/− para ampliar · Arrastra para moverte';
