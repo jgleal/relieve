@@ -4,7 +4,7 @@ import {ITEMS} from '../data.js';
 import {checkAnswer,geometry,hit,shuffle} from '../core.js';
 const ib=ITEMS.filter(i=>i.scope==='iberia'),world=ITEMS.filter(i=>i.scope==='world');
 const named=(name,pool=ib)=>pool.find(i=>i.name===name);
-test('complete syllabus with unique IDs and no duplicated Nao',()=>{assert.equal(world.length,52);assert.equal(ib.length,22);assert.equal(new Set(ITEMS.map(i=>i.id)).size,74);assert.equal(ib.filter(i=>i.name==='Cabo de la Nao').length,1);});
+test('complete syllabus with unique IDs and no duplicated Nao',()=>{assert.equal(world.length,52);assert.equal(ib.length,23);assert.equal(new Set(ITEMS.map(i=>i.id)).size,75);assert.equal(ib.filter(i=>i.name==='Cabo de la Nao').length,1);});
 test('canonical names, accents, case and meaningful abbreviations',()=>{const i=named('Cordillera Bética');assert.deepEqual(checkAnswer('CORDILLERA BETICA',i,ib),{ok:true,kind:'exact'});assert.deepEqual(checkAnswer('bética',i,ib),{ok:true,kind:'short'});assert.equal(checkAnswer('beticas',i,ib).ok,true);assert.equal(checkAnswer('cordillera',i,ib).ok,false);assert.equal(checkAnswer('cantabrica',i,ib).ok,false);});
 test('small typo accepted but wrong nearby names not accepted',()=>{assert.equal(checkAnswer('Guadarrma',named('Sierra de Guadarrama'),ib).kind,'typo');assert.equal(checkAnswer('Gredos',named('Sierra de Guadarrama'),ib).ok,false);assert.equal(checkAnswer('',ib[0],ib).ok,false);});
 test('ambiguous abbreviations and distinct places are rejected',()=>{assert.equal(checkAnswer('victoria',named('Gran Desierto Victoria',world),world).kind,'ambiguous');assert.equal(checkAnswer('siberia',named('Gran Meseta de Siberia Central',world),world).ok,false);assert.equal(checkAnswer('alpes',named('Alpes del Sur',world),world).ok,false);});
@@ -78,6 +78,9 @@ test('places.js is generated from the names in lugares.json, with unique ids and
  assert.deepEqual(ITEMS.map(({scope,group,name})=>({scope,group,name})),expected);
  assert.equal(new Set(ITEMS.map(i=>i.id)).size,ITEMS.length);
  for(const i of ITEMS)assert.match(i.wikidata,/^Q\d+$/,i.name);
- // ids depend on saved progress: the original syllabus keeps w0..w51 and i0..i21 in list order
- assert.deepEqual(ITEMS.map(i=>i.id),[...Array(52).keys()].map(k=>'w'+k).concat([...Array(22).keys()].map(k=>'i'+k)));
+ // ids depend on saved progress: the original syllabus keeps w0..w51 and i0..i21 in list order,
+ // and later additions take the next free number wherever they sit in the list.
+ const added={'Cabo de Palos':'i22'};
+ assert.deepEqual(ITEMS.filter(i=>!added[i.name]).map(i=>i.id),[...Array(52).keys()].map(k=>'w'+k).concat([...Array(22).keys()].map(k=>'i'+k)));
+ for(const [name,id] of Object.entries(added))assert.equal(ITEMS.find(i=>i.name===name).id,id);
 });

@@ -270,6 +270,8 @@ def main():
                         shapes[pid] = MultiPolygon(keep) if len(keep) > 1 else keep[0]
                         item['polygons'] = [[[round(x, 4), round(y, 4)] for x, y in p.exterior.coords[:-1]] for p in keep]
                         item['radius'] = .3 if scope == 'world' else .1
+                        if fix.get('punto'):
+                            item['_punto'] = fix['punto']
                     else:
                         pt = fix.get('punto') or (wd and wd['coord'])
                         if not pt:
@@ -312,6 +314,13 @@ def main():
         if item['polygons'] is None:
             continue
         geom = shapes[item['id']]
+        if '_punto' in item:
+            # a hand-picked reference point, e.g. where the worksheet writes the name
+            pt = item.pop('_punto')
+            if not geom.contains(Point(*pt)):
+                raise SystemExit(f"{item['name']}: el punto {pt} cae fuera de su zona")
+            item['lon'], item['lat'] = pt
+            continue
         nested = [g for k, g in shapes.items() if k != item['id'] and k[0] == item['id'][0] and g.area < geom.area and g.intersection(geom).area > .5 * g.area]
         free = geom.difference(unary_union(nested)) if nested else geom
         item['lon'], item['lat'] = pole(free if not free.is_empty else geom)

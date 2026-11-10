@@ -1,6 +1,6 @@
 # Relieve
 
-Práctica de geografía física para tablet y ordenador: **52 elementos del relieve mundial** y **22 de la Península Ibérica**, basados en la ficha «Taller 2. Geografía Física. Relieve».
+Práctica de geografía física para tablet y ordenador: **52 elementos del relieve mundial** y **23 de la Península Ibérica**, basados en la ficha «Taller 2. Geografía Física. Relieve».
 
 **Web:** https://jgleal.github.io/relieve/
 
@@ -16,7 +16,7 @@ Los datos son dos ficheros: [`lugares.json`](lugares.json), la lista de nombres 
   - La pista hace latir el ancla correcta y desplaza el mapa hasta ella si está fuera de la vista.
 - **Reto:** escribe los nombres y consulta la corrección al terminar.
 - **Repasa fallos:** vuelve sobre lo fallado, en el mismo tipo de juego en que se falló. Lo fallado en Localiza o Mapa mudo se señala en el mapa y lo demás se escribe. Un acierto posterior sin ayuda lo retira del repaso.
-- **Explora:** consulta nombres y puntos sin puntuación. Cada punto se colorea según tu progreso (acertado, fallado, sin intentar). Con «Ver la zona del lugar» se dibuja la zona del lugar elegido. Si el mapa está ampliado, al elegir un lugar de la lista el mapa se centra en él. «Ver todos los nombres» convierte el mapa en una hoja de estudio: pulsa un nombre o un punto para taparlo o destaparlo, o tápalos todos y ve descubriéndolos.
+- **Explora:** consulta nombres y puntos sin puntuación. Cada punto se colorea según tu progreso (acertado, fallado, sin intentar). Con «Ver la zona del lugar» se dibuja la zona del lugar elegido, y con «Ver la corrección de la ficha» el mapa original pasa a mostrar la ficha corregida. Si el mapa está ampliado, al elegir un lugar de la lista el mapa se centra en él. «Ver todos los nombres» convierte el mapa en una hoja de estudio: pulsa un nombre o un punto para taparlo o destaparlo, o tápalos todos y ve descubriéndolos.
 - **Ficha para imprimir:** genera una ficha sobre el mapa original con 10, 15, 20 o todos los lugares de la selección, elegidos al azar. Lleva líneas para responder, y opcionalmente la lista de nombres y una hoja de soluciones. Se imprime o se guarda como PDF desde el navegador.
 
 Se puede filtrar por continente y tipo de relieve, y cambiar de mapa (relieve detallado, Natural Earth o el original de la ficha) incluso en mitad de una sesión, conservando la zona y el zoom. Al terminar una ronda, los resultados ofrecen repasar los fallos o volver al inicio.
@@ -93,7 +93,7 @@ Cuando las fuentes abiertas no bastan, en lugar del nombre se pone un objeto con
 | `tipo` | Fuerza el tipo de relieve |
 | `natural_earth` | Regiones de Natural Earth que forman la zona (con `lake:` o `marine:` para lagos y mares) |
 | `contorno` | Polígono propio en `[lon, lat]`, para lugares sin zona en ninguna fuente |
-| `punto`, `punto_original` | Coordenada del punto de referencia, o píxel en el mapa original peninsular |
+| `punto`, `punto_original` | Coordenada del punto de referencia (en un lugar con zona sustituye al calculado y debe caer dentro), o píxel en el mapa original peninsular |
 | `radio` | Radio de acierto de un pico o cabo |
 | `alias_extra` | Sinónimos aceptados además de los automáticos (Hoggar, Fisterra…) |
 | `alias` | Sustituye por completo las respuestas cortas |
@@ -130,6 +130,7 @@ GitHub Pages publica la raíz de la rama `main` y cada push actualiza la web. Pa
 
 ## Mapas y fuentes
 
+- **Ficha corregida:** «Taller 2_Geografía Física_Relieve_mapas corregidos.pdf» trae los mismos mapas con la corrección encima. `assets/corrected-*.webp` son esos mapas con el mismo encuadre que `original-*.webp` (alineados con un desfase inferior a 0,3 píxeles) y al doble de resolución, para que la letra pequeña se lea al ampliar. Por eso comparten las coordenadas del mapa original. La ficha corregida lista dos veces el Cabo de la Nao, igual que la original, pero su mapa marca el Cabo de Palos, que se ha añadido.
 - **Ficha original:** de «Taller 2_Geografía Física_Relieve.pdf» se han recortado y orientado sus dos mapas. No se publica el PDF. Se conserva su nomenclatura: «Cabo Verde» es el cabo de Senegal, no el archipiélago, y los «Alpes del Sur» son los de Nueva Zelanda. Los derechos de esos mapas corresponden a sus autores.
 - **Relieve detallado:** [NOAA / NCEI DEM Global Mosaic](https://gis.ngdc.noaa.gov/arcgis/rest/services/DEM_mosaics/DEM_global_mosaic_hillshade/ImageServer), que incluye [ETOPO 2022](https://www.ncei.noaa.gov/products/etopo-global-relief-model). Vista general más teselas de detalle que se cargan al ampliar: 14.400 × 9.776 píxeles el mundo (8 × 6 teselas) y 4.000 × 3.540 la Península.
 - **Natural Earth:** [Natural Earth II](https://www.naturalearthdata.com/downloads/10m-raster-data/10m-natural-earth-2/) 1:10m en alta resolución, dominio público. En el mundo tiene sus propias teselas de detalle (`scripts/natural.py`), con la misma rejilla y resolución que el relieve.
