@@ -165,14 +165,21 @@ function renderGame(){
  $('#hint')?.addEventListener('click',showHint);
  $('#show-zone')?.addEventListener('change',e=>{showZone=e.target.checked;try{localStorage.setItem('relieve-show-zone',showZone?'1':'0');}catch{}renderMarks();});
  $$('.chip').forEach(b=>{
-  let moved=false;
+  // Touch: a vertical swipe scrolls the list (touch-action:pan-y); a sideways move or a
+  // long press picks the label up, and from then on touchmove is cancelled so the list stays put.
+  let moved=false,armed=false,start=null,pressTimer=null;
+  const leans=(x,y)=>{const dx=Math.abs(x-start[0]),dy=Math.abs(y-start[1]);return Math.hypot(dx,dy)>=5&&(armed||dx>dy);};
+  b.addEventListener('touchmove',ev=>{if(start&&ev.cancelable&&(moved||armed||leans(ev.touches[0].clientX,ev.touches[0].clientY)))ev.preventDefault();},{passive:false});
   b.onclick=()=>{if(moved)return;selectItem(b.dataset.item);if(mode==='study')centerOn(selected);};
   b.onpointerdown=e=>{
    if(mode!=='drag'||e.button!==0||b.disabled)return;
-   moved=false;const start=[e.clientX,e.clientY];
+   moved=false;start=[e.clientX,e.clientY];armed=e.pointerType==='mouse';clearTimeout(pressTimer);
+   if(!armed)pressTimer=setTimeout(()=>{armed=true;b.classList.add('press-ready');},300);
    b.setPointerCapture(e.pointerId);
    b.onpointermove=event=>{
     if(!moved&&Math.hypot(event.clientX-start[0],event.clientY-start[1])<5)return;
+    if(!moved&&!armed)clearTimeout(pressTimer);
+    if(!moved&&!leans(event.clientX,event.clientY))return;
     if(!moved){
      moved=true;selected=session.items.find(i=>i.id===b.dataset.item);session.revealed=false;
      dragPreview=compactDragImage(selected.name);dragPreview.className='drag-preview';
@@ -187,8 +194,9 @@ function renderGame(){
    };
    const end=(event,cancel=false)=>{
     b.onpointermove=null;b.onpointerup=null;b.onpointercancel=null;
+    clearTimeout(pressTimer);start=null;armed=false;
     if(b.hasPointerCapture(e.pointerId))b.releasePointerCapture(e.pointerId);
-    dragPreview?.remove();dragPreview=null;b.classList.remove('drag-source');
+    dragPreview?.remove();dragPreview=null;b.classList.remove('drag-source','press-ready');
     $$('#marks .hovered').forEach(g=>g.classList.remove('hovered'));
     if(lens&&inLens(event)){const a=lensAnchor(event),p=lensMapPoint(event);closeLens();if(moved&&!cancel){if(a)place(p,a.item.id);else feedback(`Suelta la etiqueta sobre un ancla. Busca <strong>${esc(selected.name)}</strong>.`,'warning');}return;}
     closeLens();
