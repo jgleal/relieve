@@ -1,5 +1,5 @@
-import {ITEMS} from './data.js?v=20261110a';
-import {WORLD_H,checkAnswer,shuffle,mapPosition,hit,layoutAnchors,closestAnchor,featureType,anchorChoices,closestZonePoint,missKm,toLonLat,toMap,geometry,hintPattern} from './core.js?v=20261110a';
+import {ITEMS} from './data.js?v=20261112a';
+import {WORLD_H,checkAnswer,shuffle,mapPosition,hit,layoutAnchors,closestAnchor,featureType,anchorChoices,closestZonePoint,missKm,toLonLat,toMap,geometry,hintPattern} from './core.js?v=20261112a';
 const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
 // Small line icons shared by panel buttons.
 const ICON={zoom:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="m20 20-4.8-4.8M8 10.5h5M10.5 8v5"/></svg>',eye:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>',home:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 11 12 4l8 7M6 9.5V20h12V9.5M10 20v-5h4v5"/></svg>',print:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 9V3h10v6M7 17H4v-7h16v7h-3M7 14h10v7H7z"/></svg>',bulb:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.5 10.9c.6.5 1 1.2 1 2.1h5c0-.9.4-1.6 1-2.1A6 6 0 0 0 12 3Z"/></svg>',exit:'<svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M10 4H5v16h5M15 8l4 4-4 4M19 12H9"/></svg>'};
